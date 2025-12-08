@@ -1,0 +1,30 @@
+@use './01_figma' as fig;
+
+:root {
+  /* ========= Brand ========= */
+  --brand-primary: #{fig.$figma-accent-violet-primary};
+  --brand-secondary: #{fig.$figma-accent-violet-secondary};
+  --brand-dark: #{fig.$figma-accent-violet-dark};
+  --brand-dark-60: #{fig.$figma-accent-violet-dark-60};
+  --brand-violet-white: #{fig.$figma-accent-violet-white};
+
+  /* ========= Text ========= */
+  --text-brand: var(--brand-primary);
+
+  --text-primary: #{fig.$figma-text-black};
+  --text-secondary: #{fig.$figma-text-gray};
+  --text-inverse: #{fig.$figma-white};
+
+  --text-state-disabled: #{fig.$figma-gray-tone-gray-dark};
+  --text-state-error: #{fig.$figma-system-red};
+
+  /* ========= Surface / Background ========= */
+  --surface-brand: var(--brand-primary);
+  --surface-base: #{fig.$figma-white};
+  --surface-muted: #{fig.$figma-gray-main-light};
+  --surface-disabled: #{fig.$figma-gray-tone};
+
+  /* ========= Border ========= */
+  --border-brand: var(--brand-primary);
+  --border-state-error: #{fig.$figma-system-red};
+}
