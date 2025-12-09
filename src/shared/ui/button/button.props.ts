@@ -7,7 +7,7 @@ type AppearanceMap = {
 
 export type ButtonVariant = keyof AppearanceMap;
 
-export type ButtonAppearance<V extends ButtonVariant> = AppearanceMap[V][number];
+type ButtonAppearance<V extends ButtonVariant> = AppearanceMap[V][number];
 
 export type ButtonProps<V extends ButtonVariant> = ButtonHTMLAttributes<HTMLButtonElement> & {
   label: string;
