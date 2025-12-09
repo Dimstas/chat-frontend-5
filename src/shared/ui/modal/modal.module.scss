@@ -1,0 +1,51 @@
+@use '../../styles/02_tokens' as *;
+@use '../../styles/03_mixins' as mixins;
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  @include mixins.flex-box(center, center);
+  z-index: 1;
+}
+
+.modal {
+  background-color: var(--surface-base);
+  border-radius: 0.8rem;
+  max-width: 40rem;
+  width: 40rem;
+  padding: 2.4rem;
+  position: relative;
+  gap: 2rem;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  color: var(--text-primary);
+}
+
+.content {
+  font-family:
+    Roboto,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 1.6rem;
+  line-height: 130%;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  margin-top: 0rem;
+}
+
+.buttonContainer {
+  @include mixins.flex-box(row, flex-end);
+  gap: 0.8rem;
+  height: 3.2rem;
+}
