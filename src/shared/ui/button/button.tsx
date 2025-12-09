@@ -33,6 +33,7 @@ export const ButtonUI = <V extends ButtonVariant>({
   ...props
 }: ButtonProps<V>): JSX.Element => {
   const mode = variant === 'general' ? 'btnGeneral' : 'btnModal';
+
   return (
     <button className={clsx(styles[mode], styles[appearance])} {...props}>
       {label}
