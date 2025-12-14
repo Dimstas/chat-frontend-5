@@ -20,6 +20,8 @@
     ],
     "baseUrl": "src",
     "paths": {
+      "layouts/*": ["layouts/*"],
+      "modules/*": ["modules/*"],
       "shared/styles/*": ["shared/styles/*"],
       "shared/ui/*": ["shared/ui/*"]
     }
