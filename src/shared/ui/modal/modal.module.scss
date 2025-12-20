@@ -1,5 +1,4 @@
-@use '../../styles/02_tokens' as *;
-@use '../../styles/03_mixins' as mixins;
+@use 'shared/styles/03_mixins' as mixins;
 
 .backdrop {
   position: fixed;
