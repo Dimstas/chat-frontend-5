@@ -4,12 +4,15 @@
   @include mixins.flex-box($direction: column, $justify: flex-start, $align: center, $gap: 2.4rem);
   height: 100%;
   padding-bottom: 0.4rem;
+  overflow: hidden;
 }
 
 .shell {
   display: flex;
   width: 100%;
+  height: 100%;
   max-width: 120rem;
+  overflow: hidden;
 }
 
 .mainGrid {
@@ -19,4 +22,12 @@
 
   flex: 1;
   min-width: 0;
+
+  height: 100%;
+  overflow: hidden;
+}
+
+.list {
+  height: 100%;
+  overflow: hidden;
 }

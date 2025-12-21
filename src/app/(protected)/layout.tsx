@@ -4,10 +4,18 @@ import { JSX, ReactNode } from 'react';
 import { QueryDevtools } from 'shared/query/query-devtools';
 import { QueryProvider } from 'shared/query/query-provider';
 
-export default function Layout({ children }: { children: ReactNode }): JSX.Element {
+export default function Layout({
+  children,
+  list,
+  info,
+}: {
+  children: ReactNode;
+  list: ReactNode;
+  info: ReactNode;
+}): JSX.Element {
   return (
     <QueryProvider>
-      <ProtectedLayout nav={<Navigation />} list={<div>Список</div>} main={children} info={<></>} />
+      <ProtectedLayout nav={<Navigation />} list={list} main={children} info={info} />
       <QueryDevtools />
     </QueryProvider>
   );
