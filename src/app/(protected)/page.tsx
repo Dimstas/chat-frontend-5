@@ -1,9 +1,6 @@
+import { redirect } from 'next/navigation';
 import { JSX } from 'react';
 
 export default function Home(): JSX.Element {
-  return (
-    <div>
-      <h1>Hello world</h1>
-    </div>
-  );
+  redirect('/contacts');
 }

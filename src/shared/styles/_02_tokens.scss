@@ -21,10 +21,14 @@
   /* ========= Surface / Background ========= */
   --surface-brand: var(--brand-primary);
   --surface-base: #{fig.$figma-white};
-  --surface-muted: #{fig.$figma-gray-main-light};
+  --surface-secondary: #{fig.$figma-gray-main-light};
   --surface-disabled: #{fig.$figma-gray-tone};
+
+  --surface-section: #{fig.$figma-accent-violet-super-light};
 
   /* ========= Border ========= */
   --border-brand: var(--brand-primary);
   --border-state-error: #{fig.$figma-system-red};
+  --border-layout: #{fig.$figma-gray-tone-gray};
+  --border-card-contact: #{fig.$figma-gray-tone};
 }
