@@ -1,9 +1,11 @@
+// src/modules/register/ui/phone-step/phone-step.tsx
 import Image from 'next/image';
-import { JSX, useState } from 'react';
-import { ButtonUI } from 'shared/ui/button';
-import { Modal } from 'shared/ui/modal';
-import { PhoneNumberInput } from './phoneNumberInput/PhoneNumberInput';
-import styles from './phoneStep.module.scss';
+import { JSX } from 'react';
+import { ButtonUI } from 'shared/ui/button'; // Обновите путь
+import { Modal } from 'shared/ui/modal'; // Обновите путь
+import { PhoneNumberInput } from '../../ui/phone-number-input'; // Обновите путь
+import { usePhoneStep } from '../../lib/steps/usePhoneStep'; // Импортируем хук
+import styles from './phone-step.module.scss';
 
 type PhoneStepProps = {
   next: () => void;
@@ -12,37 +14,16 @@ type PhoneStepProps = {
 };
 
 export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirmed }: PhoneStepProps): JSX.Element => {
-  const [isPhoneValid, setIsPhoneValid] = useState<boolean>(false);
-  const [isPhoneFilled, setIsPhoneFilled] = useState<boolean>(false);
-  const [phoneValue, setPhoneValue] = useState<string>('');
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-
-  const handleValidationChange = (isValid: boolean, isFilled: boolean): void => {
-    setIsPhoneValid(isValid);
-    setIsPhoneFilled(isFilled);
-  };
-
-  const handlePhoneChange = (value: string): void => {
-    setPhoneValue(value);
-  };
-
-  const handleNextClick = (): void => {
-    if (isButtonEnabled) {
-      setIsModalOpen(true);
-    }
-  };
-
-  const handleConfirmPhone = (): void => {
-    setIsModalOpen(false);
-    onPhoneConfirmed(phoneValue);
-    next();
-  };
-
-  const handleCloseModal = (): void => {
-    setIsModalOpen(false);
-  };
-
-  const isButtonEnabled = isPhoneFilled && isPhoneValid;
+  const {
+    phoneValue,
+    isButtonEnabled,
+    isModalOpen,
+    handleValidationChange,
+    handlePhoneChange,
+    handleNextClick,
+    handleConfirmPhone,
+    handleCloseModal,
+  } = usePhoneStep({ next, onPhoneConfirmed });
 
   return (
     <>
@@ -59,7 +40,10 @@ export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirm
             />
           </div>
           <h1 className={styles.title}>Вход/регистрация</h1>
-          <PhoneNumberInput onChange={handlePhoneChange} onValidationChange={handleValidationChange} />
+          <PhoneNumberInput
+            onChange={handlePhoneChange}
+            onValidationChange={handleValidationChange}
+          />
         </div>
         <ButtonUI
           variant="general"

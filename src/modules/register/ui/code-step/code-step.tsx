@@ -1,7 +1,10 @@
+// src/modules/register/ui/code-step/code-step.tsx
 import Image from 'next/image';
-import { JSX, useEffect, useRef, useState } from 'react';
-import { CodeInput } from './codeInput/CodeInput';
-import styles from './CodeStep.module.scss';
+import { JSX, useState } from 'react';
+import { CodeInput } from '../code-input'; // Обновите путь
+import { useCodeTimer } from '../../lib/steps/useCodeTimer';
+import { useCodeAutoProceed } from '../../lib/steps/useCodeAutoProceed';
+import styles from './code-step.module.scss';
 
 type CodeStepProps = {
   next: () => void;
@@ -12,63 +15,15 @@ type CodeStepProps = {
 export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }: CodeStepProps): JSX.Element => {
   const [code, setCode] = useState<string[]>(['', '', '', '', '']);
   const [error, setError] = useState<string | undefined>(undefined);
-  const [timeLeft, setTimeLeft] = useState<number>(56);
 
-  useEffect(() => {
-    let timerId: ReturnType<typeof setInterval> | null = null;
+  // Используем хук для таймера
+  const { timeLeft, isTimerActive, handleResendCode } = useCodeTimer(56);
 
-    if (timeLeft > 0) {
-      timerId = setInterval((): void => {
-        setTimeLeft((prevTime) => {
-          const newTime = prevTime - 1;
-          if (newTime <= 0) {
-            if (timerId) {
-              clearInterval(timerId);
-              timerId = null;
-            }
-          }
-          return newTime;
-        });
-      }, 1000);
-    }
-
-    return (): void => {
-      if (timerId) {
-        clearInterval(timerId);
-      }
-    };
-  }, [timeLeft]); // Зависимость: timeLeft
-
-  const handleResendCode = (): void => {
-    console.log('Отправляем новый код...');
-    setTimeLeft(56);
-  };
-
-  const autoProceedTimerRef = useRef<NodeJS.Timeout | null>(null);
-
+  // Проверка, заполнены ли все поля
   const isCodeComplete = code.every((digit) => digit !== '');
 
-  useEffect(() => {
-    if (isCodeComplete) {
-      const timer = setTimeout((): void => {
-        console.log('Код заполнен, автоматический переход через 2 секунды...');
-        next();
-      }, 2000);
-
-      autoProceedTimerRef.current = timer;
-    } else {
-      if (autoProceedTimerRef.current) {
-        clearTimeout(autoProceedTimerRef.current);
-        autoProceedTimerRef.current = null;
-      }
-    }
-
-    return (): void => {
-      if (autoProceedTimerRef.current) {
-        clearTimeout(autoProceedTimerRef.current);
-      }
-    };
-  }, [isCodeComplete, next]);
+  // Используем хук для автоматического перехода
+  useCodeAutoProceed({ isCodeComplete, next });
 
   const handleCodeChange = (newCode: string[]): void => {
     setCode(newCode);
@@ -82,6 +37,7 @@ export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }: CodeSte
     const codeString = code.join('');
     if (codeString.length === 5) {
       if (/^\d{5}$/.test(codeString)) {
+        // next(); // Закомментировано, так как переход теперь происходит в useCodeAutoProceed
       } else {
         setError('Некорректный код');
       }
@@ -89,8 +45,6 @@ export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }: CodeSte
       setError('Пожалуйста, введите 5 цифр');
     }
   };
-
-  const isTimerActive = timeLeft > 0;
 
   return (
     <div className={styles.container}>

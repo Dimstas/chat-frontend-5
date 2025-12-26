@@ -7,8 +7,9 @@
 }
 
 .header {
-  @include mixins.flex-box(row, flex-start, flex-start, 25%);
+  @include mixins.flex-box(row, flex-start, flex-start);
   width: 100%;
+  margin-bottom: 5.5rem;
 }
 
 .content {
@@ -29,14 +30,17 @@
 }
 
 .image {
-  width: 7rem;
+  position: absolute;
+  left: 50%;
+  margin-left: -3.9rem;
+  width: 7.8rem;
   height: 7rem;
   object-fit: contain;
 }
 
 .title {
-  font-size: 2.4rem;
-  margin-bottom: 1.5rem;
+  font-size: 3.2rem;
+  margin-bottom: 2.4rem;
   color: var(--text-primary);
 }
 
@@ -54,18 +58,22 @@
 }
 
 .text {
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   text-align: center;
   margin: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.4rem;
 }
 
 .agreementText {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   color: var(--text-secondary);
   margin-bottom: 1rem;
 }
 
 .link {
   color: var(--brand-primary);
+}
+
+.buttonContainer {
+  width: 100%;
 }

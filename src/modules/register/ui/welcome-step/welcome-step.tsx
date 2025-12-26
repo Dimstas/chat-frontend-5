@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { JSX } from 'react';
 import { ButtonUI } from 'shared/ui/button';
-import styles from './WelcomeStep.module.scss';
+import styles from './welcome-step.module.scss';
 
 type WelcomeStepProps = {
   next: () => void;
@@ -14,8 +14,8 @@ export const WelcomeStep: React.FC<WelcomeStepProps> = ({ next }: WelcomeStepPro
         <Image
           src="/images/register/welcomeLogo.png"
           alt="Добро пожаловать"
-          width={150}
-          height={150}
+          width={179}
+          height={161}
           className={styles.image}
         />
         <h1 className={styles.title}>А-Чат</h1>

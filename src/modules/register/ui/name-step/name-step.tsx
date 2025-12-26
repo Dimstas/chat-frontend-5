@@ -1,8 +1,10 @@
+// src/modules/register/ui/name-step/name-step.tsx
 import Image from 'next/image';
-import { JSX, useState } from 'react';
-import { ButtonUI } from 'shared/ui/button';
-import styles from './NameStep.module.scss';
-import { TextInput } from './textInput/TextInput';
+import { JSX } from 'react';
+import { ButtonUI } from 'shared/ui/button'; // Обновите путь
+import { TextInput } from '../text-input'; // Обновите путь
+import { useNameStep } from '../../lib/steps/useNameStep'; // Импортируем хук
+import styles from './name-step.module.scss';
 
 type NameStepProps = {
   next: () => void;
@@ -10,41 +12,17 @@ type NameStepProps = {
 };
 
 export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps): JSX.Element => {
-  const [firstName, setFirstName] = useState<string>('');
-  const [login, setLogin] = useState<string>('');
-  const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined);
-  const [loginError, setLoginError] = useState<string | undefined>(undefined);
+  const {
+    firstName,
+    login,
+    firstNameError,
+    loginError,
+    isFormValid,
+    handleFirstNameChange,
+    handleLoginChange,
+    handleSubmit,
+  } = useNameStep({ next });
 
-  const handleFirstNameChange = (value: string): void => {
-    setFirstName(value);
-    if (value.trim() !== '' && !/^[a-zA-Zа-яА-ЯёЁ\s\-]+$/.test(value)) {
-      setFirstNameError('Используйте только буквы, пробел или тире');
-    } else if (value.length > 30) {
-      setFirstNameError('Не более 30 символов');
-    } else {
-      setFirstNameError(undefined);
-    }
-  };
-
-  const handleLoginChange = (value: string): void => {
-    setLogin(value);
-    if (value.trim() !== '' && !/^[a-zA-Zа-яА-ЯёЁ0-9_]+$/.test(value)) {
-      setLoginError('Используйте только буквы, цифры и _');
-    } else if (value.length > 30) {
-      setLoginError('Не более 30 символов');
-    } else {
-      setLoginError(undefined);
-    }
-  };
-
-  const isFormValid = firstName.trim() !== '' && login.trim() !== '' && !firstNameError && !loginError;
-
-  const handleSubmit = (e: React.FormEvent): void => {
-    e.preventDefault();
-    if (isFormValid) {
-      next();
-    }
-  };
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -69,7 +47,7 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
             placeholder=""
             value={firstName}
             onChange={handleFirstNameChange}
-            error={firstNameError}
+            error={firstNameError} // Передаём ошибку, которая устанавливается при onChange или submit
             maxLength={30}
           />
           <TextInput
@@ -77,7 +55,7 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
             placeholder=""
             value={login}
             onChange={handleLoginChange}
-            error={loginError}
+            error={loginError} // Передаём ошибку, которая устанавливается при onChange или submit
             maxLength={30}
           />
         </div>
@@ -89,7 +67,13 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
               Пользовательским соглашением
             </a>
           </p>
-          <ButtonUI variant="general" appearance="primary" label={'Зарегистрироваться'} onClick={handleSubmit} />
+          <ButtonUI
+            variant="general"
+            appearance="primary"
+            label={'Зарегистрироваться'}
+            type="submit" // Добавим type="submit", чтобы форма корректно работала
+            disabled={!isFormValid} // Кнопка может быть неактивной, если форма не валидна (поля пустые или есть другие ошибки)
+          />
         </div>
       </form>
     </div>
