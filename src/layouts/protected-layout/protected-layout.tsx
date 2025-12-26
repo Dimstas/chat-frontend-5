@@ -13,9 +13,8 @@ export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps)
           <aside className={styles.nav}>{nav}</aside>
           <aside className={styles.list}>{list}</aside>
           <main className={styles.main}>{main}</main>
+          <div>{info}</div>
         </div>
-
-        {info}
       </div>
     </div>
   );

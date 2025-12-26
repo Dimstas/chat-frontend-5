@@ -1,5 +1,6 @@
 import { ProtectedLayout } from 'layouts/protected-layout';
 import { Navigation } from 'layouts/protected-layout/navigation';
+import { ProfileBlock } from 'modules/conversation/contact-profile';
 import { JSX, ReactNode } from 'react';
 import { QueryDevtools } from 'shared/query/query-devtools';
 import { QueryProvider } from 'shared/query/query-provider';
@@ -15,7 +16,7 @@ export default function Layout({
 }): JSX.Element {
   return (
     <QueryProvider>
-      <ProtectedLayout nav={<Navigation />} list={list} main={children} info={info} />
+      <ProtectedLayout nav={<Navigation />} list={list} main={children} info={<ProfileBlock uid="1" />} />
       <QueryDevtools />
     </QueryProvider>
   );

@@ -1,0 +1,27 @@
+.container {
+  position: relative;
+
+  .imageLabel {
+    position: absolute;
+    padding: 0 14.66px 0 14.66px;
+    bottom: 10px;
+
+    .name {
+      font-weight: 500;
+      font-style: Medium;
+      font-size: 24px;
+      line-height: 130%;
+      letter-spacing: 1%;
+      color: var(--surface-base, #ffffff);
+    }
+
+    .status {
+      font-weight: 400;
+      font-style: Regular;
+      font-size: 18px;
+      line-height: 130%;
+      letter-spacing: 1%;
+      color: var(--surface-base, #ffffff);
+    }
+  }
+}
