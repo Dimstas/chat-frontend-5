@@ -1,24 +1,24 @@
-import { useState, ChangeEvent, FocusEvent } from 'react';
+import { ChangeEvent, FocusEvent, useState } from 'react';
 
-interface UseTextInputLogicReturn {
+type UseTextInputLogicReturn = {
   isFocused: boolean;
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
   handleFocus: (e: FocusEvent<HTMLInputElement>) => void;
   handleBlur: (e: FocusEvent<HTMLInputElement>) => void;
-}
+};
 
-interface UseTextInputLogicOptions {
+type UseTextInputLogicOptions = {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
   maxLength?: number;
-}
+};
 
 export const useTextInputLogic = (options: UseTextInputLogicOptions): UseTextInputLogicReturn => {
-  const { value, onChange, disabled = false, maxLength = 30 } = options;
+  const { onChange, disabled = false, maxLength = 30 } = options;
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     if (disabled) return;
 
     let inputValue = e.target.value;
@@ -28,12 +28,12 @@ export const useTextInputLogic = (options: UseTextInputLogicOptions): UseTextInp
     onChange(inputValue);
   };
 
-  const handleFocus = (e: FocusEvent<HTMLInputElement>) => {
+  const handleFocus: React.FocusEventHandler<HTMLInputElement> = () => {
     if (disabled) return;
     setIsFocused(true);
   };
 
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const handleBlur: React.FocusEventHandler<HTMLInputElement> = () => {
     if (disabled) return;
     setIsFocused(false);
   };

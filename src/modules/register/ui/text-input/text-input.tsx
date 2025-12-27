@@ -21,12 +21,12 @@ export const TextInput = ({
   disabled = false,
   maxLength = 30,
 }: TextInputProps): JSX.Element => {
-  const {
-    isFocused,
-    handleChange,
-    handleFocus,
-    handleBlur,
-  } = useTextInputLogic({ value, onChange, disabled, maxLength });
+  const { isFocused, handleChange, handleFocus, handleBlur } = useTextInputLogic({
+    value,
+    onChange,
+    disabled,
+    maxLength,
+  });
 
   const errorMessage = error;
 

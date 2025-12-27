@@ -16,19 +16,13 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   onChange,
   error,
   disabled = false,
-}): JSX.Element => {
-  const {
-    focusedIndex,
-    handleChange,
-    handleFocus,
-    handleBlur,
-    handleKeyDown,
-    isValid,
-    isComplete,
-  } = useCodeInputLogic({ value, onChange, disabled });
+}: CodeInputProps): JSX.Element => {
+  const { focusedIndex, handleChange, handleFocus, handleBlur, handleKeyDown, isValid, isComplete } = useCodeInputLogic(
+    { value, onChange, disabled },
+  );
 
   let errorMessage = error;
-  if (!errorMessage && value.some(digit => digit && !/^\d$/.test(digit))) {
+  if (!errorMessage && value.some((digit) => digit && !/^\d$/.test(digit))) {
     errorMessage = 'Используйте только цифры';
   }
   if (!errorMessage && isValid === false && isComplete) {

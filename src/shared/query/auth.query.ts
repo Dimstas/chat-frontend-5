@@ -1,12 +1,12 @@
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
 import {
+  checkUniqueName,
   getAuthCode,
   getAuthToken,
   GetCodePayload,
   GetCodeResponse,
   GetTokenPayload,
   GetTokenResponse,
-  checkUniqueName,
   GetUniqueNameCheckResponse,
 } from '../api/auth.api';
 
@@ -28,5 +28,5 @@ export const useCheckUniqueName = (nickname: string): UseQueryResult<GetUniqueNa
     queryFn: () => checkUniqueName(nickname),
     enabled: !!nickname,
     staleTime: 5 * 60 * 1000,
-   });
+  });
 };

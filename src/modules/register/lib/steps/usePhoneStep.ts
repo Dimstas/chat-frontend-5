@@ -1,13 +1,13 @@
-import { useState, useCallback } from 'react';
-import { useGetAuthCode } from 'shared/query/auth.query';
+import { useCallback, useState } from 'react';
 import { GetCodePayload } from 'shared/api/auth.api';
+import { useGetAuthCode } from 'shared/query/auth.query';
 
-interface UsePhoneStepProps {
+type UsePhoneStepProps = {
   next: () => void;
   onPhoneConfirmed: (phone: string) => void;
-}
+};
 
-interface UsePhoneStepReturn {
+type UsePhoneStepReturn = {
   phoneValue: string;
   isButtonEnabled: boolean;
   isModalOpen: boolean;
@@ -18,7 +18,7 @@ interface UsePhoneStepReturn {
   handleNextClick: () => void;
   handleConfirmPhone: () => void;
   handleCloseModal: () => void;
-}
+};
 
 export const usePhoneStep = ({ next, onPhoneConfirmed }: UsePhoneStepProps): UsePhoneStepReturn => {
   const [isPhoneValid, setIsPhoneValid] = useState<boolean>(false);
@@ -49,7 +49,7 @@ export const usePhoneStep = ({ next, onPhoneConfirmed }: UsePhoneStepProps): Use
     if (isPhoneValid && isPhoneFilled) {
       const cleanPhone = phoneValue.replace(/\D/g, '');
       const formattedPhone = cleanPhone.startsWith('7') || cleanPhone.startsWith('8') ? `+${cleanPhone}` : phoneValue;
-      console.log("Отправляемый phoneValue:", formattedPhone);
+      console.log('Отправляемый phoneValue:', formattedPhone);
 
       const payload: GetCodePayload = {
         phone_number: formattedPhone,
@@ -61,11 +61,11 @@ export const usePhoneStep = ({ next, onPhoneConfirmed }: UsePhoneStepProps): Use
           next();
         },
         onError: (error) => {
-          console.error("Ошибка при получении кода:", error);
+          console.error('Ошибка при получении кода:', error);
         },
       });
     } else {
-      console.error("Phone number is not valid or filled when confirming.");
+      console.error('Phone number is not valid or filled when confirming.');
     }
   }, [phoneValue, isPhoneValid, isPhoneFilled, getAuthCode, next, onPhoneConfirmed]);
 

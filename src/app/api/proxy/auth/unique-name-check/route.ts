@@ -10,10 +10,7 @@ export async function GET(req: Request): Promise<Response> {
     const nickname = url.searchParams.get('nickname');
 
     if (!nickname) {
-      return NextResponse.json(
-        { error: 'Nickname is required in query string' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Nickname is required in query string' }, { status: 400 });
     }
 
     // Формируем URL для внешнего бэкенда
@@ -43,12 +40,11 @@ export async function GET(req: Request): Promise<Response> {
     };
 
     return new Response(responseBody, responseInit);
-
   } catch (error) {
     console.error('Error in /api/proxy/auth/unique-name-check (GET):', error);
     return NextResponse.json(
       { error: 'Internal server error during proxy call', details: (error as Error).message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

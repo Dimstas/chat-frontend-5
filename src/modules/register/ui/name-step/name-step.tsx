@@ -1,8 +1,8 @@
 import Image from 'next/image';
 import { JSX } from 'react';
 import { ButtonUI } from 'shared/ui/button';
-import { TextInput } from '../text-input';
 import { useNameStep } from '../../lib/steps/useNameStep';
+import { TextInput } from '../text-input';
 import styles from './name-step.module.scss';
 
 type NameStepProps = {

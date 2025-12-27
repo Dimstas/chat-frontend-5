@@ -16,7 +16,6 @@
   height: 20rem;
 }
 
-
 .textWrapper {
   @include mixins.flex-box($direction: column, $gap: 0.8rem);
 

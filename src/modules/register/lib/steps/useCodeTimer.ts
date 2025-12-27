@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-interface UseCodeTimerReturn {
+type UseCodeTimerReturn = {
   timeLeft: number;
   isTimerActive: boolean;
   handleResendCode: () => void;
-}
+};
 
 export const useCodeTimer = (initialTime: number = 56): UseCodeTimerReturn => {
   const [timeLeft, setTimeLeft] = useState<number>(initialTime);

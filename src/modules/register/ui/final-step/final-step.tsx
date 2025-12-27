@@ -19,9 +19,7 @@ export const FinalStep: React.FC<FinalStepProps> = ({ next }: FinalStepProps): J
           className={styles.image}
         />
         <h1 className={styles.title}>Поздравляем!</h1>
-        <p className={styles.text}>
-           Регистрация прошла успешно!
-        </p>
+        <p className={styles.text}>Регистрация прошла успешно!</p>
       </div>
       <ButtonUI variant="general" appearance="primary" label={'Начать'} onClick={next} />
     </div>

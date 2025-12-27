@@ -1,37 +1,26 @@
-import { JSX } from 'react';
-import styles from './code-step.module.scss';
 import Image from 'next/image';
-import { CodeInput } from '../code-input';
-import { ButtonUI } from 'shared/ui/button';
+import { JSX } from 'react';
 import { useCodeStep } from '../../lib/steps/useCodeStep';
+import { CodeInput } from '../code-input';
+import styles from './code-step.module.scss';
 
-interface CodeStepProps {
+type CodeStepProps = {
   next: () => void;
   prev: () => void;
   phone: string;
-}
+};
 
-export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }): JSX.Element => {
-  const {
-    code,
-    error,
-    timeLeft,
-    isTimerActive,
-    isCodeComplete,
-    isSubmitting,
-    handleCodeChange,
-    handleResendCode,
-  } = useCodeStep({ next, phone });
+export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }: CodeStepProps): JSX.Element => {
+  const { code, error, timeLeft, isTimerActive, isCodeComplete, handleCodeChange, handleResendCode } = useCodeStep({
+    next,
+    phone,
+  });
 
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         <div className={styles.header}>
-          <button
-            className={styles.arrowButton}
-            onClick={prev}
-          >
-          </button>
+          <button className={styles.arrowButton} onClick={prev}></button>
           <Image
             src="/images/register/welcomeLogo.png"
             alt="Добро пожаловать"
@@ -42,29 +31,22 @@ export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }): JSX.El
         </div>
         <h1 className={styles.title}>Подтвердите вход</h1>
 
-        <p className={styles.phoneText}>Код подтверждения отправлен <br/> на следующий номер: <br/> <strong>{phone}</strong></p>
+        <p className={styles.phoneText}>
+          Код подтверждения отправлен <br /> на следующий номер: <br /> <strong>{phone}</strong>
+        </p>
 
         <form onSubmit={(e) => e.preventDefault()} className={styles.codeForm}>
-          <CodeInput
-            label="Введите код"
-            value={code}
-            onChange={handleCodeChange}
-            error={error}
-          />
+          <CodeInput label="Введите код" value={code} onChange={handleCodeChange} error={error} />
           {isTimerActive ? (
             <p className={styles.timerText}>
               Отправить новый код через {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, '0')}
             </p>
           ) : (
-            <button
-              type="button"
-              className={styles.resendButton}
-              onClick={handleResendCode}
-            >
+            <button type="button" className={styles.resendButton} onClick={handleResendCode}>
               Отправить новый код
             </button>
           )}
-           <button
+          <button
             type="submit"
             className={`${styles.supportButton} ${isCodeComplete ? styles.active : ''}`}
             disabled={!isCodeComplete}

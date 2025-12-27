@@ -10,15 +10,11 @@ type PhoneNumberInputProps = {
 export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
   onChange,
   onValidationChange,
-}): JSX.Element => {
-  const {
-    value,
-    error,
-    isFocused,
-    handleChange,
-    handleFocus,
-    handleBlur,
-  } = usePhoneInput({ onChange, onValidationChange });
+}: PhoneNumberInputProps): JSX.Element => {
+  const { value, error, isFocused, handleChange, handleFocus, handleBlur } = usePhoneInput({
+    onChange,
+    onValidationChange,
+  });
 
   let labelText = 'Введите номер телефона';
   if (!isFocused) {

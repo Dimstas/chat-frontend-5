@@ -1,12 +1,10 @@
-
-import { ButtonUI } from 'shared/ui/button';
-import { Modal } from 'shared/ui/modal';
-import { PhoneNumberInput } from '../../ui/phone-number-input';
-import { usePhoneStep } from '../../lib/steps/usePhoneStep';
-import styles from './phone-step.module.scss';
 import Image from 'next/image';
 import { JSX } from 'react';
-
+import { ButtonUI } from 'shared/ui/button';
+import { Modal } from 'shared/ui/modal';
+import { usePhoneStep } from '../../lib/steps/usePhoneStep';
+import { PhoneNumberInput } from '../../ui/phone-number-input';
+import styles from './phone-step.module.scss';
 
 type PhoneStepProps = {
   next: () => void;
@@ -14,12 +12,11 @@ type PhoneStepProps = {
   onPhoneConfirmed: (phone: string) => void;
 };
 
-export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirmed }): JSX.Element => {
+export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirmed }: PhoneStepProps): JSX.Element => {
   const {
     phoneValue,
     isButtonEnabled,
     isModalOpen,
-    isLoading,
     error,
     handleValidationChange,
     handlePhoneChange,
@@ -43,16 +40,13 @@ export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirm
             />
           </div>
           <h1 className={styles.title}>Вход/регистрация</h1>
-          <PhoneNumberInput
-            onChange={handlePhoneChange}
-            onValidationChange={handleValidationChange}
-          />
+          <PhoneNumberInput onChange={handlePhoneChange} onValidationChange={handleValidationChange} />
           {error && <p className={styles.errorText}>{error}</p>}
         </div>
         <ButtonUI
           variant="general"
           appearance={isButtonEnabled ? 'primary' : 'disabled'}
-          label={'Далее'} 
+          label={'Далее'}
           onClick={handleNextClick}
           disabled={!isButtonEnabled}
         />

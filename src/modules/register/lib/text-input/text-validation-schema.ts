@@ -5,16 +5,13 @@ export const nameSchema = z
   .max(30, 'Не более 30 символов')
   .regex(/^[a-zA-Zа-яА-ЯёЁ\s\-]*$/, 'Используйте только буквы, пробел или тире');
 
-
 export const loginSchema = z
   .string()
   .max(30, 'Не более 30 символов')
   .regex(/^[a-zA-Zа-яА-ЯёЁ0-9_]*$/, 'Используйте только буквы, цифры и _');
 
-
 export const validateName = (value: string): { isValid: boolean; error?: string } => {
   if (value === '') {
-   
     return { isValid: true };
   }
 
@@ -35,7 +32,6 @@ export const validateName = (value: string): { isValid: boolean; error?: string 
 
 export const validateLogin = (value: string): { isValid: boolean; error?: string } => {
   if (value === '') {
-   
     return { isValid: true };
   }
 

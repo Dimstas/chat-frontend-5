@@ -2,8 +2,8 @@
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import { JSX, ReactNode } from 'react';
-import '../shared/styles/globals.scss';
 import { QueryProvider } from 'shared/query/query-provider'; // Импортируем ваш QueryProvider
+import '../shared/styles/globals.scss';
 
 const roboto = Roboto({
   variable: '--font-roboto',
@@ -25,7 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={roboto.variable}>
-        <QueryProvider> {/* Оборачиваем children в QueryProvider */}
+        <QueryProvider>
+          {' '}
+          {/* Оборачиваем children в QueryProvider */}
           {children}
         </QueryProvider>
       </body>

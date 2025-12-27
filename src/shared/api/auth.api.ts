@@ -39,10 +39,7 @@ export type GetUniqueNameCheckResponse = {
 export const checkUniqueName = (nickname: string): Promise<GetUniqueNameCheckResponse> => {
   const url = new URL('/api/proxy/auth/unique-name-check', window.location.origin);
   url.searchParams.set('nickname', nickname);
-  return apiFetch<GetUniqueNameCheckResponse>(
-    url.toString(),
-    {
-      method: 'GET',
-    }
-  );
+  return apiFetch<GetUniqueNameCheckResponse>(url.toString(), {
+    method: 'GET',
+  });
 };

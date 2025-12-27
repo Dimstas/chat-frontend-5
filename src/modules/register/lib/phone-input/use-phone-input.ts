@@ -1,8 +1,8 @@
-import { useState, ChangeEvent, FocusEvent } from 'react';
+import { ChangeEvent, FocusEvent, useState } from 'react';
 import { validatePhoneString } from './phone-validation-schema';
 import { usePhoneFormatting } from './use-phone-formatting';
 
-interface UsePhoneInputReturn {
+type UsePhoneInputReturn = {
   value: string;
   error: string | null;
   isFocused: boolean;
@@ -12,12 +12,12 @@ interface UsePhoneInputReturn {
   formattedValue: string;
   isValid: boolean;
   isFilled: boolean;
-}
+};
 
-interface UsePhoneInputOptions {
+type UsePhoneInputOptions = {
   onChange?: (value: string) => void;
   onValidationChange?: (isValid: boolean, isFilled: boolean) => void;
-}
+};
 
 export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInputReturn => {
   const { onChange, onValidationChange } = options;
@@ -27,7 +27,7 @@ export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInput
 
   const formatPhone = usePhoneFormatting();
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const inputValue = e.target.value;
     if (inputValue.startsWith('+') && !inputValue.startsWith('+7')) {
       setInternalValue(inputValue);
@@ -44,11 +44,11 @@ export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInput
     }
   };
 
-  const handleFocus = () => {
+  const handleFocus = (): void => {
     setIsFocused(true);
   };
 
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
+  const handleBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
     setIsFocused(false);
     const inputValue = e.target.value;
     let newError: string | null = null;

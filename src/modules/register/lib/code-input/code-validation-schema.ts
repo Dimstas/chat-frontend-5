@@ -14,5 +14,5 @@ export const validateCodeArray = (codeArray: string[]): boolean => {
 };
 
 export const isCodeComplete = (codeArray: string[]): boolean => {
-  return codeArray.every(digit => digit !== '');
+  return codeArray.every((digit) => digit !== '');
 };
