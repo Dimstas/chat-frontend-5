@@ -1,0 +1,17 @@
+.header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface-secondary, #f5f6f8);
+  border-bottom: 1px solid var(--surface-disabled);
+  border-radius: 8px 8px 0 0;
+  padding: 0 16px 0 16px;
+  min-height: 56px;
+
+  .label {
+    min-width: 256px;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 120%;
+  }
+}
