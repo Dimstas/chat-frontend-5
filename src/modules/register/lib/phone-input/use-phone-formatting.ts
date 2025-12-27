@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 
-// Вспомогательная функция для форматирования
 const formatDigitsWithSpaces = (digits: string): string => {
   let formatted = '';
   let remaining = digits;
@@ -17,7 +16,6 @@ const formatDigitsWithSpaces = (digits: string): string => {
   return formatted;
 };
 
-// Хук, возвращающий функцию форматирования
 export const usePhoneFormatting = (): ((inputValue: string) => string) => {
   return useCallback((inputValue: string): string => {
     const digitsOnly = inputValue.replace(/\D/g, '');

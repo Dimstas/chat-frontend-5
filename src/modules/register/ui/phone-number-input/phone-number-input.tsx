@@ -18,9 +18,6 @@ export const PhoneNumberInput: React.FC<PhoneNumberInputProps> = ({
     handleChange,
     handleFocus,
     handleBlur,
-    // formattedValue, // Можно использовать, если нужно отображать что-то другое
-    // isValid,       // Можно использовать, если нужно
-    // isFilled,      // Можно использовать, если нужно
   } = usePhoneInput({ onChange, onValidationChange });
 
   let labelText = 'Введите номер телефона';

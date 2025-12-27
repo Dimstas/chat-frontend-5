@@ -1,9 +1,8 @@
-// src/modules/register/ui/name-step/name-step.tsx
 import Image from 'next/image';
 import { JSX } from 'react';
-import { ButtonUI } from 'shared/ui/button'; // Обновите путь
-import { TextInput } from '../text-input'; // Обновите путь
-import { useNameStep } from '../../lib/steps/useNameStep'; // Импортируем хук
+import { ButtonUI } from 'shared/ui/button';
+import { TextInput } from '../text-input';
+import { useNameStep } from '../../lib/steps/useNameStep';
 import styles from './name-step.module.scss';
 
 type NameStepProps = {
@@ -18,6 +17,7 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
     firstNameError,
     loginError,
     isFormValid,
+    isSubmitting,
     handleFirstNameChange,
     handleLoginChange,
     handleSubmit,
@@ -47,7 +47,7 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
             placeholder=""
             value={firstName}
             onChange={handleFirstNameChange}
-            error={firstNameError} // Передаём ошибку, которая устанавливается при onChange или submit
+            error={firstNameError}
             maxLength={30}
           />
           <TextInput
@@ -55,7 +55,7 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
             placeholder=""
             value={login}
             onChange={handleLoginChange}
-            error={loginError} // Передаём ошибку, которая устанавливается при onChange или submit
+            error={loginError}
             maxLength={30}
           />
         </div>
@@ -70,9 +70,9 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
           <ButtonUI
             variant="general"
             appearance="primary"
-            label={'Зарегистрироваться'}
-            type="submit" // Добавим type="submit", чтобы форма корректно работала
-            disabled={!isFormValid} // Кнопка может быть неактивной, если форма не валидна (поля пустые или есть другие ошибки)
+            label={isSubmitting ? 'Проверка...' : 'Зарегистрироваться'}
+            type="submit"
+            disabled={!isFormValid || isSubmitting}
           />
         </div>
       </form>

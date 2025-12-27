@@ -1,6 +1,7 @@
-// src/modules/register/model/useNameStep.ts
 import { useState, useCallback } from 'react';
-import { validateName, validateLogin } from '../text-input/text-validation-schema'; // Обновите путь, если нужно
+import { useQueryClient } from '@tanstack/react-query';
+import { checkUniqueName } from 'shared/api/auth.api';
+import { validateName, validateLogin } from '../text-input/text-validation-schema';
 
 interface UseNameStepProps {
   next: () => void;
@@ -12,6 +13,7 @@ interface UseNameStepReturn {
   firstNameError: string | undefined;
   loginError: string | undefined;
   isFormValid: boolean;
+  isSubmitting: boolean;
   handleFirstNameChange: (value: string) => void;
   handleLoginChange: (value: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
@@ -22,82 +24,94 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
   const [login, setLogin] = useState<string>('');
   const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined);
   const [loginError, setLoginError] = useState<string | undefined>(undefined);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const queryClient = useQueryClient();
 
   const handleFirstNameChange = useCallback((value: string) => {
     setFirstName(value);
-    // Валидируем только если не пусто (ошибка "Обязательное поле" будет при submit)
     if (value !== '') {
       const validation = validateName(value);
       if (!validation.isValid) {
         setFirstNameError(validation.error);
       } else {
-        setFirstNameError(undefined); // Очищаем ошибку, если валидно
+        setFirstNameError(undefined);
       }
     } else {
-      // Если значение пустое, очищаем ошибку (до submit)
       setFirstNameError(undefined);
     }
   }, []);
 
   const handleLoginChange = useCallback((value: string) => {
     setLogin(value);
-    // Валидируем только если не пусто (ошибка "Обязательное поле" будет при submit)
-    if (value !== '') {
-      const validation = validateLogin(value);
-      if (!validation.isValid) {
-        setLoginError(validation.error);
-      } else {
-        setLoginError(undefined); // Очищаем ошибку, если валидно
-      }
-    } else {
-      // Если значение пустое, очищаем ошибку (до submit)
-      setLoginError(undefined);
-    }
+    setLoginError(undefined);
   }, []);
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    // Сбрасываем ошибки перед проверкой
-    setFirstNameError(undefined);
-    setLoginError(undefined);
+    try {
+      setFirstNameError(undefined);
+      setLoginError(undefined);
 
-    let hasErrors = false;
+      let hasErrors = false;
 
-    // Проверяем, пустые ли поля
-    if (firstName.trim() === '') {
-      setFirstNameError('Обязательное поле');
-      hasErrors = true;
-    } else {
-      // Если поле не пустое, проверяем его валидность (хотя handleChange уже делает это)
-      // Но на всякий случай, если что-то изменилось между onChange и onSubmit
-      const nameValidation = validateName(firstName);
-      if (!nameValidation.isValid) {
-        setFirstNameError(nameValidation.error);
+      if (firstName.trim() === '') {
+        setFirstNameError('Обязательное поле');
         hasErrors = true;
+      } else {
+        const nameValidation = validateName(firstName);
+        if (!nameValidation.isValid) {
+          setFirstNameError(nameValidation.error);
+          hasErrors = true;
+        }
       }
-    }
 
-    if (login.trim() === '') {
-      setLoginError('Обязательное поле');
-      hasErrors = true;
-    } else {
-      // Если поле не пустое, проверяем его валидность (хотя handleChange уже делает это)
-      const loginValidation = validateLogin(login);
-      if (!loginValidation.isValid) {
-        setLoginError(loginValidation.error);
+      if (login.trim() === '') {
+        setLoginError('Обязательное поле');
         hasErrors = true;
+      } else {
+        const loginValidation = validateLogin(login);
+        if (!loginValidation.isValid) {
+          setLoginError(loginValidation.error);
+          hasErrors = true;
+        }
       }
-    }
 
-    // Если ошибок нет, переходим дальше
-    if (!hasErrors) {
+      if (hasErrors) {
+        return;
+      }
+
+      const data = await queryClient.fetchQuery({
+        queryKey: ['unique-name-check', login],
+        queryFn: () => checkUniqueName(login),
+        staleTime: 5 * 60 * 1000,
+      });
+
+      if (!data.is_unique) {
+        setLoginError("Такой никнейм уже занят.");
+        return;
+      }
+
       next();
-    }
-  }, [firstName, login, next]);
 
-  // isFormValid теперь проверяет наличие ошибок (кроме "Обязательное поле", которая появляется при submit)
-  // Но для кнопки disabled можно использовать предыдущую логику, чтобы не отправлять пустую форму
+    } catch (error) {
+      console.error("Ошибка при проверке уникальности:", error);
+      if (error instanceof Response) {
+        try {
+          const errorText = await error.text();
+          console.error("Тело ошибки от бэкенда:", errorText);
+        } catch (e) {
+          console.error("Не удалось прочитать тело ошибки:", e);
+        }
+      }
+      setLoginError("Ошибка проверки. Попробуйте позже.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [firstName, login, next, queryClient]);
+
   const isFormValid = firstName.trim() !== '' && login.trim() !== '' && !firstNameError && !loginError;
 
   return {
@@ -106,6 +120,7 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
     firstNameError,
     loginError,
     isFormValid,
+    isSubmitting,
     handleFirstNameChange,
     handleLoginChange,
     handleSubmit,

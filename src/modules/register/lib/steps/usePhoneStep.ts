@@ -1,5 +1,6 @@
-// src/modules/register/model/usePhoneStep.ts
 import { useState, useCallback } from 'react';
+import { useGetAuthCode } from 'shared/query/auth.query';
+import { GetCodePayload } from 'shared/api/auth.api';
 
 interface UsePhoneStepProps {
   next: () => void;
@@ -10,6 +11,8 @@ interface UsePhoneStepReturn {
   phoneValue: string;
   isButtonEnabled: boolean;
   isModalOpen: boolean;
+  isLoading: boolean;
+  error: string | null;
   handleValidationChange: (isValid: boolean, isFilled: boolean) => void;
   handlePhoneChange: (value: string) => void;
   handleNextClick: () => void;
@@ -23,6 +26,8 @@ export const usePhoneStep = ({ next, onPhoneConfirmed }: UsePhoneStepProps): Use
   const [phoneValue, setPhoneValue] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  const { mutate: getAuthCode, isPending: isCodeRequestPending, error: codeRequestError } = useGetAuthCode();
+
   const handleValidationChange = useCallback((isValid: boolean, isFilled: boolean) => {
     setIsPhoneValid(isValid);
     setIsPhoneFilled(isFilled);
@@ -33,27 +38,49 @@ export const usePhoneStep = ({ next, onPhoneConfirmed }: UsePhoneStepProps): Use
   }, []);
 
   const handleNextClick = useCallback(() => {
-    if (isPhoneValid && isPhoneFilled) { // Проверяем напрямую
+    if (isPhoneValid && isPhoneFilled && !isCodeRequestPending) {
       setIsModalOpen(true);
     }
-  }, [isPhoneValid, isPhoneFilled]);
+  }, [isPhoneValid, isPhoneFilled, isCodeRequestPending]);
 
   const handleConfirmPhone = useCallback(() => {
     setIsModalOpen(false);
-    onPhoneConfirmed(phoneValue);
-    next();
-  }, [next, onPhoneConfirmed, phoneValue]);
+
+    if (isPhoneValid && isPhoneFilled) {
+      const cleanPhone = phoneValue.replace(/\D/g, '');
+      const formattedPhone = cleanPhone.startsWith('7') || cleanPhone.startsWith('8') ? `+${cleanPhone}` : phoneValue;
+      console.log("Отправляемый phoneValue:", formattedPhone);
+
+      const payload: GetCodePayload = {
+        phone_number: formattedPhone,
+      };
+
+      getAuthCode(payload, {
+        onSuccess: () => {
+          onPhoneConfirmed(formattedPhone);
+          next();
+        },
+        onError: (error) => {
+          console.error("Ошибка при получении кода:", error);
+        },
+      });
+    } else {
+      console.error("Phone number is not valid or filled when confirming.");
+    }
+  }, [phoneValue, isPhoneValid, isPhoneFilled, getAuthCode, next, onPhoneConfirmed]);
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
   }, []);
 
-  const isButtonEnabled = isPhoneFilled && isPhoneValid;
+  const isButtonEnabled = isPhoneFilled && isPhoneValid && !isCodeRequestPending;
 
   return {
     phoneValue,
     isButtonEnabled,
     isModalOpen,
+    isLoading: isCodeRequestPending,
+    error: codeRequestError ? (codeRequestError as Error).message : null,
     handleValidationChange,
     handlePhoneChange,
     handleNextClick,

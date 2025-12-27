@@ -1,7 +1,5 @@
-// src/shared/lib/text-input/use-text-input-logic.ts
 import { useState, ChangeEvent, FocusEvent } from 'react';
 
-// Тип для возвращаемого значения хука
 interface UseTextInputLogicReturn {
   isFocused: boolean;
   handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
@@ -9,12 +7,11 @@ interface UseTextInputLogicReturn {
   handleBlur: (e: FocusEvent<HTMLInputElement>) => void;
 }
 
-// Тип для опций хука
 interface UseTextInputLogicOptions {
-  value: string; // Текущее значение
-  onChange: (value: string) => void; // Функция для обновления значения
-  disabled?: boolean; // Состояние disabled
-  maxLength?: number; // Максимальная длина
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+  maxLength?: number;
 }
 
 export const useTextInputLogic = (options: UseTextInputLogicOptions): UseTextInputLogicReturn => {

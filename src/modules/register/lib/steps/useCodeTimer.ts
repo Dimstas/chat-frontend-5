@@ -1,4 +1,3 @@
-// src/modules/register/model/useCodeTimer.ts
 import { useState, useEffect } from 'react';
 
 interface UseCodeTimerReturn {
@@ -17,7 +16,6 @@ export const useCodeTimer = (initialTime: number = 56): UseCodeTimerReturn => {
       timerId = setInterval((): void => {
         setTimeLeft((prevTime) => {
           const newTime = prevTime - 1;
-          // clearInterval происходит при следующем запуске useEffect, если timeLeft <= 0
           return newTime;
         });
       }, 1000);
@@ -28,11 +26,11 @@ export const useCodeTimer = (initialTime: number = 56): UseCodeTimerReturn => {
         clearInterval(timerId);
       }
     };
-  }, [timeLeft]); // Зависимость: timeLeft
+  }, [timeLeft]);
 
   const handleResendCode = (): void => {
     console.log('Отправляем новый код...');
-    setTimeLeft(initialTime); // Сбрасываем таймер на начальное значение
+    setTimeLeft(initialTime);
   };
 
   const isTimerActive = timeLeft > 0;
