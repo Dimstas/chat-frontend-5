@@ -1,6 +1,6 @@
 import { JSX } from 'react';
 import { ImageUI } from 'shared/ui/image';
-import { getLastSeenLabel } from '../../../libs';
+import { getLastSeenLabel } from '../../libs/ get-last-seen-label';
 import styles from './contact-card.module.scss';
 import { ContactCardProps } from './contact-card.props';
 

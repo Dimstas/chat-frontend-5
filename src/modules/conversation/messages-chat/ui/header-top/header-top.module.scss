@@ -1,19 +1,40 @@
 @use 'shared/styles/03_mixins' as mixins;
 
+.wrapper {
+  @include mixins.flex-box($direction: column);
+  width: 100%;
+  border-top-left-radius: 0.8rem;
+  border-top-right-radius: 0.8rem;
+  background-color: var(--surface-secondary);
+}
+
+.contactWrapper {
+  @include mixins.flex-box($gap: 1.2rem);
+  width: 100%;
+  height: 6rem;
+  border-bottom: 0.1rem solid var(--surface-disabled);
+  border-top-left-radius: 0.8rem;
+  border-top-right-radius: 0.8rem;
+  padding-left: 1.6rem;
+  padding-right: 1.6rem;
+  overflow: hidden;
+}
+
 .image {
   border-radius: 50%;
+  height: 4rem;
 }
 
 .info {
   @include mixins.flex-box($direction: column, $align: flex-start, $gap: 0.4rem);
-  width: 100%;
+  width: 56.4rem;
   height: 4.3rem;
 }
 
 .name,
 .status {
   line-height: 1.2;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.01rem;
 }
 
 .name {
@@ -26,9 +47,14 @@
 .status {
   height: 1.7rem;
   font-size: 1.4rem;
-  font-weight: 500;
-  color: var(--text-secondary);
+  font-weight: 400;
+  color: var(--brand-primary);
 }
 .icon {
+  @include mixins.flex-box();
   height: 3.6rem;
+  width: 3.6rem;
+  color: --brand-primary;
+  top: 0.502rem;
+  left: 0.501rem;
 }
