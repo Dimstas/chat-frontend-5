@@ -11,7 +11,7 @@
 
 .buttonsWrapper {
   @include mixins.flex-box();
-  width: 34rem;
+  width: auto;
   height: 3.2rem;
   border-radius: 0.4rem;
   padding: 0.6rem, 1.6rem;

@@ -2,32 +2,13 @@
 
 .wrapper {
   @include mixins.flex-box($direction: column, $justify: space-between);
-  height: 100%;
+  height:93.6rem;
+  width: 100%;
   border: 0.033rem solid var(--border-layout);
   border-radius: 0.8rem;
-<<<<<<< HEAD
   background-color: var(--surface-secondary-50);
   overflow: hidden;
 }
-=======
-  background-color: var(--surface-secondary);
-  overflow: hidden;
-}
+ 
 
-.headerTop {
-  @include mixins.flex-box($gap: 1.2rem);
-  width: 100%;
-  height: 6rem;
-  border-bottom: 0.1rem solid var(--surface-disabled);
-  border-top-left-radius: 0.8rem;
-  border-top-right-radius: 0.8rem;
-  background-color: var(--surface-secondary);
-  padding-left: 1.6rem;
-  padding-right: 1.6rem;
-  overflow: hidden;
-}
-.headerBottom {
-}
-.body {
-}
->>>>>>> dev
+

@@ -11,15 +11,11 @@ export const MessagesListLayout = ({
   children: ReactNode;
   headerBottom: ReactNode;
 }): JSX.Element => {
-  if (headerTop === null) {
-    return <DefaultPage />;
-  } else {
     return (
       <div className={styles.wrapper}>
-        <div className={styles.headerTop}>{headerTop}</div>
-        <div className={styles.body}>{children}</div>
-        <div className={styles.headerBottom}>{headerBottom}</div>
+        {headerTop}
+        {children}
+        {headerBottom}
       </div>
     );
   }
-};

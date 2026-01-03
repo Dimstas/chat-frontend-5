@@ -2,7 +2,7 @@
 
 .inputWrapper {
   @include mixins.flex-box($gap: 0.8rem);
-  width: 62.4rem;
+  width: auto;
   height: 3.6rem;
   border-radius: 2rem;
   padding: 0.75rem 1.2rem;
@@ -12,7 +12,7 @@
 
 .form {
   @include mixins.flex-box();
-  width: 100%;
+  width: auto;
 }
 
 .input {

@@ -9,7 +9,7 @@
 }
 
 .contactWrapper {
-  @include mixins.flex-box($gap: 1.2rem);
+  @include mixins.flex-box( $gap: 1.2rem);
   width: 100%;
   height: 6rem;
   border-bottom: 0.1rem solid var(--surface-disabled);
@@ -21,13 +21,15 @@
 }
 
 .image {
+  @include mixins.flex-box();
   border-radius: 50%;
   height: 4rem;
+  width: 6.5rem;
 }
 
 .info {
   @include mixins.flex-box($direction: column, $align: flex-start, $gap: 0.4rem);
-  width: 56.4rem;
+  width: 100%;
   height: 4.3rem;
 }
 
@@ -53,7 +55,7 @@
 .icon {
   @include mixins.flex-box();
   height: 3.6rem;
-  width: 3.6rem;
+  width: 4rem;
   color: --brand-primary;
   top: 0.502rem;
   left: 0.501rem;
