@@ -9,6 +9,7 @@
 .content {
   @include mixins.flex-box($direction: column, $gap: 2.4rem);
   width: 100%;
+  padding-inline: 1.6rem;
 }
 
 .imageWrapper {
@@ -38,4 +39,8 @@
     font-size: 1.4rem;
     letter-spacing: 0.01em;
   }
+}
+
+.link {
+  width: 100%;
 }

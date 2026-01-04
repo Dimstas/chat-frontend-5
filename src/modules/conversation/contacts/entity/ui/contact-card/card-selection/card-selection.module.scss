@@ -1,0 +1,30 @@
+@use 'shared/styles/03_mixins' as mixins;
+
+.circle {
+  @include mixins.flex-box();
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0.1rem solid var(--border-brand);
+  border-radius: 50%;
+  overflow: hidden;
+
+  &.circleSelect {
+    border: none;
+    background-color: var(--surface-base);
+  }
+}
+
+.checkIcon {
+  opacity: 0;
+
+  width: 2rem;
+  height: 2rem;
+
+  fill: var(--brand-primary);
+
+  transition: opacity 0.2s;
+
+  &.iconSelect {
+    opacity: 1;
+  }
+}

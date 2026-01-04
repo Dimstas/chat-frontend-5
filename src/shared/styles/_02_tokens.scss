@@ -7,13 +7,16 @@
   --brand-dark: #{fig.$figma-accent-violet-dark};
   --brand-dark-60: #{fig.$figma-accent-violet-dark-60};
   --brand-violet-white: #{fig.$figma-accent-violet-white};
+  --barnd-violet-super-light: #{fig.$figma-accent-violet-super-light};
 
   /* ========= Text ========= */
   --text-brand: var(--brand-primary);
 
   --text-primary: #{fig.$figma-text-black};
   --text-secondary: #{fig.$figma-text-gray};
+
   --text-inverse: #{fig.$figma-white};
+  --text-inverse-status: #{fig.$figma-gray-tone-gray-light-80};
 
   --text-state-disabled: #{fig.$figma-gray-tone-gray-dark};
   --text-state-error: #{fig.$figma-system-red};
@@ -25,7 +28,12 @@
   --surface-secondary-50: #{fig.$figma-gray-main-light-50};
   --surface-disabled: #{fig.$figma-gray-tone};
 
-  --surface-section: #{fig.$figma-accent-violet-super-light};
+  --surface-section-header: #{fig.$figma-accent-violet-super-light};
+  --surface-scroll: #{fig.$figma-gray-tone-gray-dark};
+  --surface-hover-card: var(--barnd-violet-super-light);
+  --surface-active-card: var(--brand-dark-60);
+
+  --surface-delete-selected-button: #{fig.$figma-gray-tone-gray};
 
   /* ========= Border ========= */
   --border-brand: var(--brand-primary);

@@ -1,7 +1,7 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .wrapper {
-  @include mixins.flex-box($direction: column, $justify: flex-start);
+  @include mixins.flex-box($direction: column, $justify: flex-start, $align: stretch);
   height: 100%;
 
   border: 0.1rem solid var(--border-layout);
@@ -17,8 +17,35 @@
 }
 
 .body {
+  @include mixins.flex-box($direction: column, $justify: flex-start, $align: stretch, $gap: 1.6rem);
   flex: 1;
   min-height: 0;
   height: 100%;
-  overflow: hidden;
+
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: var(--surface-scroll) transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0.6rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 0.4rem;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--surface-scroll);
+  }
 }

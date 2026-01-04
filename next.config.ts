@@ -3,9 +3,7 @@ import type { Configuration, RuleSetRule } from 'webpack';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: {
-    compilationMode: 'annotation',
-  },
+  reactCompiler: true,
 
   webpack(config): Configuration {
     const fileLoaderRule = config.module.rules.find(

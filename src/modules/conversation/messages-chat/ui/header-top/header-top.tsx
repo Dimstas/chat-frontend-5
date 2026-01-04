@@ -1,4 +1,4 @@
-import { getLastSeenLabel } from 'modules/conversation/contacts/libs';
+import { getLastSeenLabel } from 'modules/conversation/contacts/lib';
 import { JSX } from 'react';
 import { ImageUI } from 'shared/ui/image';
 import { getContactById } from '../../utils/get-contact-by-id';
