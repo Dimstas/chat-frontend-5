@@ -1,1 +1,1 @@
-export { getLastSeenLabel} from './ get-last-seen-label';
+export { getLastSeenLabel } from './ get-last-seen-label';

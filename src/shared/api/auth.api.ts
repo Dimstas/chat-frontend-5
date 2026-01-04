@@ -10,7 +10,7 @@ export type GetCodeResponse = {
 };
 
 export const getAuthCode = (data: GetCodePayload): Promise<GetCodeResponse> => {
-  return apiFetch<GetCodeResponse>('/api/proxy/auth/get-code', {
+  return apiFetch<GetCodeResponse>('/api/auth/get-code', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -26,7 +26,7 @@ export type GetTokenResponse = {
 };
 
 export const getAuthToken = (data: GetTokenPayload): Promise<GetTokenResponse> => {
-  return apiFetch<GetTokenResponse>('/api/proxy/auth/get-token', {
+  return apiFetch<GetTokenResponse>('/api/auth/get-token', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -37,7 +37,7 @@ export type GetUniqueNameCheckResponse = {
 };
 
 export const checkUniqueName = (nickname: string): Promise<GetUniqueNameCheckResponse> => {
-  const url = new URL('/api/proxy/auth/unique-name-check', window.location.origin);
+  const url = new URL('/api/proxy/unique-name-check', window.location.origin);
   url.searchParams.set('nickname', nickname);
   return apiFetch<GetUniqueNameCheckResponse>(url.toString(), {
     method: 'GET',

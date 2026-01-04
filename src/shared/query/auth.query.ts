@@ -8,7 +8,7 @@ import {
   GetTokenPayload,
   GetTokenResponse,
   GetUniqueNameCheckResponse,
-} from '../api/auth.api';
+} from 'shared/api/auth.api';
 
 export const useGetAuthCode = (): UseMutationResult<GetCodeResponse, unknown, GetCodePayload, unknown> => {
   return useMutation({
