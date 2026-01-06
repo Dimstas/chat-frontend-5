@@ -1,5 +1,7 @@
 import clsx from 'clsx';
+import Link from 'next/link';
 import { JSX } from 'react';
+import { ButtonUI } from 'shared/ui/button';
 import { ImageUI } from 'shared/ui/image';
 import styles from './empty-state.module.scss';
 import { ConversationEmptyStateProps, EMPTY_STATE } from './empty-state.props';
@@ -22,6 +24,12 @@ export const ConversationEmptyState = ({ variant }: ConversationEmptyStateProps)
             <span className={clsx(styles.text, styles.contactsText)}>{title}</span>
           )}
         </div>
+
+        {variant === 'chats' && (
+          <Link href={'/contacts'} className={styles.link}>
+            <ButtonUI label={'Начать чат'} variant={'general'} appearance={'primary'} type={'button'} />
+          </Link>
+        )}
       </div>
     </div>
   );

@@ -1,1 +1,1 @@
-export * from './messages-chat-block';
+export * from './default-page';

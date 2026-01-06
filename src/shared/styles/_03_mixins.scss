@@ -12,3 +12,13 @@
     flex-wrap: $wrap;
   }
 }
+
+@mixin hover-highlight {
+  &:hover {
+    background-color: var(--surface-secondary);
+
+    .icon {
+      fill: var(--brand-primary);
+    }
+  }
+}
