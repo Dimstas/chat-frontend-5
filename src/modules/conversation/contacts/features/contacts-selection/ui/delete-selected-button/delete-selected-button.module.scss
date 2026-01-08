@@ -13,8 +13,8 @@
   line-height: 1.5;
 
   transition:
-    height 0.3s linear, padding 0.3s linear;
-
+    height 0.3s linear,
+    padding 0.3s linear;
 
   &.active {
     height: 7.6rem;
