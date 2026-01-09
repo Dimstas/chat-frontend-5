@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { PHOTOS } from 'modules/conversation/shared/utils/profile';
+import { PHOTOS } from 'modules/profile/shared/utils/profile';
 import { JSX, useState } from 'react';
 import { ImageUI } from 'shared/ui/image';
 import styles from './profile-uploads.module.scss';

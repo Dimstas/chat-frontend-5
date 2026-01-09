@@ -1,6 +1,6 @@
 'use client';
 
-import { MAX_PROFILE } from 'modules/conversation/shared/utils/profile';
+import { MAX_PROFILE } from 'modules/profile/shared/utils/profile';
 import { JSX } from 'react';
 import { AddButton } from '../action-button';
 import { ProfileAvatar } from '../profile-avatar';
@@ -16,7 +16,7 @@ export const ProfileBlock = ({ uid }: ProfileBlockProps): JSX.Element => {
   void uid;
 
   return (
-    <ProfileLayout header={<ProfileHeader uid={uid} />}>
+    <ProfileLayout header={<ProfileHeader uid={uid} isBlocked={MAX_PROFILE.is_blocked} />}>
       <ProfileAvatar
         avatarHref={MAX_PROFILE.avatar_url ?? '/images/profile/default.png'}
         firstName={MAX_PROFILE.first_name}

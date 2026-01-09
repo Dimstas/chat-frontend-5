@@ -2,7 +2,6 @@
 
 .container {
   @include mixins.flex-box($direction: column, $align: center, $justify: start, $gap: 8px);
-  overflow: hidden;
 
   .tabs {
     padding: 0 16px 0 16px;
@@ -44,6 +43,7 @@
   }
 
   .tabContent {
-    @include mixins.flex-box($direction: row, $align: center, $justify: center, $gap: 2px, $wrap: wrap);
+    @include mixins.flex-box($direction: row, $align: center, $justify: start, $gap: 2px, $wrap: wrap);
+    padding-left: 2px;
   }
 }

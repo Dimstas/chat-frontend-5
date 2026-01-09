@@ -11,6 +11,7 @@
 }
 
 .header {
+  width: 100%;
 }
 
 .body {
@@ -20,5 +21,31 @@
   gap: 8px;
   border: 0.033rem solid var(--border-layout);
   border-radius: 8px;
-  overflow: hidden;
+
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+
+  &:hover {
+    scrollbar-color: var(--surface-scroll) transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0.6rem;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 0.4rem;
+  }
+
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: var(--surface-scroll);
+  }
 }
