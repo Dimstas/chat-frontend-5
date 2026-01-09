@@ -9,7 +9,7 @@
 }
 
 .contactWrapper {
-  @include mixins.flex-box( $gap: 1.2rem);
+  @include mixins.flex-box($gap: 1.2rem);
   width: 100%;
   height: 6rem;
   border-bottom: 0.1rem solid var(--surface-disabled);
@@ -56,7 +56,7 @@
   @include mixins.flex-box();
   height: 3.6rem;
   width: 4rem;
-  color: --brand-primary;
+  color: var(--brand-primary);
   top: 0.502rem;
   left: 0.501rem;
 }
