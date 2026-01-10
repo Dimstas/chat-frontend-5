@@ -9,6 +9,11 @@ export const EMPTY_STATE = {
     title: 'Список контактов пока пуст',
     subtitle: null,
   },
+  noResult: {
+    src: '/images/empty-state/no-contacts.png',
+    title: 'Поиск не дал результатов',
+    subtitle: 'По вашему запросу ничего не найдено. Измените запрос и попробуйте снова',
+  },
 } as const;
 
 export type EmptyStateVariant = keyof typeof EMPTY_STATE;

@@ -20,22 +20,25 @@
 .textWrapper {
   @include mixins.flex-box($direction: column, $gap: 0.8rem);
 
+  text-align: center;
   .text {
     color: var(--text-secondary);
     line-height: 1.2;
   }
 
-  .contactsText {
+  .contactsTitle,
+  .noResultsTitle {
     font-size: 1.8rem;
     letter-spacing: 0.01em;
   }
 
-  .chatsText {
+  .chatsTitle {
     font-size: 1.6rem;
     font-weight: 600;
   }
 
-  .chatsSubText {
+  .chatsText,
+  .noResultsText {
     font-size: 1.4rem;
     letter-spacing: 0.01em;
   }

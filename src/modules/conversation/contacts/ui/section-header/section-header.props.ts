@@ -5,5 +5,5 @@ export type SectionHeaderProps = {
   isHighlighted: boolean;
 
   leftAction: ReactNode;
-  rightAction: ReactNode;
+  rightAction?: ReactNode;
 };

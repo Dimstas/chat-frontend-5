@@ -9,6 +9,9 @@ import tseslint from 'typescript-eslint';
 
 const config = [
   globalIgnores(['.next/**', 'out/**', 'build/**', 'dist/**', 'node_modules/**']),
+  {
+    ignores: ['vite.config.ts', 'vitest.config.ts'],
+  },
 
   ...nextVitals,
 

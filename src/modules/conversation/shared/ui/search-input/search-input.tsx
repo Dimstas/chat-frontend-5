@@ -1,14 +1,40 @@
+import clsx from 'clsx';
 import { JSX } from 'react';
-import SearchIcon from './icons/search.svg';
+import { ClearIcon, SearchIcon } from './icons';
 import styles from './search-input.module.scss';
+import { SearchInputProps } from './search-input.props';
 
-export const SearchInput = (): JSX.Element => {
+export const SearchInput = ({ query, onChange, onClear }: SearchInputProps): JSX.Element => {
   return (
     <div className={styles.inputWrapper}>
-      <span className={styles.icon}>
+      <span className={clsx(styles.iconWrapper, styles.searchIcon)} aria-hidden>
         <SearchIcon />
       </span>
-      <input className={styles.input} type="text" name={'search'} placeholder={'Поиск'} />
+
+      <input
+        type="search"
+        className={styles.input}
+        value={query}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') {
+            onClear?.();
+          }
+        }}
+        placeholder="Поиск"
+        aria-label="Поиск"
+      />
+
+      {query.length > 0 && onClear && (
+        <button
+          type="button"
+          className={clsx(styles.iconWrapper, styles.clearIcon)}
+          onClick={onClear}
+          aria-label="Очистить поиск"
+        >
+          <ClearIcon className={styles.icon} />
+        </button>
+      )}
     </div>
   );
 };

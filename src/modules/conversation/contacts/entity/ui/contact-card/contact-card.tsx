@@ -1,7 +1,7 @@
 import clsx from 'clsx';
-import { getLastSeenLabel } from 'modules/conversation/contacts/lib';
 import Link from 'next/link';
 import React, { JSX } from 'react';
+import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { CardInfo } from './card-info';
 import { CardSelection } from './card-selection';

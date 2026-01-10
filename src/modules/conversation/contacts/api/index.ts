@@ -1,2 +1,2 @@
-export { getContactsList } from './contacts.api';
-export { useContactsQuery } from './use-contacts.query';
+export { getContactsList, searchUsers } from './contact.api';
+export { useContactsQuery, useSearchUsersQuery } from './contact.query';
