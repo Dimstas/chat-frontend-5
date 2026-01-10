@@ -23,7 +23,12 @@ export async function GET(req: Request): Promise<Response> {
 
     switch (page) {
       case 1:
-        response = CONTACTS_PAGE_1;
+        response = {
+          ...CONTACTS_PAGE_1,
+          ...CONTACTS_PAGE_2,
+          ...CONTACTS_PAGE_3,
+          results: [...CONTACTS_PAGE_1.results, ...CONTACTS_PAGE_2.results, ...CONTACTS_PAGE_3.results],
+        };
         break;
       case 2:
         response = CONTACTS_PAGE_2;

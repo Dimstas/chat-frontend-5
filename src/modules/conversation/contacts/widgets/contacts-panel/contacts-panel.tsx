@@ -1,26 +1,25 @@
-'use client';
-
-import { useContactsQuery } from 'modules/conversation/contacts/api/use-contacts.query';
-import { ContactCardSelectable } from 'modules/conversation/contacts/features/contacts-selection/ui/contact-card-selectable/contact-card-selectable';
-import { SectionHeaderFeature } from 'modules/conversation/contacts/features/section-header-feature/section-header-feature';
+import { Contact } from 'modules/conversation/contacts/entity';
+import {
+  ContactCardSelectable,
+  SectionHeaderSelection,
+} from 'modules/conversation/contacts/features/contacts-selection';
 import { JSX } from 'react';
 
-export const ContactsPanel = (): JSX.Element => {
-  const { data: myContacts } = useContactsQuery();
-
+export const ContactsPanel = ({
+  contacts,
+  variant,
+}: {
+  contacts?: Contact[];
+  variant: 'personal' | 'globals';
+}): JSX.Element => {
   return (
     <div>
-      <SectionHeaderFeature variant={'personal'} />
-      {myContacts &&
-        myContacts.map((contact) => (
-          <ContactCardSelectable
-            key={contact.uid}
-            uid={contact.uid}
-            avatar={contact.avatar}
-            wasOnlineAt={contact.wasOnlineAt}
-            fullName={contact.fullName}
-          />
+      <SectionHeaderSelection variant={variant} />
+      <ul>
+        {contacts?.map((contact) => (
+          <ContactCardSelectable key={contact.uid} {...contact} />
         ))}
+      </ul>
     </div>
   );
 };

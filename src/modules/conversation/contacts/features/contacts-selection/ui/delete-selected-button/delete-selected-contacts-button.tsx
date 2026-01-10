@@ -12,7 +12,7 @@ export const DeleteSelectedContactsButton = (): JSX.Element => {
 
   const size = selectedIds.size;
 
-  const label = pluralize(size, ['контакт', 'контакта', 'контактов']);
+  const label = pluralize(size, 'contacts');
 
   return (
     <button

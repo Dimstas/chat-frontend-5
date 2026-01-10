@@ -1,17 +1,41 @@
-import { DeleteSelectedContactsButton } from 'modules/conversation/contacts/features/contacts-selection/ui/delete-selected-button';
-import { DeleteSelectedContactsModal } from 'modules/conversation/contacts/features/contacts-selection/ui/delete-selected-contacts-modal';
+'use client';
+
+import {
+  DeleteSelectedContactsButton,
+  DeleteSelectedContactsModal,
+} from 'modules/conversation/contacts/features/contacts-selection';
 import { ContactsPanel } from 'modules/conversation/contacts/widgets/contacts-panel/';
-import { ConversationListLayout, SearchInput } from 'modules/conversation/shared/ui';
+import { ConversationEmptyState, ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import { JSX } from 'react';
+import { useContactsScreen } from './use-contacts-screen';
 
 export const ContactsScreen = (): JSX.Element => {
-  return (
+  const { query, setQuery, clearQuery, contacts, globals } = useContactsScreen();
+
+  const renderWithLayout = (content: JSX.Element): JSX.Element => (
     <>
-      <ConversationListLayout header={<SearchInput />} footer={<DeleteSelectedContactsButton />}>
-        <ContactsPanel />
-        <ContactsPanel />
-      </ConversationListLayout>
+      <ConversationLayout
+        header={<SearchInput query={query} onChange={setQuery} onClear={clearQuery} />}
+        footer={<DeleteSelectedContactsButton />}
+      >
+        {content}
+      </ConversationLayout>
       <DeleteSelectedContactsModal />
     </>
+  );
+
+  if (!contacts) {
+    return renderWithLayout(<ConversationEmptyState variant="contacts" />);
+  }
+
+  if (query.length >= 1 && contacts.length === 0 && globals?.length === 0) {
+    return renderWithLayout(<ConversationEmptyState variant="noResult" />);
+  }
+
+  return renderWithLayout(
+    <>
+      <ContactsPanel variant="personal" contacts={contacts} />
+      {globals && globals.length >= 2 && <ContactsPanel variant="globals" contacts={globals} />}
+    </>,
   );
 };

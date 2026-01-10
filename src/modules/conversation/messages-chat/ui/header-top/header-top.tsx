@@ -1,5 +1,5 @@
-import { getLastSeenLabel } from 'modules/conversation/contacts/lib';
 import { JSX } from 'react';
+import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { getContactById } from '../../utils/get-contact-by-id';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';

@@ -1,18 +1,22 @@
-import { Contact } from 'modules/conversation/contacts/entity';
-import { ContactCard } from 'modules/conversation/contacts/entity/ui/contact-card';
-import { useContactsSelectionStore } from 'modules/conversation/contacts/features/contacts-selection/model';
+'use client';
+
+import { Contact, ContactCard } from 'modules/conversation/contacts/entity';
+import { useContactsSelectionStore } from 'modules/conversation/contacts/features/contacts-selection';
 import { JSX } from 'react';
 
-export const ContactCardSelectable = ({ uid, avatar, wasOnlineAt, fullName }: Contact): JSX.Element => {
-  const { isSelectionMode, selectedIds, toggleSelection } = useContactsSelectionStore();
+export const ContactCardSelectable = (contact: Contact): JSX.Element => {
+  const isSelectionMode = useContactsSelectionStore((s) => s.isSelectionMode);
+  const selectedIds = useContactsSelectionStore((s) => s.selectedIds);
+  const toggleSelection = useContactsSelectionStore((s) => s.toggleSelection);
 
-  const isSelected = selectedIds.has(uid);
+  const isSelected = selectedIds.has(contact.uid);
+
   return (
     <ContactCard
-      contact={{ uid, avatar, wasOnlineAt, fullName }}
+      contact={contact}
       selectionMode={isSelectionMode}
       selected={isSelected}
-      onSelectHandler={() => toggleSelection(uid)}
+      onSelectHandler={() => toggleSelection(contact.uid)}
     />
   );
 };

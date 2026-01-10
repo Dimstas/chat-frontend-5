@@ -18,15 +18,21 @@
         "name": "next"
       }
     ],
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
     "baseUrl": "src",
     "paths": {
       "layouts/*": ["layouts/*"],
       "modules/*": ["modules/*"],
-      "shared/query/*": ["shared/query/*"],
-      "shared/styles/*": ["shared/styles/*"],
-      "shared/ui/*": ["shared/ui/*"]
+      "shared/*": ["shared/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", ".next/dev/types/**/*.ts", "**/*.mts"],
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts",
+    "**/*.mts"
+  ],
   "exclude": ["node_modules"]
 }

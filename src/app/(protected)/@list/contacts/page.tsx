@@ -1,4 +1,4 @@
-import { ContactsScreen } from 'modules/conversation/contacts/screens/contacts-screen';
+import { ContactsScreen } from 'modules/conversation/contacts';
 import { JSX } from 'react';
 
 export default function ContactsBlockPage(): JSX.Element {

@@ -1,7 +1,7 @@
 import { JSX, ReactNode } from 'react';
-import styles from './list-layout.module.scss';
+import styles from './conversation-layout.module.scss';
 
-export const ConversationListLayout = ({
+export const ConversationLayout = ({
   header,
   children,
   footer,
