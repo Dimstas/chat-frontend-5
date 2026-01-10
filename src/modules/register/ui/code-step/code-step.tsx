@@ -5,14 +5,12 @@ import { CodeInput } from '../code-input';
 import styles from './code-step.module.scss';
 
 type CodeStepProps = {
-  next: () => void;
   prev: () => void;
   phone: string;
 };
 
-export const CodeStep: React.FC<CodeStepProps> = ({ next, prev, phone }: CodeStepProps): JSX.Element => {
+export const CodeStep: React.FC<CodeStepProps> = ({ prev, phone }: CodeStepProps): JSX.Element => {
   const { code, error, timeLeft, isTimerActive, isCodeComplete, handleCodeChange, handleResendCode } = useCodeStep({
-    next,
     phone,
   });
 

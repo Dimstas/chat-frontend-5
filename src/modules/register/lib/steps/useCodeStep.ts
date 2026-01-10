@@ -1,9 +1,9 @@
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { GetTokenPayload } from 'shared/api/auth.api';
 import { useGetAuthToken } from 'shared/query/auth.query';
 
 type UseCodeStepProps = {
-  next: () => void;
   phone: string;
 };
 
@@ -18,12 +18,14 @@ type UseCodeStepReturn = {
   handleResendCode: () => void;
 };
 
-export const useCodeStep = ({ next, phone }: UseCodeStepProps): UseCodeStepReturn => {
+export const useCodeStep = ({ phone }: UseCodeStepProps): UseCodeStepReturn => {
   const [code, setCode] = useState<string[]>(['', '', '', '', '']);
   const [error, setError] = useState<string | undefined>(undefined);
+  const [attemptsLeft, setAttemptsLeft] = useState<number>(5);
 
   const [timeLeft, setTimeLeft] = useState<number>(56);
   const [isTimerActive, setIsTimerActive] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
     let timerId: NodeJS.Timeout;
@@ -70,18 +72,19 @@ export const useCodeStep = ({ next, phone }: UseCodeStepProps): UseCodeStepRetur
 
       getAuthToken(payload, {
         onSuccess: (data) => {
-          console.log('Токены получены, is_filled:', data.is_filled);
-          next();
+          if (!data.is_filled) router.push('/register/user');
+          else router.push('/contacts');
         },
-        onError: (error) => {
-          console.error('Ошибка при получении токена:', error);
-          setError('Неверный код');
+        onError: () => {
+          const newAttempts = attemptsLeft - 1;
+          setAttemptsLeft(newAttempts);
+          setError(`Код введен неверно. Осталось попыток: ${newAttempts}`);
 
           setCode(['', '', '', '', '']);
         },
       });
     }
-  }, [isCodeComplete, phone, code, getAuthToken, next]);
+  }, [isCodeComplete, phone, code, getAuthToken]);
 
   const handleCodeChange = useCallback(
     (newCode: string[]) => {

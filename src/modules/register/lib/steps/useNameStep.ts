@@ -1,10 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
-import { checkUniqueName } from 'shared/api/auth.api';
+import { useUpdateProfile } from 'shared/query/profile.query';
+import { checkUniqueName } from '../../api/unique-name-check.api';
 import { validateLogin, validateName } from '../text-input/text-validation-schema';
 
 type UseNameStepProps = {
   next: () => void;
+  phone: string;
 };
 
 type UseNameStepReturn = {
@@ -19,7 +21,7 @@ type UseNameStepReturn = {
   handleSubmit: (e: React.FormEvent) => void;
 };
 
-export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
+export const useNameStep = ({ next, phone }: UseNameStepProps): UseNameStepReturn => {
   const [firstName, setFirstName] = useState<string>('');
   const [login, setLogin] = useState<string>('');
   const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined);
@@ -27,6 +29,8 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const queryClient = useQueryClient();
+
+  const { mutate: updateProfileMutation, isPending: isProfileUpdating } = useUpdateProfile();
 
   const handleFirstNameChange = useCallback((value: string) => {
     setFirstName(value);
@@ -90,28 +94,61 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
           staleTime: 5 * 60 * 1000,
         });
 
-        if (!data.is_unique) {
-          setLoginError('Такой никнейм уже занят.');
+        if ('messages' in data) {
+          if (data.messages.includes('Этот nickname свободен')) {
+          } else if (data.messages.includes('Пользователь с таким ником уже существует.')) {
+            setLoginError('Такой никнейм уже занят.');
+            return;
+          } else {
+            setLoginError(`Ошибка проверки: ${data.messages}`);
+            return;
+          }
+        } else if ('field_name' in data) {
+          setLoginError(`Ошибка валидации: ${data.field_name.join(', ')}`);
+          return;
+        } else if ('detail' in data) {
+          setLoginError(`Ошибка авторизации: ${data.detail}`);
+          return;
+        } else if ('message' in data) {
+          setLoginError(`Ошибка: ${data.message}`);
+          return;
+        } else {
+          setLoginError('Неизвестная ошибка при проверке уникальности.');
           return;
         }
 
-        next();
+        const profileData = {
+          nickname: login,
+          first_name: firstName,
+          phone: phone,
+        };
+
+        updateProfileMutation(profileData, {
+          onSuccess: (profileData) => {
+            console.log('Профиль успешно сохранён:', profileData);
+            next();
+          },
+          onError: async (error) => {
+            console.error('Ошибка при сохранении профиля:', error);
+            if (error instanceof Response) {
+              try {
+                const errorText = await error.text();
+                console.error('Тело ошибки от бэкенда:', errorText);
+              } catch (e) {
+                console.error('Не удалось прочитать тело ошибки:', e);
+              }
+            }
+            setLoginError('Ошибка при сохранении профиля. Попробуйте позже.');
+          },
+        });
       } catch (error) {
-        console.error('Ошибка при проверке уникальности:', error);
-        if (error instanceof Response) {
-          try {
-            const errorText = await error.text();
-            console.error('Тело ошибки от бэкенда:', errorText);
-          } catch (e) {
-            console.error('Не удалось прочитать тело ошибки:', e);
-          }
-        }
-        setLoginError('Ошибка проверки. Попробуйте позже.');
+        console.error('Ошибка при отправке формы:', error);
+        setLoginError('Ошибка при отправке формы. Попробуйте позже.');
       } finally {
         setIsSubmitting(false);
       }
     },
-    [firstName, login, next, queryClient],
+    [firstName, login, next, phone, queryClient, updateProfileMutation],
   );
 
   const isFormValid = firstName.trim() !== '' && login.trim() !== '' && !firstNameError && !loginError;

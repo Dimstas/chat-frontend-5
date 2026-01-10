@@ -32,6 +32,7 @@ export const CodeInput: React.FC<CodeInputProps> = ({
   return (
     <div className={styles.container}>
       {label && <label className={styles.label}>{label}</label>}
+      {errorMessage && <span className={styles.errorMessage}>{errorMessage}</span>}
       <div className={styles.inputsWrapper}>
         {value.map((digit, index) => (
           <input
@@ -56,7 +57,6 @@ export const CodeInput: React.FC<CodeInputProps> = ({
           />
         ))}
       </div>
-      {errorMessage && <span className={styles.errorMessage}>{errorMessage}</span>}
     </div>
   );
 };
