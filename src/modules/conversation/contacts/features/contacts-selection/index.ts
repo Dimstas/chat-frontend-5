@@ -1,3 +1,4 @@
+export { useDeleteContactsMutation } from './api';
 export { useContactsSelectionStore } from './model';
 export {
   ContactCardSelectable,

@@ -10,8 +10,6 @@ type ContactsSelectionState = {
   toggleSelection: (id: string) => void;
   clearSelection: () => void;
 
-  deleteSelectedContacts: () => void;
-
   openDeleteModal: () => void;
   closeDeleteModal: () => void;
 };
@@ -50,10 +48,6 @@ export const useContactsSelectionStore = create<ContactsSelectionState>((set) =>
     set({
       selectedIds: new Set(),
     }),
-
-  deleteSelectedContacts: (): void => {
-    // TODO: replace with API call
-  },
 
   openDeleteModal: (): void =>
     set({

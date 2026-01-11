@@ -2,8 +2,10 @@
 
 import { useContactsQuery, useSearchUsersQuery } from 'modules/conversation/contacts/api';
 import { Contact } from 'modules/conversation/contacts/entity';
+import { mapContactFromApi } from 'modules/conversation/contacts/model/contact';
 import { useSearchStore } from 'modules/conversation/contacts/model/search';
 import { useDebouncedValue } from 'modules/conversation/shared/hooks';
+import { useMemo } from 'react';
 
 type UseContactsScreenReturn = {
   query: string;
@@ -23,15 +25,20 @@ export const useContactsScreen = (): UseContactsScreenReturn => {
   const { data: myContacts } = useContactsQuery();
   const { data: globals } = useSearchUsersQuery(debouncedQuery);
 
-  const myContactUids = new Set(myContacts?.map((c) => c.uid) ?? []);
+  const contacts = useMemo(
+    () => myContacts?.pages.flatMap((page) => page.results.map(mapContactFromApi)) ?? [],
+    [myContacts],
+  );
+
+  const myContactUids = new Set(contacts?.map((c) => c.uid) ?? []);
 
   const filteredGlobals = globals?.filter((c) => !myContactUids.has(c.uid));
 
   const normalizedQuery = query.trim().toLowerCase();
 
   const filteredContacts = normalizedQuery
-    ? myContacts?.filter((c) => c.fullName.toLowerCase().includes(normalizedQuery))
-    : myContacts;
+    ? contacts?.filter((c) => c.fullName.toLowerCase().includes(normalizedQuery))
+    : contacts;
 
   return {
     query,
