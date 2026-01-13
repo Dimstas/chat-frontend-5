@@ -1,5 +1,5 @@
 import { JSX, ReactNode } from 'react';
-import styles from './register.module.scss';
+import styles from './auth.module.scss';
 
 export default function RegisterLayout({ children }: { children: ReactNode }): JSX.Element {
   return (

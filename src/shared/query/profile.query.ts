@@ -14,7 +14,7 @@ export type UpdateProfilePayload = {
   gender?: string;
   country?: string;
   city_id?: number;
-  phone: string;
+  phone?: string;
 };
 
 export const useUpdateProfile = (): UseMutationResult<ProfileResponse, unknown, UpdateProfilePayload, unknown> => {

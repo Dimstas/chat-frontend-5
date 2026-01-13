@@ -3,7 +3,7 @@
 .registerPage {
   @include mixins.flex-box(row, center, center);
   height: 100vh;
-  background-image: url('/images/register/Background.svg');
+  background-image: url('/images/auth/Background.svg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -14,7 +14,7 @@
 }
 
 .formContainer {
-  background-image: url('/images/register/containerBackground.jpg');
+  background-image: url('/images/auth/containerBackground.jpg');
   padding: 6.4rem;
   border-radius: 1.5rem;
   box-shadow: 0 40px 120px rgba(0, 0, 0, 0.4);

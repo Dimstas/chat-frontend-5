@@ -29,7 +29,7 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
         <div className={styles.header}>
           <button className={styles.arrowButton} onClick={prev}></button>
           <Image
-            src="/images/register/welcomeLogo.png"
+            src="/images/auth/welcomeLogo.png"
             alt="Добро пожаловать"
             width={70}
             height={70}

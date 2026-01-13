@@ -1,11 +1,12 @@
 'use client';
 
-import { FinalStep } from 'modules/register/ui/final-step';
-import { NameStep } from 'modules/register/ui/name-step';
+import { FinalStep } from 'modules/auth/ui/final-step';
+import { NameStep } from 'modules/auth/ui/name-step';
 import { useRouter } from 'next/navigation';
 import { JSX, useState } from 'react';
 
 type Step = 4 | 5;
+
 const RegisterUserPage = (): JSX.Element => {
   const [step, setStep] = useState<Step>(4);
   const router = useRouter();
@@ -27,7 +28,7 @@ const RegisterUserPage = (): JSX.Element => {
     } catch (error) {
       console.error('Failed to clear cookies:', error);
     }
-    router.push('/register');
+    router.push('/auth');
   };
 
   return (

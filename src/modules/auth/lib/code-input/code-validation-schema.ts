@@ -9,6 +9,7 @@ export const validateCodeArray = (codeArray: string[]): boolean => {
     codeSchema.parse(codeArray);
     return true;
   } catch (error) {
+    console.log(error);
     return false;
   }
 };

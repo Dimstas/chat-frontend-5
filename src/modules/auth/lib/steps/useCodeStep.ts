@@ -57,7 +57,7 @@ export const useCodeStep = ({ phone }: UseCodeStepProps): UseCodeStepReturn => {
     setIsTimerActive(true);
   };
 
-  const { mutate: getAuthToken, isPending: isTokenRequestPending, error: tokenRequestError } = useGetAuthToken();
+  const { mutate: getAuthToken, isPending: isTokenRequestPending } = useGetAuthToken();
 
   const isCodeComplete = code.every((digit) => digit !== '');
 
@@ -72,7 +72,7 @@ export const useCodeStep = ({ phone }: UseCodeStepProps): UseCodeStepReturn => {
 
       getAuthToken(payload, {
         onSuccess: (data) => {
-          if (!data.is_filled) router.push('/register/user');
+          if (!data.is_filled) router.push(`/user`);
           else router.push('/contacts');
         },
         onError: () => {

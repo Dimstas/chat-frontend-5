@@ -32,6 +32,9 @@ export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInput
     if (inputValue.startsWith('+') && !inputValue.startsWith('+7')) {
       setInternalValue(inputValue);
       onChange?.(inputValue);
+      const newIsFilled = inputValue.trim() !== '';
+      const newIsValid = validatePhoneString(inputValue);
+      onValidationChange?.(newIsValid, newIsFilled);
       return;
     }
 
@@ -42,6 +45,10 @@ export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInput
     if (error) {
       setError(null);
     }
+
+    const newIsFilled = inputValue.trim() !== '';
+    const newIsValid = validatePhoneString(inputValue);
+    onValidationChange?.(newIsValid, newIsFilled);
   };
 
   const handleFocus = (): void => {

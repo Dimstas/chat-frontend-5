@@ -11,7 +11,7 @@ export type ProfileData = {
   gender?: string;
   country?: string;
   city_id?: number;
-  phone: string;
+  phone?: string;
 };
 
 export type ProfileResponse = {

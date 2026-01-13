@@ -7,6 +7,7 @@ export const validatePhoneString = (inputValue: string): boolean => {
     phoneSchema.parse(inputValue);
     return true;
   } catch (error) {
+    console.log(error);
     return false;
   }
 };

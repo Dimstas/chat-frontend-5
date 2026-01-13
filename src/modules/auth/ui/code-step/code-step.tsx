@@ -20,7 +20,7 @@ export const CodeStep: React.FC<CodeStepProps> = ({ prev, phone }: CodeStepProps
         <div className={styles.header}>
           <button className={styles.arrowButton} onClick={prev}></button>
           <Image
-            src="/images/register/welcomeLogo.png"
+            src="/images/auth/welcomeLogo.png"
             alt="Добро пожаловать"
             width={70}
             height={70}

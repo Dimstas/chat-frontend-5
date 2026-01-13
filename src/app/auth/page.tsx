@@ -1,8 +1,8 @@
 'use client';
 
-import { CodeStep } from 'modules/register/ui/code-step';
-import { PhoneStep } from 'modules/register/ui/phone-step';
-import { WelcomeStep } from 'modules/register/ui/welcome-step';
+import { CodeStep } from 'modules/auth/ui/code-step';
+import { PhoneStep } from 'modules/auth/ui/phone-step';
+import { WelcomeStep } from 'modules/auth/ui/welcome-step';
 import { JSX, useState } from 'react';
 
 type Step = 1 | 2 | 3;
@@ -15,7 +15,7 @@ const RegisterPage = (): JSX.Element => {
     setConfirmedPhone(phone);
   };
   const nextStep = (): void => {
-    if (step < 5) {
+    if (step < 3) {
       setStep((step + 1) as Step);
     }
   };

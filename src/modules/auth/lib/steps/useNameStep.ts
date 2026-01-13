@@ -6,7 +6,6 @@ import { validateLogin, validateName } from '../text-input/text-validation-schem
 
 type UseNameStepProps = {
   next: () => void;
-  phone: string;
 };
 
 type UseNameStepReturn = {
@@ -21,7 +20,7 @@ type UseNameStepReturn = {
   handleSubmit: (e: React.FormEvent) => void;
 };
 
-export const useNameStep = ({ next, phone }: UseNameStepProps): UseNameStepReturn => {
+export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
   const [firstName, setFirstName] = useState<string>('');
   const [login, setLogin] = useState<string>('');
   const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined);
@@ -30,7 +29,7 @@ export const useNameStep = ({ next, phone }: UseNameStepProps): UseNameStepRetur
 
   const queryClient = useQueryClient();
 
-  const { mutate: updateProfileMutation, isPending: isProfileUpdating } = useUpdateProfile();
+  const { mutate: updateProfileMutation } = useUpdateProfile();
 
   const handleFirstNameChange = useCallback((value: string) => {
     setFirstName(value);
@@ -120,7 +119,6 @@ export const useNameStep = ({ next, phone }: UseNameStepProps): UseNameStepRetur
         const profileData = {
           nickname: login,
           first_name: firstName,
-          phone: phone,
         };
 
         updateProfileMutation(profileData, {
@@ -129,7 +127,7 @@ export const useNameStep = ({ next, phone }: UseNameStepProps): UseNameStepRetur
             next();
           },
           onError: async (error) => {
-            console.error('Ошибка при сохранении профиля:', error);
+            console.error('Ошибка при сохранении профиля:', error, profileData);
             if (error instanceof Response) {
               try {
                 const errorText = await error.text();
@@ -148,7 +146,7 @@ export const useNameStep = ({ next, phone }: UseNameStepProps): UseNameStepRetur
         setIsSubmitting(false);
       }
     },
-    [firstName, login, next, phone, queryClient, updateProfileMutation],
+    [firstName, login, next, queryClient, updateProfileMutation],
   );
 
   const isFormValid = firstName.trim() !== '' && login.trim() !== '' && !firstNameError && !loginError;
