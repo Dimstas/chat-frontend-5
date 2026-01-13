@@ -10,7 +10,7 @@ export default async function proxy(req: NextRequest): Promise<NextResponse> {
     const accessToken = cookiesStore.get('access')?.value;
     const refreshToken = cookiesStore.get('refresh')?.value;
 
-    if (path === '/register' && accessToken) {
+    if (path === '/auth' && accessToken) {
       return NextResponse.redirect(new URL('/contacts', req.url));
     }
 
@@ -23,14 +23,14 @@ export default async function proxy(req: NextRequest): Promise<NextResponse> {
         const tokens = await doRefresh(refreshToken);
 
         const response =
-          path === '/register' ? NextResponse.redirect(new URL('/contacts', req.url)) : NextResponse.rewrite(req.url);
+          path === '/auth' ? NextResponse.redirect(new URL('/contacts', req.url)) : NextResponse.rewrite(req.url);
 
         setAuthCookies(response, tokens);
 
         return response;
       } catch (error: unknown) {
         if (error instanceof Error && error.message === 'REFRESH_TOKEN_INVALID') {
-          const res = NextResponse.redirect(new URL('/register', req.url));
+          const res = NextResponse.redirect(new URL('/auth', req.url));
           clearAuthCookies(res);
           return res;
         }
@@ -40,10 +40,10 @@ export default async function proxy(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    if (path === '/register') {
+    if (path === '/auth') {
       return NextResponse.next();
     }
-    return NextResponse.redirect(new URL('/register', req.url));
+    return NextResponse.redirect(new URL('/auth', req.url));
   } catch (error) {
     console.error('Middleware error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

@@ -67,7 +67,6 @@ export const route = async (req: NextRequest, path: string[]): Promise<NextRespo
   const refreshToken = cookieStore.get('refresh')?.value;
 
   const targetUrl = `${BACKEND}/${path.join('/')}/${req.nextUrl.search}`;
-
   const makeBackendRequest = async (token?: string, body?: BodyInit | null): Promise<Response> => {
     const headers = prepareRequestHeaders(req, token, body);
 
