@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { route } from 'shared/api/session/proxy';
+import { route } from 'shared/api/session';
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }): Promise<Response> {
   const resolvedParams = await params;

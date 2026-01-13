@@ -16,11 +16,18 @@ const prepareRequestBody = async (req: NextRequest): Promise<ArrayBuffer | null>
 /**
  * Создает заголовки для запроса к бэкенду
  */
-const prepareRequestHeaders = (req: NextRequest, accessToken?: string): Record<string, string> => {
+const prepareRequestHeaders = (
+  req: NextRequest,
+  accessToken?: string,
+  body?: BodyInit | null,
+): Record<string, string> => {
   const headers: Record<string, string> = {};
 
   const contentType = req.headers.get('content-type');
-  if (contentType) {
+
+  const hasBody = body != null && !(body instanceof ArrayBuffer && body.byteLength === 0);
+
+  if (contentType && hasBody && req.method !== 'DELETE') {
     headers['Content-Type'] = contentType;
   }
 
@@ -61,12 +68,12 @@ export const route = async (req: NextRequest, path: string[]): Promise<NextRespo
 
   const targetUrl = `${BACKEND}/${path.join('/')}/${req.nextUrl.search}`;
   const makeBackendRequest = async (token?: string, body?: BodyInit | null): Promise<Response> => {
-    const headers = prepareRequestHeaders(req, token);
+    const headers = prepareRequestHeaders(req, token, body);
 
     return fetch(targetUrl, {
       method: req.method,
       headers,
-      body: body || null,
+      body: body ?? null,
     });
   };
 
@@ -99,15 +106,22 @@ export const route = async (req: NextRequest, path: string[]): Promise<NextRespo
       }
     }
 
+    const status = backendResponse.status;
+    const headers = filterBackendHeaders(backendResponse.headers);
+
+    if (status === 204 || status === 205 || status === 304) {
+      return new NextResponse(null, { status, headers });
+    }
+
     const responseData = await backendResponse.text();
 
-    const response = new NextResponse(responseData, {
-      status: backendResponse.status,
-      headers: filterBackendHeaders(backendResponse.headers),
+    let response = new NextResponse(responseData, {
+      status,
+      headers,
     });
 
-    if (backendResponse.status === 401) {
-      return clearAuthCookies(response);
+    if (status === 401) {
+      response = clearAuthCookies(response);
     }
 
     return response;

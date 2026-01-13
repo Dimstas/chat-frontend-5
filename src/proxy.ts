@@ -1,8 +1,7 @@
 import { cookies } from 'next/headers';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { clearAuthCookies, setAuthCookies } from 'shared/api/session/auth';
-import { doRefresh } from 'shared/api/session/refresh';
+import { clearAuthCookies, doRefresh, setAuthCookies } from 'shared/api/session';
 
 export default async function proxy(req: NextRequest): Promise<NextResponse> {
   try {

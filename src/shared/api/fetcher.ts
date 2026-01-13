@@ -2,7 +2,6 @@ export async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promi
   const response = await fetch(input, {
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json',
       ...init?.headers,
     },
     ...init,
@@ -17,5 +16,15 @@ export async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promi
     throw response;
   }
 
-  return (await response.json()) as Promise<T>;
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
+  const contentType = response.headers.get('content-type');
+
+  if (contentType?.includes('application/json')) {
+    return (await response.json()) as T;
+  }
+
+  return (await response.text()) as T;
 }
