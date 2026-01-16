@@ -32,7 +32,7 @@ export const ProfileBlock = ({ uid }: ProfileBlockProps): JSX.Element => {
       />
       {!MAX_PROFILE.is_in_contact && <AddButton icon={<AddIcon />} label={'Добавить в контакты'} />}
       {MAX_PROFILE.is_blocked && <AddButton icon={<AddIcon />} label={'Разблокировать'} />}
-      {MAX_PROFILE.has_uploads && <ProfileUploads />}
+      {MAX_PROFILE.has_uploads && <ProfileUploads uid={uid} />}
     </ProfileLayout>
   );
 };

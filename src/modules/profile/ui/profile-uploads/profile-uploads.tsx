@@ -1,10 +1,14 @@
 import clsx from 'clsx';
-import { PHOTOS } from 'modules/profile/shared/utils/profile';
-import { JSX, useState } from 'react';
-import { ImageUI } from 'shared/ui/image';
+import { FILES, PHOTOS } from 'modules/profile/shared/utils/profile';
+import { JSX, ReactElement, useState } from 'react';
+import { FilesTab } from './files-tab/files-tab';
+import { MediaTab } from './media-tab';
 import styles from './profile-uploads.module.scss';
+import { ProfileUploadsProps } from './profile-uploads.props';
 
-export const ProfileUploads = (): JSX.Element => {
+export const ProfileUploads = ({ uid }: ProfileUploadsProps): JSX.Element => {
+  void uid;
+
   const tabs = [
     {
       id: 'media',
@@ -14,7 +18,7 @@ export const ProfileUploads = (): JSX.Element => {
     {
       id: 'files',
       title: 'Файлы',
-      content: [],
+      content: FILES,
     },
     {
       id: 'voices',
@@ -29,6 +33,19 @@ export const ProfileUploads = (): JSX.Element => {
   ];
 
   const [activeTab, setActiveTab] = useState(0);
+
+  const renderTab = (): ReactElement | null => {
+    const tab = tabs[activeTab];
+
+    switch (tab.id) {
+      case 'media':
+        return <MediaTab items={tab.content} />;
+      case 'files':
+        return <FilesTab items={tab.content} />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -47,11 +64,7 @@ export const ProfileUploads = (): JSX.Element => {
         ))}
       </div>
 
-      <div className={styles.tabContent}>
-        {tabs[activeTab].content.map((item) => (
-          <ImageUI key={item.id} src={item.src} alt={item.alt} width={117} height={117} />
-        ))}
-      </div>
+      {renderTab()}
     </div>
   );
 };

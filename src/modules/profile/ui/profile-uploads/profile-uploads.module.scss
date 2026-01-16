@@ -1,7 +1,7 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .container {
-  @include mixins.flex-box($direction: column, $align: center, $justify: start, $gap: 8px);
+  @include mixins.flex-box($direction: column, $align: center, $justify: center, $gap: 8px);
 
   .tabs {
     padding: 0 16px 0 16px;
