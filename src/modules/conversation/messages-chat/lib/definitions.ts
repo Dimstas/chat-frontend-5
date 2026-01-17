@@ -40,7 +40,7 @@ export type ChatMessageRtc = {
   created_at: number;
 };
 
-type ChartResult = {
+export type ChatResult = {
   id: number;
   uid: string;
   from_user: ChatUser;
@@ -62,5 +62,5 @@ export type MessagesList = {
   count: number;
   next: string;
   previous: string;
-  results: ChartResult[];
+  results: ChatResult[];
 };
