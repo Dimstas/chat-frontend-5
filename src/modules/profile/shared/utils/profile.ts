@@ -27,15 +27,50 @@ export const MIN_PROFILE = {
 };
 
 export const PHOTOS = [
-  { id: 1, src: '/images/profile/media/1.png', alt: 'Фото 1' },
-  { id: 2, src: '/images/profile/media/2.png', alt: 'Фото 2' },
-  { id: 3, src: '/images/profile/media/3.png', alt: 'Фото 3' },
-  { id: 4, src: '/images/profile/media/4.png', alt: 'Фото 4' },
-  { id: 5, src: '/images/profile/media/5.png', alt: 'Фото 5' },
-  { id: 6, src: '/images/profile/media/6.png', alt: 'Фото 6' },
-  { id: 7, src: '/images/profile/media/7.png', alt: 'Фото 7' },
-  { id: 8, src: '/images/profile/media/8.png', alt: 'Фото 8' },
-  { id: 9, src: '/images/profile/media/9.png', alt: 'Фото 9' },
-  { id: 10, src: '/images/profile/media/10.png', alt: 'Фото 10' },
-  { id: 11, src: '/images/profile/media/11.png', alt: 'Фото 11' },
+  { id: 1, file: '1.png', url: '/images/profile/media/1.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 2, file: '2.png', url: '/images/profile/media/2.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 3, file: '3.png', url: '/images/profile/media/3.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 4, file: '4.png', url: '/images/profile/media/4.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 5, file: '5.png', url: '/images/profile/media/5.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 6, file: '6.png', url: '/images/profile/media/6.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 7, file: '7.png', url: '/images/profile/media/7.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 8, file: '8.png', url: '/images/profile/media/8.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 9, file: '9.png', url: '/images/profile/media/9.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 10, file: '10.png', url: '/images/profile/media/10.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+  { id: 11, file: '11.png', url: '/images/profile/media/11.png', size: '1.1 МБ', type: 'PNG', created: '12.02.2025' },
+];
+
+export const FILES = [
+  {
+    id: 1,
+    file: 'Дизайн простых вещей.pdf',
+    url: '/images/profile/files/Дизайн простых вещей.pdf',
+    size: '5.2 МБ',
+    type: 'PDF',
+    created: '12.02.2025',
+  },
+  {
+    id: 2,
+    file: 'Skolkovo_Отчёт_2023_screen.pdf',
+    url: '/images/profile/files/Skolkovo_Отчёт_2023_screen.pdf',
+    size: '15.8 МБ',
+    type: 'PDF',
+    created: '10.02.2025',
+  },
+  {
+    id: 3,
+    file: 'Современные методы...стирования аудитории.pdf',
+    url: '/images/profile/files/Современные методы тестирования аудиофайлов.pdf',
+    size: '902.3 Кб',
+    type: 'PDF',
+    created: '01.12.2024',
+  },
+  {
+    id: 4,
+    file: 'Современный дизайн интерьеров.pdf',
+    url: '/images/profile/files/Современный дизайн интерьеров.pdf',
+    size: '345 Кб',
+    type: 'PDF',
+    created: '25.05.2024',
+  },
 ];

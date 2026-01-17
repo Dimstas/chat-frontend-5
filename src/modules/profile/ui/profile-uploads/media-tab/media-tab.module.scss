@@ -1,0 +1,6 @@
+@use 'shared/styles/03_mixins' as mixins;
+
+.container {
+  @include mixins.flex-box($direction: row, $align: center, $justify: start, $gap: 2px, $wrap: wrap);
+  padding-left: 1px;
+}
