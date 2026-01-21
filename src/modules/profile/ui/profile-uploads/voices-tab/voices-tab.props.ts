@@ -1,5 +1,5 @@
 import { FileContent } from '../profile-uploads.props';
 
-export type MediaTabProps = {
+export type VoicesTabProps = {
   items: FileContent[];
 };
