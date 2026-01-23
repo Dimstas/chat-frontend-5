@@ -7,7 +7,7 @@ type TabContentType = 'media' | 'files' | 'voices' | 'links';
 export type Tab = {
   id: TabContentType;
   title: string;
-  content: FileContent | LinksContent;
+  content: FileContent | LinkContent;
 };
 
 export type FileContent = {
@@ -32,7 +32,8 @@ export type VoiceContent = {
   audioRef?: HTMLAudioElement | null;
 };
 
-export type LinksContent = {
+export type LinkContent = {
+  messageId: number;
   url: string;
   title: string;
   fromUser: string;

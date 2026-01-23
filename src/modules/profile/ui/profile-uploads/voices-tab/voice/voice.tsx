@@ -1,5 +1,5 @@
 import { JSX, useRef, useState } from 'react';
-import { CircularProgress } from '../../circular-progress-label';
+import { CircularProgressLabel } from '../../circular-progress-label';
 import PauseIcon from './icons/Pause.svg';
 import PlayIcon from './icons/Play.svg';
 import styles from './voice.module.scss';
@@ -40,7 +40,7 @@ export const Voice = ({ item, onToggle }: VoiceProps): JSX.Element => {
 
   return (
     <div className={styles.container} onClick={togglePlay}>
-      <CircularProgress>{item.isPlaying ? <PauseIcon /> : <PlayIcon />}</CircularProgress>
+      <CircularProgressLabel>{item.isPlaying ? <PauseIcon /> : <PlayIcon />}</CircularProgressLabel>
       <audio
         ref={audioRef}
         src={item.url}

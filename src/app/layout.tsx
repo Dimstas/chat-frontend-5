@@ -1,6 +1,8 @@
 // src/app/layout.tsx
+import clsx from 'clsx';
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
+import localFont from 'next/font/local';
 import { JSX, ReactNode } from 'react';
 import { QueryProvider } from 'shared/query/query-provider'; // Импортируем ваш QueryProvider
 import '../shared/styles/globals.scss';
@@ -10,6 +12,11 @@ const roboto = Roboto({
   subsets: ['latin', 'cyrillic'],
   weight: ['400', '500', '600'],
   display: 'swap',
+});
+
+const sfPro = localFont({
+  src: [{ path: '../fonts/sf-pro/SFProDisplay-Bold.woff2', weight: '1000', style: 'normal' }],
+  variable: '--font-sf-pro',
 });
 
 export const metadata: Metadata = {
@@ -24,7 +31,7 @@ export default function RootLayout({
 }>): JSX.Element {
   return (
     <html lang="en">
-      <body className={roboto.variable}>
+      <body className={clsx(roboto.variable, sfPro.variable)}>
         <QueryProvider>
           {' '}
           {/* Оборачиваем children в QueryProvider */}

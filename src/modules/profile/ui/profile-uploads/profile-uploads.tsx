@@ -1,8 +1,10 @@
 import clsx from 'clsx';
-import { FILES, PHOTOS, VOICES } from 'modules/profile/shared/utils/profile';
+import { FILES, LINKS, PHOTOS, VOICES } from 'modules/profile/shared/utils/profile';
 import { JSX, ReactElement, useState } from 'react';
-import { FilesTab } from './files-tab/files-tab';
+import { FilesTab } from './files-tab';
+import { LinksTab } from './links-tab';
 import { MediaTab } from './media-tab';
+import { TABS } from './profile-uploads.constants';
 import styles from './profile-uploads.module.scss';
 import { ProfileUploadsProps } from './profile-uploads.props';
 import { VoicesTab } from './voices-tab';
@@ -10,41 +12,20 @@ import { VoicesTab } from './voices-tab';
 export const ProfileUploads = ({ uid }: ProfileUploadsProps): JSX.Element => {
   void uid;
 
-  const tabs = [
-    {
-      id: 'media',
-      title: 'Медиа',
-      content: PHOTOS,
-    },
-    {
-      id: 'files',
-      title: 'Файлы',
-      content: FILES,
-    },
-    {
-      id: 'voices',
-      title: 'Голосовые',
-      content: VOICES,
-    },
-    {
-      id: 'links',
-      title: 'Ссылки',
-      content: [],
-    },
-  ];
-
   const [activeTab, setActiveTab] = useState(0);
 
   const renderTab = (): ReactElement | null => {
-    const tab = tabs[activeTab];
+    const tab = TABS[activeTab];
 
     switch (tab.id) {
       case 'media':
-        return <MediaTab items={tab.content} />;
+        return <MediaTab items={PHOTOS} />;
       case 'files':
-        return <FilesTab items={tab.content} />;
+        return <FilesTab items={FILES} />;
       case 'voices':
-        return <VoicesTab items={tab.content} />;
+        return <VoicesTab items={VOICES} />;
+      case 'links':
+        return <LinksTab items={LINKS} />;
       default:
         return null;
     }
@@ -53,7 +34,7 @@ export const ProfileUploads = ({ uid }: ProfileUploadsProps): JSX.Element => {
   return (
     <div className={styles.container}>
       <div className={styles.tabs}>
-        {tabs.map((tab, index) => (
+        {TABS.map((tab, index) => (
           <button
             key={tab.id}
             className={clsx(styles.tab, activeTab === index && styles.active)}
@@ -67,7 +48,7 @@ export const ProfileUploads = ({ uid }: ProfileUploadsProps): JSX.Element => {
         ))}
       </div>
 
-      {renderTab()}
+      <div className={styles.tabContent}>{renderTab()}</div>
     </div>
   );
 };

@@ -1,5 +1,5 @@
-import { FileContent } from '../profile-uploads.props';
+import { VoiceContent } from '../profile-uploads.props';
 
 export type VoicesTabProps = {
-  items: FileContent[];
+  items: VoiceContent[];
 };

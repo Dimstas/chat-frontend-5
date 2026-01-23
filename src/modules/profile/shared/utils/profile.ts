@@ -93,3 +93,8 @@ export const VOICES = [
     created: '08.04.2024',
   },
 ];
+
+export const LINKS = [
+  { messageId: 1, url: 'http://yandex.ru', title: 'yandex.ru', fromUser: 'Антон Ивонецкий', created: '12.02.2025' },
+  { messageId: 2, url: 'http://vk.ru', title: 'vk.ru', fromUser: 'Влад Ляшев', created: '04.11.2024' },
+];
