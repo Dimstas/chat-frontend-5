@@ -5,3 +5,13 @@
   height: 81.6rem;
   overflow-y: scroll;
 }
+
+.wrapper::-webkit-scrollbar {
+  width: 0.6rem;
+  height: 21rem;
+}
+
+.wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--surface-scroll);
+  border-radius: 0.4rem;
+}
