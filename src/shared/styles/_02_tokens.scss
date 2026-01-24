@@ -37,6 +37,9 @@
 
   --surface-delete-selected-button: #{fig.$figma-gray-tone-gray};
 
+  --icon-primary: #{fig.$figma-text-gray};
+  --icon-inverse: #{fig.$figma-white};
+
   /* ========= Border ========= */
   --border-brand: var(--brand-primary);
   --border-state-error: #{fig.$figma-system-red};
