@@ -9,6 +9,9 @@
   overflow: hidden;
   margin-bottom: 1.2rem;
 }
+.wrapper:hover {
+  background-color: var(--surface-disabled);
+}
 .item {
   @include mixins.flex-box($direction: column, $gap: 0.6rem);
   max-width: 50rem;
