@@ -10,8 +10,16 @@ export const IncomingMessagesCard = ({ message }: { message: ChatResult }): JSX.
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
   const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
-    event.preventDefault(); // Предотвращает стандартное контекстное меню
-    setContextMenuPos({ x: event.pageX, y: event.pageY });
+    event.preventDefault();
+    const menuWidth = 250;
+    const menuHeight = 220;
+    const x = event.pageX;
+    const y = event.pageY;
+    const adjustedX = x + 5;
+    const adjustedY = y - menuHeight - 5;
+    const constrainedX = adjustedX + menuWidth > window.innerWidth - 242 ? x - menuWidth - 5 : adjustedX;
+    const constrainedY = adjustedY < 150 ? y + 5 : adjustedY; // Не допускаем отрицательных значений по Y
+    setContextMenuPos({ x: constrainedX, y: constrainedY });
     setContextMenuVisible(true);
   };
 
@@ -19,7 +27,7 @@ export const IncomingMessagesCard = ({ message }: { message: ChatResult }): JSX.
     setContextMenuVisible(false);
   };
   return (
-    <div className={styles.wrapper} onContextMenu={handleContextMenu}>
+    <div className={styles.wrapper} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
       <ContextMenu position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
       <div className={styles.item}>
         <div className={styles.message}>
