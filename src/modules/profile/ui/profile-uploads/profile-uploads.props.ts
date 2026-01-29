@@ -7,10 +7,10 @@ type TabContentType = 'media' | 'files' | 'voices' | 'links';
 export type Tab = {
   id: TabContentType;
   title: string;
-  content: FilesContent | LinksContent;
+  content: FileContent | LinkContent;
 };
 
-export type FilesContent = {
+export type FileContent = {
   id: number;
   file: string;
   url: string;
@@ -21,7 +21,19 @@ export type FilesContent = {
   progress?: number;
 };
 
-export type LinksContent = {
+export type VoiceContent = {
+  id: number;
+  file: string;
+  url: string;
+  size: string;
+  type: string;
+  created: string;
+  isPlaying?: boolean;
+  audioRef?: HTMLAudioElement | null;
+};
+
+export type LinkContent = {
+  messageId: number;
   url: string;
   title: string;
   fromUser: string;

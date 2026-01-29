@@ -1,9 +1,7 @@
 import clsx from 'clsx';
-import Link from 'next/link';
+import { CardHeader, CardShell } from 'modules/conversation/shared/ui/card';
 import React, { JSX } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
-import { ImageUI } from 'shared/ui/image';
-import { CardInfo } from './card-info';
 import { CardSelection } from './card-selection';
 import styles from './contact-card.module.scss';
 import { ContactCardProps } from './contact-card.props';
@@ -20,23 +18,27 @@ export const ContactCard = ({ contact, selected, selectionMode, onSelectHandler 
   };
 
   return (
-    <li className={styles.li}>
-      <Link
-        href={`/chats/${uid}`}
-        className={clsx(styles.card, {
-          [styles.cardSelect]: selected,
-        })}
-        onClick={handleClick}
-      >
-        <ImageUI src={avatar} alt={fullName} width={40} height={40} classNames={{ root: styles.imageWrapper }} />
-
-        <div className={styles.content}>
-          <CardInfo fullName={fullName} status={status} selected={selected} />
-          <CardSelection visible={selectionMode} selected={selected} />
+    <CardShell
+      href={`/chats/${uid}`}
+      imageOptions={{ src: avatar, alt: fullName, classNames: { root: styles.imageWrapper } }}
+      selected={selected}
+      selectAction={handleClick}
+    >
+      <div className={styles.card}>
+        <div className={styles.info}>
+          <CardHeader title={fullName} selected={selected} />
+          <div
+            className={clsx(
+              styles.status,
+              status === 'в сети' && styles.statusOnline,
+              selected && styles.statusSelected,
+            )}
+          >
+            {status}
+          </div>
         </div>
-      </Link>
-
-      <div className={styles.divider}></div>
-    </li>
+        <CardSelection visible={selectionMode} selected={selected} />
+      </div>
+    </CardShell>
   );
 };

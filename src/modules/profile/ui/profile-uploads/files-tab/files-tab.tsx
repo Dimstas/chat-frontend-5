@@ -1,13 +1,13 @@
 import { JSX, useState } from 'react';
-import { CircularProgress } from '../circular-progress-label';
-import { FilesContent } from '../profile-uploads.props';
+import { CircularProgressLabel } from '../circular-progress-label';
+import { FileContent } from '../profile-uploads.props';
 import styles from './files-tab.module.scss';
 import { FilesTabProps } from './files-tab.props';
 import DownloadIcon from './icons/download.svg';
 import FileIcon from './icons/file.svg';
 
 export const FilesTab = ({ items }: FilesTabProps): JSX.Element => {
-  const [localFiles, setLocalFiles] = useState<FilesContent[]>(items);
+  const [localFiles, setLocalFiles] = useState<FileContent[]>(items);
 
   const handleDownload = (fileId: number): void => {
     setLocalFiles((prev) =>
@@ -51,9 +51,9 @@ export const FilesTab = ({ items }: FilesTabProps): JSX.Element => {
         {localFiles.map((item) => (
           <li key={item.id} className={styles.listItem}>
             <div className={styles.fileItem} onClick={() => handleDownload(item.id)}>
-              <CircularProgress progress={item.progress} isLoading={item.isLoading}>
+              <CircularProgressLabel progress={item.progress} isLoading={item.isLoading}>
                 {item.isLoading ? <DownloadIcon /> : <FileIcon />}
-              </CircularProgress>
+              </CircularProgressLabel>
               <div className={styles.fileInfo}>
                 <div className={styles.fileName}>{item.file}</div>
                 <div className={styles.fileDescription}>

@@ -8,6 +8,7 @@
   --brand-dark-60: #{fig.$figma-accent-violet-dark-60};
   --brand-violet-white: #{fig.$figma-accent-violet-white};
   --barnd-violet-super-light: #{fig.$figma-accent-violet-super-light};
+  --brand-blue: #{fig.$figma-system-blue};
 
   /* ========= Text ========= */
   --text-brand: var(--brand-primary);
@@ -27,6 +28,7 @@
   --surface-secondary: #{fig.$figma-gray-main-light};
   --surface-secondary-50: #{fig.$figma-gray-main-light-50};
   --surface-disabled: #{fig.$figma-gray-tone};
+  --surfase-message-card: #{fig.$figma-complementary-teal-secondary};
 
   --surface-section-header: #{fig.$figma-accent-violet-super-light};
   --surface-scroll: #{fig.$figma-gray-tone-gray-dark};
@@ -34,6 +36,9 @@
   --surface-active-card: var(--brand-dark-60);
 
   --surface-delete-selected-button: #{fig.$figma-gray-tone-gray};
+
+  --icon-primary: #{fig.$figma-text-gray};
+  --icon-inverse: #{fig.$figma-white};
 
   /* ========= Border ========= */
   --border-brand: var(--brand-primary);

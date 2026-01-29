@@ -2,9 +2,11 @@
 
 .circle {
   @include mixins.flex-box();
+  flex-shrink: 0;
+
   width: 2.4rem;
   height: 2.4rem;
-  border: 0.1rem solid var(--border-brand);
+  border: 0.2rem solid var(--border-brand);
   border-radius: 50%;
   overflow: hidden;
 

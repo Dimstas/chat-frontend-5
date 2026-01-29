@@ -1,5 +1,5 @@
-import { FilesContent } from '../profile-uploads.props';
+import { FileContent } from '../profile-uploads.props';
 
 export type MediaTabProps = {
-  items: FilesContent[];
+  items: FileContent[];
 };

@@ -1,0 +1,14 @@
+@use 'shared/styles/03_mixins' as mixins;
+
+.container {
+  width: 100%;
+
+  .fileList {
+    @include mixins.flex-box($direction: column, $align: center, $justify: center, $gap: 8px);
+
+    .listItem {
+      width: 100%;
+      padding: 0 16px;
+    }
+  }
+}

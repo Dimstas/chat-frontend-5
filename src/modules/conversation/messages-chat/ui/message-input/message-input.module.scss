@@ -2,7 +2,7 @@
 
 .inputWrapper {
   @include mixins.flex-box($gap: 0.8rem);
-  width: auto;
+  width: 100%;
   height: 3.6rem;
   border-radius: 2rem;
   padding: 0.75rem 1.2rem;
@@ -12,12 +12,13 @@
 
 .form {
   @include mixins.flex-box();
-  width: auto;
+  width: 100%;
+  height: 2.1rem;
 }
 
 .input {
+  @include mixins.flex-box();
   width: 100%;
-  height: 2.1rem;
   font-weight: 400;
   font-size: 1.6rem;
   line-height: 1.3;
@@ -32,7 +33,13 @@
   }
 }
 .icon {
+  @include mixins.flex-box($justify: end);
+  width: 2.4rem;
+  height: 2.2rem;
+  color: inherit; /* Убедитесь, что цвет может наследоваться */
+}
+.emodji {
   @include mixins.flex-box();
-  width: 2.1rem;
-  height: 2.1rem;
+  width: auto;
+  height: auto;
 }

@@ -74,3 +74,27 @@ export const FILES = [
     created: '25.05.2024',
   },
 ];
+
+export const VOICES = [
+  {
+    id: 1,
+    file: 'Алексей Смирнов',
+    url: '/images/profile/voices/1.mp3',
+    size: '0:10',
+    type: 'MP3',
+    created: '12.02.2025',
+  },
+  {
+    id: 2,
+    file: 'Алексей Смирнов',
+    url: '/images/profile/voices/2.mp3',
+    size: '0:12',
+    type: 'MP3',
+    created: '08.04.2024',
+  },
+];
+
+export const LINKS = [
+  { messageId: 1, url: 'http://yandex.ru', title: 'yandex.ru', fromUser: 'Антон Ивонецкий', created: '12.02.2025' },
+  { messageId: 2, url: 'http://vk.ru', title: 'vk.ru', fromUser: 'Влад Ляшев', created: '04.11.2024' },
+];
