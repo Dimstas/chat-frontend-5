@@ -18,7 +18,7 @@ export const IncomingMessagesCard = ({ message }: { message: ChatResult }): JSX.
     const adjustedX = x + 5;
     const adjustedY = y - menuHeight - 5;
     const constrainedX = adjustedX + menuWidth > window.innerWidth - 242 ? x - menuWidth - 5 : adjustedX;
-    const constrainedY = adjustedY < 150 ? y + 5 : adjustedY; // Не допускаем отрицательных значений по Y
+    const constrainedY = adjustedY < 150 ? y + 5 : adjustedY;
     setContextMenuPos({ x: constrainedX, y: constrainedY });
     setContextMenuVisible(true);
   };
