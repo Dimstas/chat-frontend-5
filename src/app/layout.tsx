@@ -1,10 +1,9 @@
-// src/app/layout.tsx
 import clsx from 'clsx';
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import localFont from 'next/font/local';
 import { JSX, ReactNode } from 'react';
-import { QueryProvider } from 'shared/query/query-provider'; // Импортируем ваш QueryProvider
+import { QueryProvider } from 'shared/query/query-provider';
 import '../shared/styles/globals.scss';
 
 const roboto = Roboto({
@@ -32,11 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={clsx(roboto.variable, sfPro.variable)}>
-        <QueryProvider>
-          {' '}
-          {/* Оборачиваем children в QueryProvider */}
-          {children}
-        </QueryProvider>
+        <QueryProvider> {children}</QueryProvider>
       </body>
     </html>
   );

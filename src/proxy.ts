@@ -40,7 +40,7 @@ export default async function proxy(req: NextRequest): Promise<NextResponse> {
       }
     }
 
-    if (path === '/auth') {
+    if (path === '/auth' || path === '/support') {
       return NextResponse.next();
     }
     return NextResponse.redirect(new URL('/auth', req.url));
