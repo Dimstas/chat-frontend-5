@@ -39,7 +39,6 @@
   fill: var(--preview-icon);
 }
 
-
 .preview {
   @include mixins.flex-box($justify: space-between, $align: center, $gap: 0.4rem);
   overflow: hidden;

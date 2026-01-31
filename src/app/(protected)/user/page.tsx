@@ -24,7 +24,6 @@ const RegisterUserPage = (): JSX.Element => {
       await fetch('/api/auth/remove-tokens', {
         method: 'POST',
       });
-      console.log('Cookies cleared via API route');
     } catch (error) {
       console.error('Failed to clear cookies:', error);
     }

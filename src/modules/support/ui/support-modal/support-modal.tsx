@@ -3,8 +3,8 @@ import { ButtonUI } from '../../../../shared/ui/button';
 import styles from './support-modal.module.scss';
 
 type SupportModalProps = {
-  title?: string;
-  content: string;
+  title: string;
+  content?: string;
   firstButtonText?: string;
   secondButtonText?: string;
   onFirstButtonClick?: () => void;
@@ -39,17 +39,6 @@ export const SupportModal: React.FC<SupportModalProps> = ({
         <p className={styles.content}>{content}</p>
 
         <div className={styles.buttonContainer}>
-          {secondButtonText && (
-            <ButtonUI
-              variant="general"
-              appearance="secondary"
-              label={secondButtonText}
-              onClick={() => {
-                if (onSecondButtonClick) onSecondButtonClick();
-              }}
-            />
-          )}
-
           {firstButtonText && (
             <ButtonUI
               variant="general"
@@ -57,6 +46,16 @@ export const SupportModal: React.FC<SupportModalProps> = ({
               label={firstButtonText}
               onClick={() => {
                 if (onFirstButtonClick) onFirstButtonClick();
+              }}
+            />
+          )}
+          {secondButtonText && (
+            <ButtonUI
+              variant="general"
+              appearance="secondary"
+              label={secondButtonText}
+              onClick={() => {
+                if (onSecondButtonClick) onSecondButtonClick();
               }}
             />
           )}

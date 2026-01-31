@@ -1,6 +1,7 @@
 'use client';
 
 import { SendSupportMessageStep } from 'modules/support/ui/send-support-message';
+import { SupportMessageSentStep } from 'modules/support/ui/support-message-sent';
 import { useRouter } from 'next/navigation';
 import { JSX, useState } from 'react';
 
@@ -33,7 +34,7 @@ const SupportPage = (): JSX.Element => {
   return (
     <>
       {step === 1 && <SendSupportMessageStep next={nextStep} prev={resetToWelcome} />}
-      {/* {step === 2 && <FinalSupportStep next={nextStep} />} */}
+      {step === 2 && <SupportMessageSentStep next={nextStep} prev={resetToWelcome} />}
     </>
   );
 };

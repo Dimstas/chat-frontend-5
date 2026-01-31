@@ -29,25 +29,29 @@ export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInput
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const inputValue = e.target.value;
+
+    let newValue = inputValue;
     if (inputValue.startsWith('+') && !inputValue.startsWith('+7')) {
-      setInternalValue(inputValue);
-      onChange?.(inputValue);
-      const newIsFilled = inputValue.trim() !== '';
-      const newIsValid = validatePhoneString(inputValue);
+      setInternalValue(newValue);
+      onChange?.(newValue);
+      const newIsFilled = newValue.trim() !== '';
+      const newIsValid = validatePhoneString(newValue);
       onValidationChange?.(newIsValid, newIsFilled);
       return;
     }
 
     const formattedValue = formatPhone(inputValue);
-    setInternalValue(formattedValue);
-    onChange?.(formattedValue);
+    newValue = formattedValue;
+
+    setInternalValue(newValue);
+    onChange?.(newValue);
 
     if (error) {
       setError(null);
     }
 
-    const newIsFilled = inputValue.trim() !== '';
-    const newIsValid = validatePhoneString(inputValue);
+    const newIsFilled = newValue.trim() !== '';
+    const newIsValid = validatePhoneString(newValue);
     onValidationChange?.(newIsValid, newIsFilled);
   };
 
@@ -57,7 +61,9 @@ export const usePhoneInput = (options: UsePhoneInputOptions = {}): UsePhoneInput
 
   const handleBlur: React.FocusEventHandler<HTMLInputElement> = (e) => {
     setIsFocused(false);
-    const inputValue = e.target.value;
+
+    const inputValue = internalValue;
+
     let newError: string | null = null;
     let isValid = false;
     const isFilled = inputValue.trim() !== '';

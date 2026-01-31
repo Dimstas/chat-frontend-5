@@ -60,12 +60,9 @@ export const usePhoneStep = ({ next, onPhoneConfirmed }: UsePhoneStepProps): Use
           onPhoneConfirmed(formattedPhone);
           next();
         },
-        onError: (error) => {
-          console.error('Ошибка при получении кода:', error);
-        },
+        onError: (error) => {},
       });
     } else {
-      console.error('Phone number is not valid or filled when confirming.');
     }
   }, [phoneValue, isPhoneValid, isPhoneFilled, getAuthCode, next, onPhoneConfirmed]);
 
