@@ -20,7 +20,7 @@ export const CardShell = ({ children, href, imageOptions, selected, selectAction
     const menuHeight = 238;
     const y = event.pageY;
     const adjustedY = y + 5;
-    const constrainedY = adjustedY + menuHeight - (window.innerHeight - 245) > 0 ? y - menuHeight - 5 : adjustedY;
+    const constrainedY = adjustedY + menuHeight - (window.innerHeight - 245) > 0 ? y - menuHeight - 10 : adjustedY;
     const constrainedX = 387;
     setContextMenuPos({ x: constrainedX, y: constrainedY });
     setContextMenuVisible(true);

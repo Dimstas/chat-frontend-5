@@ -10,7 +10,7 @@ const chatSchema = z.object({
   avatar_webp_url: z.string(),
   is_blocked: z.boolean(),
   is_online: z.boolean(),
-  was_online_at: z.number(),
+  was_online_at: z.number().nullable(),
   is_in_contacts: z.boolean(),
 });
 
