@@ -19,6 +19,9 @@
   &:hover {
     background-color: var(--surface-hover-card);
   }
+  &.contextMenu {
+    background-color: var(--surface-hover-card);
+  }
 
   &.cardSelect {
     background-color: var(--surface-active-card);

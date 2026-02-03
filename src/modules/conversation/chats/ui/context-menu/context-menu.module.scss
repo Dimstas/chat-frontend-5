@@ -3,7 +3,7 @@
 .wrapper {
   @include mixins.flex-box($direction: column);
   width: 25rem;
-  height: 22rem;
+  height: auto;
   box-shadow: 0rem 0.2rem 1.2rem 0rem rgba(0, 0, 0, 0.2);
   position: fixed;
   z-index: 1000;
@@ -11,9 +11,9 @@
 .cell {
   @include mixins.flex-box($justify: space-between, $gap: 0.4rem);
   width: 100%;
-  height: 4.4rem;
+  height: auto;
   border-bottom: 0.1rem solid var(--border-card-contact);
-  padding: 1rem 1.6rem;
+  padding: 1rem 1.7rem;
   background-color: var(--surface-base);
 }
 .cellTop {
@@ -32,7 +32,7 @@
   font-size: 1.6rem;
   letter-spacing: 0.01;
   font-weight: 400;
-  text-align: right;
+  text-align: left;
   color: var(--text-primary);
   overflow: hidden;
 }
