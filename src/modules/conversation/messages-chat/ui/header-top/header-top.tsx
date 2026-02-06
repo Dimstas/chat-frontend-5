@@ -1,23 +1,24 @@
 import { JSX } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
-import { getContactById } from '../../utils/get-contact-by-id';
+import { getChatById } from '../../utils/get-chat-by-id';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';
 import styles from './header-top.module.scss';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
 
 export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
-  const { avatar, first_name, last_name, status } = getContactById(user_uid)[0];
-  const was_online_at = getLastSeenLabel(status);
+  const { chat } = getChatById(user_uid)[0];
+  const { avatar_url, first_name, last_name, was_online_at } = chat;
+  const status = getLastSeenLabel(was_online_at);
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.contactWrapper}>
-        <ImageUI src={avatar} alt={first_name} width={40} height={40} className={styles.image} />
+        <ImageUI src={avatar_url} alt={first_name} width={40} height={40} className={styles.image} />
         <div className={styles.info}>
           <span className={styles.name}>{first_name + ' ' + last_name}</span>
-          <span className={styles.status}>{was_online_at}</span>
+          <span className={styles.status}>{status}</span>
         </div>
         <div className={styles.icon}>
           <button>
