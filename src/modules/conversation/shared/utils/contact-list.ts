@@ -96,7 +96,7 @@ export const mockChatListApiResponse = {
         avatar_webp_url: '/images/avatars/avatar-3.svg',
         is_blocked: false,
         is_online: false,
-        was_online_at: now - 50,
+        was_online_at: now - 60,
         is_in_contacts: true,
       },
       is_favorite: false,
