@@ -28,5 +28,3 @@ export const useChatsQuery = (): UseInfiniteQueryResult<InfiniteData<ChatListApi
     },
   });
 };
-
-// fix(auth,support): resolve errors in auth flow and support page
