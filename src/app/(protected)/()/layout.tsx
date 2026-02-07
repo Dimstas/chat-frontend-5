@@ -16,7 +16,12 @@ export default function Layout({
 }): JSX.Element {
   return (
     <QueryProvider>
-      <ProtectedLayout nav={<Navigation />} list={list} main={children} info={<ProfileBlock uid="1" />} />
+      <ProtectedLayout
+        nav={<Navigation />}
+        list={list}
+        main={children}
+        info={<ProfileBlock uid="486746f7-034e-42b1-a194-ba1dcdd37f93" />}
+      />
       <QueryDevtools />
     </QueryProvider>
   );
