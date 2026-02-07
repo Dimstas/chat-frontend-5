@@ -8,8 +8,9 @@ import { pluralize } from 'shared/libs/index';
 // был(а) вчера в 21:15 = от 24 часов до 47 ч. 59 мин
 // был(а) 02.04.24 = от 48 часов до бесконечности, отображается всегда
 
-export const getLastSeenLabel = (wasOnlineAt: number): string => {
+export const getLastSeenLabel = (wasOnlineAt: number | null): string => {
   if (wasOnlineAt === 0) return 'в сети';
+  if (wasOnlineAt === null) return 'соединение...';
 
   const now = Math.floor(Date.now() / 1000);
   const diff = now - wasOnlineAt;
