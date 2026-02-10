@@ -1,5 +1,5 @@
 import { apiFetch } from 'shared/api';
-import { InfoProfileApiResponse } from '../model/info.api.schema';
+import { BlockProfileApiResponse, InfoProfileApiResponse } from '../model/info.api.schema';
 
 export const getProfileInfoById = (
   id: string,
@@ -9,4 +9,15 @@ export const getProfileInfoById = (
     method: 'GET',
     signal,
   });
+};
+
+export const blockUser = (uid: string): Promise<BlockProfileApiResponse> => {
+  return apiFetch<BlockProfileApiResponse>(`/api/proxy/api/v1/contact/blacklist/add/${uid}/`, {
+    method: 'POST',
+    body: undefined,
+  });
+};
+
+export const unblockUser = async (uid: string): Promise<void> => {
+  await apiFetch<void>(`/api/proxy/api/v1/contact/blacklist/delete/${uid}/`, { method: 'DELETE' });
 };

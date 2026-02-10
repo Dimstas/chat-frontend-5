@@ -1,3 +1,4 @@
+import { useBlockUserMutation } from 'modules/profile/api';
 import { JSX } from 'react';
 import { Dropdown } from 'shared/ui/dropdown';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
@@ -10,6 +11,8 @@ import styles from './profile-header.module.scss';
 import { ProfileHeaderProps } from './profile-header.props';
 
 export const ProfileHeader = ({ uid, isBlocked }: ProfileHeaderProps): JSX.Element => {
+  const { mutate: blockUser } = useBlockUserMutation(uid);
+
   const menuItems: DropdownItem[] = [
     {
       label: 'Поделиться профилем',
@@ -28,7 +31,7 @@ export const ProfileHeader = ({ uid, isBlocked }: ProfileHeaderProps): JSX.Eleme
       label: 'Заблокировать',
       icon: <BlockIcon />,
       variant: 'alert',
-      onClick: () => console.log('click block'),
+      onClick: blockUser,
     });
   }
 

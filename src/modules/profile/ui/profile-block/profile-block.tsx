@@ -1,9 +1,10 @@
 'use client';
 
-import { useInfoProfileQuery } from 'modules/profile/api/info.query';
+import { useInfoProfileQuery } from 'modules/profile/api';
+import { useUnblockUserMutation } from 'modules/profile/api/info.query';
 import { formatTimestamp } from 'modules/profile/shared/utils/date-time';
 import { JSX } from 'react';
-import { AddButton } from '../action-button';
+import { ActionButton } from '../action-button';
 import { ProfileAvatar } from '../profile-avatar';
 import { ProfileHeader } from '../profile-header';
 import { ProfileInfo } from '../profile-info';
@@ -15,6 +16,7 @@ import { ProfileBlockProps } from './profile-block.props';
 export const ProfileBlock = ({ uid }: ProfileBlockProps): JSX.Element => {
   void uid;
   const { data, isLoading, isError, error } = useInfoProfileQuery(uid);
+  const { mutate: unblockUser } = useUnblockUserMutation(uid);
 
   if (isLoading) return <div>Загрузка...</div>;
   if (isError) return <div>Ошибка: {error.message}</div>;
@@ -35,7 +37,7 @@ export const ProfileBlock = ({ uid }: ProfileBlockProps): JSX.Element => {
         about={data?.additionalInformation}
       />
       {/* {!MAX_PROFILE.is_in_contact && <AddButton icon={<AddIcon />} label={'Добавить в контакты'} />} */}
-      {data?.isBlocked && <AddButton icon={<AddIcon />} label={'Разблокировать'} />}
+      {data?.isBlocked && <ActionButton icon={<AddIcon />} label={'Разблокировать'} onClick={unblockUser} />}
       {/* {MAX_PROFILE.has_uploads && <ProfileUploads uid={uid} />} */}
     </ProfileLayout>
   );
