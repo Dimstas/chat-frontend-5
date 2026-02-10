@@ -1,4 +1,4 @@
-import { ProfileBlock } from 'modules/profile';
+import { InfoBlock } from 'modules/info';
 import { JSX } from 'react';
 
 export default async function InfoBlockPage({
@@ -8,5 +8,5 @@ export default async function InfoBlockPage({
 }): Promise<JSX.Element> {
   const user_uid = (await params).user_uid;
 
-  return <ProfileBlock uid={user_uid} />;
+  return <InfoBlock uid={user_uid} />;
 }
