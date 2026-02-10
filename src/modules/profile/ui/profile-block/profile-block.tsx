@@ -12,27 +12,25 @@ import { ProfileUploads } from '../profile-uploads';
 import AddIcon from './icons/add.svg';
 import { ProfileBlockProps } from './profile-block.props';
 
-export const ProfileBlock = ({ uid }: ProfileBlockProps): JSX.Element => {
-  void uid;
-
+export const ProfileBlock = ({ chat }: { chat: ProfileBlockProps }): JSX.Element => {
   return (
-    <ProfileLayout header={<ProfileHeader uid={uid} isBlocked={MAX_PROFILE.is_blocked} />}>
+    <ProfileLayout header={<ProfileHeader uid={chat.uid} isBlocked={chat.is_blocked} />}>
       <ProfileAvatar
-        avatarHref={MAX_PROFILE.avatar_url ?? '/images/profile/default.png'}
-        firstName={MAX_PROFILE.first_name}
-        lastName={MAX_PROFILE.last_name}
-        isOnline={MAX_PROFILE.is_online}
+        avatarHref={chat.avatar_webp_url || '/images/profile/default.png'}
+        firstName={chat.first_name}
+        lastName={chat.last_name}
+        isOnline={chat.is_online}
       />
-      <ProfileNotification uid={uid} />
+      <ProfileNotification uid={chat.uid} />
       <ProfileInfo
-        nickname={MAX_PROFILE.nickname}
+        nickname={chat.nickname}
         phoneNumber={MAX_PROFILE.phoneNumber}
         birthDay={MAX_PROFILE.birthDay}
         about={MAX_PROFILE.about}
       />
       {!MAX_PROFILE.is_in_contact && <AddButton icon={<AddIcon />} label={'Добавить в контакты'} />}
-      {MAX_PROFILE.is_blocked && <AddButton icon={<AddIcon />} label={'Разблокировать'} />}
-      {MAX_PROFILE.has_uploads && <ProfileUploads uid={uid} />}
+      {chat.is_blocked && <AddButton icon={<AddIcon />} label={'Разблокировать'} />}
+      {MAX_PROFILE.has_uploads && <ProfileUploads uid={chat.uid} />}
     </ProfileLayout>
   );
 };

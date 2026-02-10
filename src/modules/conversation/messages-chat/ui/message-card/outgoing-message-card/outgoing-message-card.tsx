@@ -18,7 +18,8 @@ export const OutgoingMessagesCard = ({ message }: { message: ChatResult }): JSX.
     const y = event.pageY;
     const adjustedX = x + 5;
     const adjustedY = y - menuHeight - 5;
-    const constrainedX = adjustedX + menuWidth > window.innerWidth - 242 ? x - menuWidth - 5 : adjustedX;
+    const constrainedX =
+      adjustedX + menuWidth > window.innerWidth - window.innerWidth / 3.77 ? x - menuWidth - 5 : adjustedX;
     const constrainedY = adjustedY < 150 ? y + 5 : adjustedY;
     setContextMenuPos({ x: constrainedX, y: constrainedY });
     setContextMenuVisible(true);

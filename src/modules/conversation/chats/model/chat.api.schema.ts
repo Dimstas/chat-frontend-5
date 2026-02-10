@@ -13,7 +13,7 @@ const chatSchema = z.object({
   was_online_at: z.number().nullable(),
   is_in_contacts: z.boolean(),
 });
-
+export type ChatInfo = z.infer<typeof chatSchema>;
 export const chatTypeSchema = z.enum(['chat', 'public-group', 'private-group', 'public-channel', 'private-channel']);
 export type ChatType = z.infer<typeof chatTypeSchema>;
 

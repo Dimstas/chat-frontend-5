@@ -27,7 +27,10 @@ export const MessageInput = (): JSX.Element => {
     if (buttonRef.current) {
       const { y, x } = buttonRef.current.getBoundingClientRect();
       const heightPicker = 535;
-      setPickerPos({ x, y: y - heightPicker - 15 });
+      const widthPicker = 472;
+      const adjustedX = x + widthPicker + 295 - window.innerWidth > 0 ? x - widthPicker + 45 : x;
+      const adjustedY = y - heightPicker - 15;
+      setPickerPos({ x: adjustedX, y: adjustedY });
     }
     setShowEmojiPicker(true);
   };
