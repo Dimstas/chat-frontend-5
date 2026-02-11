@@ -19,7 +19,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   } = messages;
 
   const pathname = usePathname();
-  const isSelected = pathname === `/chats/${peer.uid}`;
+  const isSelected = pathname === `/chats/${peer.uid}` || pathname === `/chats/${peer.uid}/info`;
 
   return (
     <CardShell

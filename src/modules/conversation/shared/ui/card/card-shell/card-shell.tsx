@@ -10,7 +10,7 @@ import { CardShellProps } from './card-shell.props';
 
 export const CardShell = ({ children, href, imageOptions, selected, selectAction }: CardShellProps): JSX.Element => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = pathname === href || pathname === `${href}/info`;
   const { src, alt, classNames } = imageOptions;
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
