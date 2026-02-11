@@ -55,8 +55,8 @@ export type Chat = {
   peer: PeerEntity;
   chat: ChatEntity;
   messages: {
-    lastSeenMessage: BaseMessageEntity;
+    lastSeenMessage?: BaseMessageEntity;
     firstNewMessage?: BaseMessageEntity;
-    lastMessage: LastMessageEntity;
+    lastMessage?: LastMessageEntity;
   };
 };

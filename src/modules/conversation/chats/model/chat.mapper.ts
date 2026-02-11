@@ -47,10 +47,12 @@ export const mapChatFromApi = (api: ChatApi): Chat => {
     },
 
     messages: {
-      lastSeenMessage: {
-        id: api.last_seen_message.id,
-        uid: api.last_seen_message.uid,
-      },
+      lastSeenMessage: api.last_seen_message
+        ? {
+            id: api.last_seen_message.id,
+            uid: api.last_seen_message.uid,
+          }
+        : undefined,
 
       firstNewMessage: api.first_new_message
         ? {
@@ -59,20 +61,22 @@ export const mapChatFromApi = (api: ChatApi): Chat => {
           }
         : undefined,
 
-      lastMessage: {
-        id: api.last_message.id,
-        uid: api.last_message.uid,
-        fromUser: api.last_message.from_user,
-        content: api.last_message.content,
+      lastMessage: api.last_message
+        ? {
+            id: api.last_message.id,
+            uid: api.last_message.uid,
+            fromUser: api.last_message.from_user,
+            content: api.last_message.content,
 
-        filesSummary: mapFilesSummaryFromApi(api.last_message.files_summary),
+            filesSummary: mapFilesSummaryFromApi(api.last_message.files_summary),
 
-        hasRepliedMessage: api.last_message.has_replied_message,
-        hasForwardedMessage: api.last_message.has_forwarded_message,
-        new: api.last_message.new,
-        createdAt: api.last_message.created_at,
-        updatedAt: api.last_message.updated_at,
-      },
+            hasRepliedMessage: api.last_message.has_replied_message,
+            hasForwardedMessage: api.last_message.has_forwarded_message,
+            new: api.last_message.new,
+            createdAt: api.last_message.created_at,
+            updatedAt: api.last_message.updated_at,
+          }
+        : undefined,
     },
   };
 };
