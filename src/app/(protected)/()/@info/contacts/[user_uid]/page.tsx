@@ -1,5 +1,5 @@
 import { InfoBlock } from 'modules/info';
-import { JSX } from 'react';
+import { JSX, Suspense } from 'react';
 
 export default async function InfoBlockPage({
   params,
@@ -8,5 +8,9 @@ export default async function InfoBlockPage({
 }): Promise<JSX.Element> {
   const user_uid = (await params).user_uid;
 
-  return <InfoBlock uid={user_uid} />;
+  return (
+    <Suspense>
+      <InfoBlock uid={user_uid} />
+    </Suspense>
+  );
 }
