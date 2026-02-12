@@ -12,7 +12,7 @@ import { ProfileUploads } from '../profile-uploads';
 import AddIcon from './icons/add.svg';
 import { ProfileBlockProps } from './profile-block.props';
 
-export const ProfileBlock = ({ chat }: { chat: ProfileBlockProps }): JSX.Element => {
+export const ProfileBlock = (chat: ProfileBlockProps): JSX.Element => {
   return (
     <ProfileLayout header={<ProfileHeader uid={chat.uid} isBlocked={chat.is_blocked} />}>
       <ProfileAvatar

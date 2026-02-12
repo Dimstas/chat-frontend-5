@@ -1,4 +1,4 @@
-import { ChatType } from 'modules/conversation/chats/model';
+import { ChatType } from 'modules/conversation/chats/model/chat';
 
 type PeerEntity = {
   uid: string;

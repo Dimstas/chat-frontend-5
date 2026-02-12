@@ -1,4 +1,4 @@
-import { ChatListApiResponse, ChatQuery } from 'modules/conversation/chats/model';
+import { ChatListApiResponse, ChatQuery } from 'modules/conversation/chats/model/chat';
 import { apiFetch } from 'shared/api';
 
 export const getChatList = (params: ChatQuery): Promise<ChatListApiResponse> => {

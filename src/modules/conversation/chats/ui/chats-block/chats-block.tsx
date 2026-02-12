@@ -1,7 +1,7 @@
 'use client';
 
 import { ChatCard } from 'modules/conversation/chats/entity/ui';
-import { mapChatFromApi } from 'modules/conversation/chats/model';
+import { mapChatFromApi } from 'modules/conversation/chats/model/chat';
 import { DeleteSelectedContactsButton } from 'modules/conversation/contacts/features/contacts-selection';
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import { mockChatListApiResponse } from 'modules/conversation/shared/utils/contact-list';
