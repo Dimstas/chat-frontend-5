@@ -1,3 +1,4 @@
+import { useChatStore } from 'modules/conversation/chats/model/chat.store';
 import { useBlockUserMutation } from 'modules/info/api';
 import { JSX } from 'react';
 import { Dropdown } from 'shared/ui/dropdown';
@@ -11,6 +12,7 @@ import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
 export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => {
+  const { toggleSelected } = useChatStore();
   const { mutate: blockUser } = useBlockUserMutation(uid);
 
   const menuItems: DropdownItem[] = [
@@ -37,7 +39,7 @@ export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => 
 
   return (
     <div className={styles.header}>
-      <button className={styles.delete}>
+      <button className={styles.delete} onClick={() => toggleSelected(uid)}>
         <CloseIcon />
       </button>
       <span className={styles.label}>Информация</span>

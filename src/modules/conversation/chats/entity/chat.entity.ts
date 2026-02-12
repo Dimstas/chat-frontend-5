@@ -19,6 +19,7 @@ type PeerEntity = {
 };
 
 type ChatEntity = {
+  id: number;
   chatKey: string;
   chatType: ChatType;
   name: string;
@@ -55,8 +56,8 @@ export type Chat = {
   peer: PeerEntity;
   chat: ChatEntity;
   messages: {
-    lastSeenMessage: BaseMessageEntity;
+    lastSeenMessage?: BaseMessageEntity;
     firstNewMessage?: BaseMessageEntity;
-    lastMessage: LastMessageEntity;
+    lastMessage?: LastMessageEntity;
   };
 };

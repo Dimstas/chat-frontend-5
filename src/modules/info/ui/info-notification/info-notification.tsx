@@ -3,7 +3,7 @@ import { JSX, useState } from 'react';
 import styles from './info-notification.module.scss';
 import { InfoNotificationProps } from './info-notification.props';
 
-export const InfoNotification = ({ uid }: InfoNotificationProps): JSX.Element => {
+export const InfoNotification = ({ chatId }: InfoNotificationProps): JSX.Element => {
   const [enable, setEnable] = useState(true);
 
   const handleToggle = (): void => {
