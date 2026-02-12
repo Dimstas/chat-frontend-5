@@ -1,1 +1,1 @@
-export { useSearchChatsStore } from './search-chats.store';
+export { useChatsStore } from './search-chats.store';
