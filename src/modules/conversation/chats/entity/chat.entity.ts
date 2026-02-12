@@ -19,6 +19,7 @@ type PeerEntity = {
 };
 
 type ChatEntity = {
+  id: number;
   chatKey: string;
   chatType: ChatType;
   name: string;

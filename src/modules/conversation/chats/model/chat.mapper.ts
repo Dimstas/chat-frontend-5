@@ -37,6 +37,7 @@ export const mapChatFromApi = (api: ChatApi): Chat => {
     },
 
     chat: {
+      id: api.id,
       chatKey: api.chat_key,
       chatType: api.chat_type,
       name: api.name,

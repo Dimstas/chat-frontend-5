@@ -1,3 +1,3 @@
 export type InfoNotificationProps = {
-  uid: string;
+  chatId?: number;
 };
