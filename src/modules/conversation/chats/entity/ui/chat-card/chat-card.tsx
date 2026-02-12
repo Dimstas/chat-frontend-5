@@ -15,8 +15,14 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   const { notifications, is_favorite, newMessageCount } = chat;
   const { firstName, lastName, uid } = peer;
   const {
-    lastMessage: { updatedAt, content, hasForwardedMessage, hasRepliedMessage, filesSummary },
-  } = messages;
+    lastMessage: {
+      updatedAt = undefined,
+      content = '',
+      hasForwardedMessage = false,
+      hasRepliedMessage = false,
+      filesSummary = undefined,
+    } = {},
+  } = messages || {};
 
   const pathname = usePathname();
   const isSelected = pathname === `/chats/${peer.uid}` || pathname === `/chats/${peer.uid}/info`;

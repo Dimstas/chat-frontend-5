@@ -1,5 +1,6 @@
 'use client';
 import clsx from 'clsx';
+import { useChatStore } from 'modules/conversation/chats/model/chat.store';
 import { usePathname } from 'next/navigation';
 import { JSX } from 'react';
 import { Header } from './header';
@@ -9,6 +10,7 @@ import { ProtectedLayoutProps } from './protected-layout.props';
 export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps): JSX.Element => {
   const pathname = usePathname();
   const exists = pathname.includes('info');
+  const { selected } = useChatStore();
   return (
     <div className={styles.root}>
       <Header />
@@ -19,6 +21,7 @@ export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps)
           <main className={styles.main}>{main}</main>
           {exists && <div>{info}</div>}
         </div>
+        <div className={clsx(styles.info, { [styles.open]: !!selected })}>{info}</div>
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ export const mapContactFromApi = (api: ContactApi): Contact => {
   const fullName = `${first_name} ${last_name}`;
 
   if ('system_contact' in api) {
-    const { avatar_url, was_online_at } = api.system_contact;
+    const { uid, avatar_url, was_online_at } = api.system_contact;
     return {
       uid,
       fullName,

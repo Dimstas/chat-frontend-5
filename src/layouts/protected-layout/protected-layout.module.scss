@@ -23,6 +23,7 @@
 }
 .mainGrid {
   display: grid;
+  grid-template-columns: 4.8rem 36rem 1fr;
   column-gap: 2.4rem;
   flex: 1;
   min-width: 0;
@@ -32,4 +33,12 @@
 .list {
   height: 100%;
   overflow: hidden;
+}
+
+.info {
+  max-width: 36rem;
+
+  &.open {
+    margin-left: 2.4rem;
+  }
 }

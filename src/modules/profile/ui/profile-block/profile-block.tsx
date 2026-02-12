@@ -1,6 +1,6 @@
 'use client';
 
-import { MAX_PROFILE } from 'modules/profile/shared/utils/profile';
+import { MAX_PROFILE } from 'modules/info/shared/utils/mock';
 import { JSX } from 'react';
 import { AddButton } from '../action-button';
 import { ProfileAvatar } from '../profile-avatar';
@@ -12,25 +12,27 @@ import { ProfileUploads } from '../profile-uploads';
 import AddIcon from './icons/add.svg';
 import { ProfileBlockProps } from './profile-block.props';
 
-export const ProfileBlock = (chat: ProfileBlockProps): JSX.Element => {
+export const ProfileBlock = ({ uid }: ProfileBlockProps): JSX.Element => {
+  void uid;
+
   return (
-    <ProfileLayout header={<ProfileHeader uid={chat.uid} isBlocked={chat.is_blocked} />}>
+    <ProfileLayout header={<ProfileHeader uid={uid} isBlocked={MAX_PROFILE.is_blocked} />}>
       <ProfileAvatar
-        avatarHref={chat.avatar_webp_url || '/images/profile/default.png'}
-        firstName={chat.first_name}
-        lastName={chat.last_name}
-        isOnline={chat.is_online}
+        avatarHref={MAX_PROFILE.avatar_url ?? '/images/profile/default.png'}
+        firstName={MAX_PROFILE.first_name}
+        lastName={MAX_PROFILE.last_name}
+        isOnline={MAX_PROFILE.is_online}
       />
-      <ProfileNotification uid={chat.uid} />
+      <ProfileNotification uid={uid} />
       <ProfileInfo
-        nickname={chat.nickname}
+        nickname={MAX_PROFILE.nickname}
         phoneNumber={MAX_PROFILE.phoneNumber}
         birthDay={MAX_PROFILE.birthDay}
         about={MAX_PROFILE.about}
       />
       {!MAX_PROFILE.is_in_contact && <AddButton icon={<AddIcon />} label={'Добавить в контакты'} />}
-      {chat.is_blocked && <AddButton icon={<AddIcon />} label={'Разблокировать'} />}
-      {MAX_PROFILE.has_uploads && <ProfileUploads uid={chat.uid} />}
+      {MAX_PROFILE.is_blocked && <AddButton icon={<AddIcon />} label={'Разблокировать'} />}
+      {MAX_PROFILE.has_uploads && <ProfileUploads uid={uid} />}
     </ProfileLayout>
   );
 };

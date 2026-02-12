@@ -1,6 +1,8 @@
 const WEEK_DAYS = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
 
-export const formatChatTime = (timestamp: number): string => {
+export const formatChatTime = (timestamp: number | undefined): string => {
+  if (!timestamp) return '';
+
   // поддержка секунд и миллисекунд
   const date = new Date(timestamp < 1e12 ? timestamp * 1000 : timestamp);
   const now = new Date();

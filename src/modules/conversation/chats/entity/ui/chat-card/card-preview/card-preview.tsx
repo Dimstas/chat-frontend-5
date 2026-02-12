@@ -6,7 +6,7 @@ import styles from './card-preview.module.scss';
 import { CardPreviewProps } from './card-preview.props';
 
 export const CardPreview = ({ content, filesSummary, replied, forwarded }: CardPreviewProps): JSX.Element => {
-  const { count, types } = filesSummary;
+  const { count = 0, types = [] } = filesSummary || {};
 
   const getPreviewText = (): string => {
     if (content) return content;

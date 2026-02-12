@@ -1,2 +1,3 @@
-import type { ChatInfo } from 'modules/conversation/chats/model/chat.api.schema';
-export type ProfileBlockProps = ChatInfo;
+export type ProfileBlockProps = {
+  uid: string;
+};
