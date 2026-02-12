@@ -44,7 +44,7 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
   const debouncedOrdering = useDebouncedValue<string>(ordering, 300);
   const debouncedSearch = useDebouncedValue<string>(search, 300);
 
-  const { data: myChats } = useChatsQuery(debouncedOrdering, debouncedSearch, is_active, is_blocked, is_favorite);
+  const { data: myChats } = useChatsQuery();
 
   const chats = useMemo(() => myChats?.pages.flatMap((page) => page.results.map(mapChatFromApi)) ?? [], [myChats]);
 
