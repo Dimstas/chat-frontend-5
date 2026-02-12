@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
 
+  images: {
+    domains: ['api.dev.chat.ktsf.ru'],
+  },
+
   webpack(config): Configuration {
     const fileLoaderRule = config.module.rules.find(
       (rule: RuleSetRule): boolean => rule.test instanceof RegExp && rule.test.test('.svg'),
