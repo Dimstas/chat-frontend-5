@@ -36,9 +36,3 @@ export type BlockInfo = {
   isOnline: boolean;
   wasOnlineAt: number;
 };
-
-export type NewContact = {
-  phone: string;
-  firstName: string;
-  lastName: string;
-};

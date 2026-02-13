@@ -10,9 +10,9 @@ import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
 
 export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
-  const { findById, toggleSelected } = useChatStore();
+  const { findByUid, toggleInfoOpen } = useChatStore();
 
-  const chat = findById(user_uid);
+  const chat = findByUid(user_uid);
   const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
 
@@ -25,7 +25,7 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
           <span className={styles.status}>{status}</span>
         </div>
         <div className={styles.icon}>
-          <button onClick={() => toggleSelected(user_uid)}>
+          <button onClick={() => toggleInfoOpen()}>
             <SearchIcon />
           </button>
         </div>

@@ -2,9 +2,9 @@ import { useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResul
 import { searchUsers } from 'modules/conversation/contacts/api';
 import { GlobalContactApi, UserContactApiResponse } from 'modules/conversation/contacts/model/contact';
 import { blockUser, getProfileInfoById, mapInfoProfileFromApi } from '.';
-import { NewContact, ProfileInfo } from '../entity/info.entity';
-import { BlockProfileApiResponse } from '../model/info.api.schema';
-import { addToContact, unblockUser } from './info.api';
+import { ProfileInfo } from '../entity/info.entity';
+import { BlockProfileApiResponse, ChatPost, ChatPostApiResponse, NewContact } from '../model/info.api.schema';
+import { addToContact, editChat, unblockUser } from './info.api';
 
 export const useInfoProfileQuery = (id: string): UseQueryResult<ProfileInfo> => {
   return useQuery({
@@ -100,6 +100,32 @@ export const useAddContactQuery = (): UseMutationResult<UserContactApiResponse, 
 
     onSuccess: () => {
       console.log('Пользователь добавлен в контакты');
+    },
+
+    onError: (error: Error) => {
+      console.error('Ошибка POST‑запроса:', error);
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['chats', 'chat-list'],
+      });
+    },
+  });
+};
+
+export const useEditChatQuery = (chatId: number): UseMutationResult<ChatPostApiResponse, Error, ChatPost> => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['edit', 'chat', chatId],
+
+    mutationFn: async (chatPost) => {
+      return await editChat(chatPost, chatId);
+    },
+
+    onSuccess: () => {
+      console.log('Параметры чата изменены');
     },
 
     onError: (error: Error) => {
