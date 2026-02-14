@@ -4,7 +4,7 @@ import { SupportModal } from 'modules/support/ui/support-modal';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { JSX } from 'react';
-import { useCodeStep } from '../../lib/steps/useCodeStep';
+import { useCodeStep } from '../../lib/steps/use-code-step';
 import { CodeInput } from '../code-input';
 import styles from './code-step.module.scss';
 
