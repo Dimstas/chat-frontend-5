@@ -8,7 +8,7 @@ import styles from './protected-layout.module.scss';
 import { ProtectedLayoutProps } from './protected-layout.props';
 
 export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps): JSX.Element => {
-  const { selected } = useChatStore();
+  const { isInfoOpen } = useChatStore();
 
   return (
     <div className={styles.root}>
@@ -20,7 +20,7 @@ export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps)
           <aside className={styles.list}>{list}</aside>
           <main className={styles.main}>{main}</main>
         </div>
-        <div className={clsx(styles.info, { [styles.open]: !!selected })}>{info}</div>
+        <div className={clsx(styles.info, { [styles.open]: isInfoOpen })}>{info}</div>
       </div>
     </div>
   );

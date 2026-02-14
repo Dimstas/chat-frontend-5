@@ -18,7 +18,7 @@ type PeerEntity = {
   wasOnlineAt: number | null;
 };
 
-type ChatEntity = {
+export type ChatEntity = {
   id: number;
   chatKey: string;
   chatType: ChatType;

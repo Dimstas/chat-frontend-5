@@ -1,3 +1,4 @@
+import { chatApiSchema } from 'modules/conversation/chats/model/chat.api.schema';
 import { z } from 'zod';
 
 export const infoApiSchema = z.object({
@@ -44,3 +45,26 @@ export const blockApiSchema = z.object({
 
 export type BlockProfileApi = z.infer<typeof blockApiSchema>;
 export type BlockProfileApiResponse = z.infer<typeof blockApiSchema>;
+
+export type NewContact = {
+  phone: string;
+  first_name: string;
+  last_name: string;
+};
+
+export type ChatPost = {
+  is_favorite?: boolean;
+  notifications?: boolean;
+  index?: number;
+  last_seen_message?: number;
+};
+
+export const ChatPostApiSchema = z.object({
+  is_favorite: z.boolean(),
+  notifications: z.boolean(),
+  index: z.number(),
+  last_seen_message: z.number(),
+  last_seen_message_uid: z.string(),
+});
+
+export type ChatPostApiResponse = z.infer<typeof chatApiSchema>;

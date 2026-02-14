@@ -12,7 +12,7 @@ import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
 export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => {
-  const { toggleSelected } = useChatStore();
+  const { toggleInfoOpen } = useChatStore();
   const { mutate: blockUser } = useBlockUserMutation(uid);
 
   const menuItems: DropdownItem[] = [
@@ -39,7 +39,7 @@ export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => 
 
   return (
     <div className={styles.header}>
-      <button className={styles.delete} onClick={() => toggleSelected(uid)}>
+      <button className={styles.delete} onClick={() => toggleInfoOpen()}>
         <CloseIcon />
       </button>
       <span className={styles.label}>Информация</span>
