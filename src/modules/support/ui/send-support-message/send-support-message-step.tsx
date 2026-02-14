@@ -1,8 +1,6 @@
-import { TextInput } from 'modules/auth';
-import { TextArea } from 'modules/support/ui/text-area';
 import Image from 'next/image';
 import { JSX, useState } from 'react';
-import { ButtonUI } from 'shared/ui/button';
+import { SupportMessageForm } from '../support-message-form';
 import styles from './send-support-message-step.module.scss';
 
 type SendSupportMessageStepProps = {
@@ -47,37 +45,13 @@ export const SendSupportMessageStep: React.FC<SendSupportMessageStepProps> = ({
           <h1 className={styles.title}>Служба поддержки</h1>
         </div>
 
-        <form onSubmit={handleSubmit} className={styles.profileForm}>
-          <div className={styles.inputsContainer}>
-            <TextInput
-              label="Введите никнейм"
-              placeholder=""
-              value={login}
-              onChange={handleLoginChange}
-              error={''}
-              maxLength={30}
-            />
-
-            <TextArea
-              label="Опишите Вашу проблему"
-              value={message}
-              onChange={handleTextareaChange}
-              maxLength={500}
-              placeholder="Напишите подробнее..."
-              disabled={false}
-            />
-          </div>
-          <div className={styles.buttonContainer}>
-            <p className={styles.agreementText}>
-              Ознакомьтесь со
-              <br />
-              <a href="" className={styles.link}>
-                списком известных проблем и их решениями
-              </a>
-            </p>
-            <ButtonUI variant="general" appearance="primary" label="Отправить" type="submit" />
-          </div>
-        </form>
+        <SupportMessageForm
+          message={message}
+          login={login}
+          onMessageChange={handleTextareaChange}
+          onLoginChange={handleLoginChange}
+          onSubmit={handleSubmit}
+        />
       </div>
     </>
   );

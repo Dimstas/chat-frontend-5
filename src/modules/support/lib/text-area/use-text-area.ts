@@ -1,5 +1,4 @@
-// src/modules/feedback/lib/use-text-area.ts
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type UseTextAreaProps = {
   value: string;
@@ -22,6 +21,20 @@ export const useTextArea = ({
   disabled = false,
 }: UseTextAreaProps): UseTextAreaReturn => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
+
+  const prevValueRef = useRef(value);
+
+  useEffect(() => {
+    const prevValue = prevValueRef.current;
+    if (prevValue !== value) {
+      prevValueRef.current = value;
+      if (value.length > maxLength) {
+        const truncatedValue = value.slice(0, maxLength);
+        prevValueRef.current = truncatedValue;
+        onChange(truncatedValue);
+      }
+    }
+  }, [value, maxLength, onChange]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {

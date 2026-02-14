@@ -19,7 +19,12 @@ export const SettingsList: React.FC<SettingsListProps> = ({
       <SettingsItem iconSrc="/images/settings/settingIcon1.svg" label="Редактирование профиля" onClick={editProfile} />
       <SettingsItem iconSrc="/images/settings/settingIcon2.svg" label="Чёрный список" onClick={blackList} />
       <SettingsItem iconSrc="/images/settings/settingIcon3.svg" label="Поддержка" onClick={support} />
-      <SettingsItem iconSrc="/images/settings/settingIcon4.svg" label="Выйти из аккаунта" onClick={leave} />
+      <SettingsItem
+        iconSrc="/images/settings/settingIcon4.svg"
+        label="Выйти из аккаунта"
+        onClick={leave}
+        needArrow={false}
+      />
     </div>
   );
 };

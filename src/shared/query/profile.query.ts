@@ -1,7 +1,7 @@
 'use client';
 
-import { useMutation, UseMutationResult } from '@tanstack/react-query';
-import { ProfileResponse, updateProfile } from '../api/profile.api';
+import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { getProfile, ProfileResponse, updateProfile } from '../api/profile.api';
 
 export type UpdateProfilePayload = {
   nickname: string;
@@ -20,5 +20,12 @@ export type UpdateProfilePayload = {
 export const useUpdateProfile = (): UseMutationResult<ProfileResponse, unknown, UpdateProfilePayload, unknown> => {
   return useMutation({
     mutationFn: updateProfile,
+  });
+};
+
+export const useGetProfile = (): UseQueryResult<ProfileResponse, unknown> => {
+  return useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile,
   });
 };
