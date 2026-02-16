@@ -1,7 +1,6 @@
 'use client';
 import { useChatStore } from 'modules/conversation/chats/model/chat.store';
-import { usePathname, useRouter } from 'next/navigation';
-import { JSX, useState } from 'react';
+import { JSX } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';
@@ -10,28 +9,15 @@ import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
 
 export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [showInfo, setShowInfo] = useState<boolean>(true);
-
   const { findByUid, toggleInfoOpen } = useChatStore();
 
   const chat = findByUid(user_uid);
   const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
 
-  const handlerTopHeader = (): void => {
-    if (showInfo) {
-      router.push(`${pathname}/info`);
-      setShowInfo(false);
-    } else {
-      router.push(`/chats/${user_uid}`);
-      setShowInfo(true);
-    }
-  };
   return (
     <div className={styles.wrapper}>
-      <div className={styles.contactWrapper} onClick={handlerTopHeader}>
+      <div className={styles.contactWrapper}>
         <ImageUI src={avatarUrl} alt={firstName} width={40} height={40} className={styles.image} />
         <div className={styles.info}>
           <span className={styles.name}>{firstName + ' ' + lastName}</span>
