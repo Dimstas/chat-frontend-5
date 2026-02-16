@@ -10,6 +10,7 @@ type TextInputProps = {
   error?: string;
   disabled?: boolean;
   maxLength?: number;
+  className?: string;
 };
 
 export const TextInput = ({
@@ -20,6 +21,7 @@ export const TextInput = ({
   error,
   disabled = false,
   maxLength = 30,
+  className = '',
 }: TextInputProps): JSX.Element => {
   const { isFocused, handleChange, handleFocus, handleBlur } = useTextInputLogic({
     value,
@@ -40,7 +42,7 @@ export const TextInput = ({
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        className={`${styles.textInput} ${
+        className={`${styles.textInput} ${className} ${
           isFocused ? styles.focused : ''
         } ${errorMessage ? styles.error : ''} ${disabled ? styles.disabled : ''}`}
         maxLength={maxLength}

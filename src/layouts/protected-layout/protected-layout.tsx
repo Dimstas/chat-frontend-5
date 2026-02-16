@@ -11,6 +11,8 @@ export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps)
   const pathname = usePathname();
   const exists = pathname.includes('info');
   const { selected } = useChatStore();
+  const { isInfoOpen } = useChatStore();
+
   return (
     <div className={styles.root}>
       <Header />
@@ -21,7 +23,7 @@ export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps)
           <main className={styles.main}>{main}</main>
           {exists && <div>{info}</div>}
         </div>
-        <div className={clsx(styles.info, { [styles.open]: !!selected })}>{info}</div>
+        <div className={clsx(styles.info, { [styles.open]: isInfoOpen })}>{info}</div>
       </div>
     </div>
   );

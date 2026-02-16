@@ -1,4 +1,3 @@
-// src/modules/feedback/ui/text-area/text-area.tsx
 import { useTextArea } from '../../lib/text-area/use-text-area';
 import styles from './text-area.module.scss';
 
@@ -9,6 +8,7 @@ type TextAreaProps = {
   maxLength?: number;
   placeholder?: string;
   disabled?: boolean;
+  className?: string;
 };
 
 export const TextArea: React.FC<TextAreaProps> = ({
@@ -18,6 +18,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
   maxLength = 500,
   placeholder = '',
   disabled = false,
+  className = '',
 }: TextAreaProps) => {
   const { handleChange, handleFocus, handleBlur, isFocused } = useTextArea({
     value,
@@ -30,7 +31,7 @@ export const TextArea: React.FC<TextAreaProps> = ({
     <div className={styles.container}>
       <label className={styles.label}>{label}</label>
       <textarea
-        className={`${styles.textarea} ${isFocused ? styles.focused : ''} ${disabled ? styles.disabled : ''}`}
+        className={`${styles.textarea} ${className} ${isFocused ? styles.focused : ''} ${disabled ? styles.disabled : ''}`}
         value={value}
         onChange={handleChange}
         onFocus={handleFocus}

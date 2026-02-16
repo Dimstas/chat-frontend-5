@@ -41,9 +41,34 @@ export type ProfileResponse = {
   is_staff: boolean;
 };
 
+export const getProfile = (): Promise<ProfileResponse> => {
+  return apiFetch<ProfileResponse>('/api/proxy/api/v1/auth/messenger/profile/', {
+    method: 'POST',
+    body: JSON.stringify({}),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
 export const updateProfile = (data: ProfileData): Promise<ProfileResponse> => {
   return apiFetch<ProfileResponse>('/api/proxy/api/v1/auth/messenger/profile/', {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(data),
+  });
+};
+
+export const deleteProfile = (uid: string): Promise<{ messages: string }> => {
+  console.log('DELETE URL:', `/api/proxy/api/v1/auth/messenger/profile/${encodeURIComponent(uid)}/`);
+  const url = `/api/proxy/api/v1/auth/messenger/profile/${encodeURIComponent(uid)}/`;
+
+  return apiFetch<{ messages: string }>(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 };

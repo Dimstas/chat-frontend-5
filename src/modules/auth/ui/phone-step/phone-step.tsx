@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { JSX } from 'react';
 import { ButtonUI } from 'shared/ui/button';
 import { Modal } from 'shared/ui/modal';
-import { usePhoneStep } from '../../lib/steps/usePhoneStep';
+import { usePhoneStep } from '../../lib/steps/use-phone-step';
 import { PhoneNumberInput } from '../../ui/phone-number-input';
 import styles from './phone-step.module.scss';
 

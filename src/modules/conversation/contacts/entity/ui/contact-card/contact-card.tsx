@@ -19,7 +19,7 @@ export const ContactCard = ({ contact, selected, selectionMode, onSelectHandler 
 
   return (
     <CardShell
-      href={`/contacts/${uid}`}
+      href={`/chats/${uid}`}
       imageOptions={{ src: avatar, alt: fullName, classNames: { root: styles.imageWrapper } }}
       selected={selected}
       selectAction={handleClick}

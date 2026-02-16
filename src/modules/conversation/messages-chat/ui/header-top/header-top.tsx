@@ -13,9 +13,10 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   const pathname = usePathname();
   const router = useRouter();
   const [showInfo, setShowInfo] = useState<boolean>(true);
-  const { findById, toggleSelected } = useChatStore();
 
-  const chat = findById(user_uid);
+  const { findByUid, toggleInfoOpen } = useChatStore();
+
+  const chat = findByUid(user_uid);
   const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
 
@@ -37,7 +38,7 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
           <span className={styles.status}>{status}</span>
         </div>
         <div className={styles.icon}>
-          <button onClick={() => toggleSelected(user_uid)}>
+          <button onClick={() => toggleInfoOpen()}>
             <SearchIcon />
           </button>
         </div>

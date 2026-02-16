@@ -25,5 +25,8 @@ export const searchUsers = async (
     method: 'POST',
     body: JSON.stringify(data),
     signal,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 };
