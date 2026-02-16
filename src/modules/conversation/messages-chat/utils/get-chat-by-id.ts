@@ -1,4 +1,4 @@
-import type { ChatApi } from 'modules/conversation/chats/model';
+import type { ChatApi } from 'modules/conversation/chats/model/chat.api.schema';
 import { mockChatListApiResponse } from 'modules/conversation/shared/utils/contact-list';
 
 export const getChatById = (user_id: string): ChatApi[] => {

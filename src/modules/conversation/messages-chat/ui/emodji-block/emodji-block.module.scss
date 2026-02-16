@@ -4,8 +4,6 @@
   @include mixins.flex-box($direction: column);
   width: 47.2rem;
   height: 53.5rem;
-  top: 42.8rem;
-  left: 54.5%;
   border-radius: 0.8rem;
   border: 0.033rem solid var(--border-layout);
   background-color: var(--surface-base);

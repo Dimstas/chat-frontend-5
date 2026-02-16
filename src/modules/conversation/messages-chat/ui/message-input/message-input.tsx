@@ -1,5 +1,5 @@
 'use client';
-import { JSX, useState } from 'react';
+import { JSX, useRef, useState } from 'react';
 import { ImageUI } from 'shared/ui/image';
 import { addRecentEmodji } from '../../utils/recent-emodji-array';
 import { EmodjiBlock } from '../emodji-block/emodji-block';
@@ -12,6 +12,8 @@ export const MessageInput = (): JSX.Element => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [recentEmoji, setRecentEmoji] = useState<string[]>([]);
+  const [pickerPos, setPickerPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const buttonRef = useRef<HTMLDivElement | null>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     setMessage(event.target.value);
@@ -21,9 +23,22 @@ export const MessageInput = (): JSX.Element => {
     setShowEmojiPicker(false);
     setRecentEmoji(addRecentEmodji(emoji));
   };
-  const toggleEmojiPicker = (): void => {
-    setShowEmojiPicker(!showEmojiPicker);
+  const openEmojiPicker = (): void => {
+    if (buttonRef.current) {
+      const { y, x } = buttonRef.current.getBoundingClientRect();
+      const heightPicker = 535;
+      const widthPicker = 472;
+      const adjustedX = x + widthPicker + 295 - window.innerWidth > 0 ? x - widthPicker + 45 : x;
+      const adjustedY = y - heightPicker - 15;
+      setPickerPos({ x: adjustedX, y: adjustedY });
+    }
+    setShowEmojiPicker(true);
   };
+
+  const closeEmojiPicker = (): void => {
+    setShowEmojiPicker(false);
+  };
+
   return (
     <div className={styles.inputWrapper}>
       <form className={styles.form}>
@@ -47,11 +62,13 @@ export const MessageInput = (): JSX.Element => {
           </span>
         )}
       </form>
-      <span className={styles.icon}>
-        <button onMouseEnter={toggleEmojiPicker}>{showEmojiPicker ? <VioletSmailIcon /> : <SmailIcon />}</button>
-      </span>
-      <div onMouseLeave={toggleEmojiPicker}>
-        {showEmojiPicker && <EmodjiBlock handleEmojiSelect={handleEmojiSelect} recentEmoji={recentEmoji} />}
+      <div className={styles.icon} ref={buttonRef}>
+        <button onMouseEnter={openEmojiPicker}>{showEmojiPicker ? <VioletSmailIcon /> : <SmailIcon />}</button>
+      </div>
+      <div onMouseLeave={closeEmojiPicker}>
+        {showEmojiPicker && (
+          <EmodjiBlock handleEmojiSelect={handleEmojiSelect} recentEmoji={recentEmoji} position={pickerPos} />
+        )}
       </div>
     </div>
   );

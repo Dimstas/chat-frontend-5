@@ -5,7 +5,7 @@ import { DeleteSelectedContactsButton } from 'modules/conversation/contacts/feat
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import { JSX, useEffect, useMemo } from 'react';
 import { useChatsQuery } from '../../api/chat.query';
-import { mapChatFromApi } from '../../model';
+import { mapChatFromApi } from '../../model/chat';
 import { useChatStore } from '../../model/chat.store';
 
 // const chats = mockChatListApiResponse.results.map((r) => mapChatFromApi(r));

@@ -4,7 +4,7 @@ import { MessagesList } from 'modules/conversation/messages-chat/ui/messages-lis
 import { getMessagesById } from 'modules/conversation/messages-chat/utils/get-messages-by-id';
 import { JSX, Suspense } from 'react';
 
-export default async function MessagesPage({
+export default async function MessagesInfoPage({
   params,
 }: {
   params: Promise<{ user_uid: string }>;
