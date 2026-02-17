@@ -14,6 +14,10 @@ export default function SettingsPage(): JSX.Element {
     router.push('/settings/support');
   };
 
+  const handleBlacklist = (): void => {
+    router.push('/settings/blacklist');
+  };
+
   const handleLeave = async (): Promise<void> => {
     try {
       await fetch('/api/auth/remove-tokens', {
@@ -29,7 +33,7 @@ export default function SettingsPage(): JSX.Element {
   return (
     <AllSettingsBlock
       editProfile={handleProfileEdit}
-      blackList={() => {}}
+      blackList={handleBlacklist}
       support={handleSupport}
       leave={handleLeave}
     />
