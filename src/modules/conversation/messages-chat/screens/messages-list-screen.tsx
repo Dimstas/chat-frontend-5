@@ -32,7 +32,7 @@ export const MessagesListScreen = ({ user_uid }: { user_uid: string }): JSX.Elem
     const resultsByDate = handlerMessagesList(messagesList);
     return (
       <Suspense>
-        <MessagesList results={resultsByDate} />
+        <MessagesList user_uid={user_uid} results={resultsByDate} />
       </Suspense>
     );
   } else {

@@ -20,7 +20,7 @@ export const useMessagesListQuery = (
 
     queryFn: ({ pageParam }) =>
       getMessagesList(user_uid, {
-        ...params,
+        //...params,
         page: pageParam,
         page_size: PAGE_SIZE,
       }),

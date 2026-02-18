@@ -9,7 +9,6 @@ export const getMessagesList = (user_uid: string, params: MessagesListQuery): Pr
 
     searchParams.set(key, String(value));
   });
-
   return apiFetch<MessagesListApiResponse>(
     `/api/proxy/api/v1/chat/message/text/${user_uid}/?${searchParams.toString()}`,
     {
