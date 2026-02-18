@@ -21,7 +21,7 @@ export const searchUsers = async (
     phone_or_nickname: q,
   }));
 
-  return apiFetch<GlobalContactApi[]>('/api/proxy/api/v1/contact/check/list', {
+  return apiFetch<GlobalContactApi[]>('/api/proxy/api/v1/contact/check/list/', {
     method: 'POST',
     body: JSON.stringify(data),
     signal,
