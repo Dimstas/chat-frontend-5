@@ -1,7 +1,9 @@
+import { Contact } from 'modules/conversation/contacts/entity';
 import React, { ReactNode } from 'react';
 
 export type CardShellProps = {
   children: ReactNode;
+  contact: Contact;
   href: string;
   imageOptions: {
     src: string;

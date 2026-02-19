@@ -19,6 +19,7 @@ export const ContactCard = ({ contact, selected, selectionMode, onSelectHandler 
 
   return (
     <CardShell
+      contact={contact}
       href={`/chats/${uid}`}
       imageOptions={{ src: avatar, alt: fullName, classNames: { root: styles.imageWrapper } }}
       selected={selected}
