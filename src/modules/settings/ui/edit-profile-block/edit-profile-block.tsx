@@ -2,6 +2,7 @@
 
 import { TextInput } from 'modules/settings';
 import { useEditProfileBlock } from 'modules/settings/lib/edit-profile-block/use-edit-profile-block';
+import { useImageUpload } from 'modules/settings/lib/edit-profile-block/use-image-upload';
 import Image from 'next/image';
 import { JSX } from 'react';
 import { ButtonUI } from 'shared/ui';
@@ -9,6 +10,15 @@ import { DateSelector } from '../date-selector';
 import styles from './edit-profile-block.module.scss';
 
 export const EditProfileBlock: React.FC = ({}): JSX.Element => {
+
+  const {
+    selectedFile,
+    previewUrl,
+    error: imageUploadError,
+    handleFileChange,
+    triggerFileSelect,
+    fileInputRef, 
+  } = useImageUpload();
   const {
     birthday,
     firstName,
@@ -51,10 +61,19 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
         </div>
       </button>
       <div className={styles.imageContainer}>
-        <Image src="/images/settings/noAvatarIcon.svg" alt="" width={200} height={200} className={styles.avatar} />
-        <button type="button" className={styles.selectImage} onClick={() => {}}>
+        <Image src={previewUrl || "/images/settings/noAvatarIcon.svg"} alt="Аватар" width={200} height={200} className={styles.avatar} />
+        <button type="button" className={styles.selectImage} onClick={triggerFileSelect}>
           Выбрать фотографию
         </button>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
+                {imageUploadError && <div className={styles.error}>{imageUploadError}</div>}
+
       </div>
       <form
         onSubmit={(e) => {
