@@ -1,30 +1,21 @@
 import { apiFetch } from './fetcher';
 
 export type BlacklistedUser = {
-  uid: string;
-  username: string;
-  nickname: string;
-  first_name: string;
-  last_name: string;
-  patronymic: string;
-  additional_information: string;
-  birthday: number;
-  email: string;
-  gender: string;
-  gender_label: string;
-  country: string;
-  country_label: string;
-  city_id: number;
-  city: string;
-  phone: string;
-  avatar: string;
-  avatar_url: string;
-  avatar_webp: string;
-  avatar_webp_url: string;
-  is_doctor: boolean;
-  is_confirmed_doctor: boolean;
-  is_filled: boolean;
-  is_staff: boolean;
+uid: string,
+username: string,
+nickname: string,
+phone: string,
+first_name: string,
+last_name: string,
+avatar: string,
+avatar_url: string,
+avatar_webp: string,
+avatar_webp_url: string,
+additional_information: string,
+birthday: number,
+chat_id: number,
+is_online: boolean,
+was_online_at: number
 };
 
 export type BlacklistResponse = {
