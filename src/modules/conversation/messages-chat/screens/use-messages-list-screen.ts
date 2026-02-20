@@ -60,7 +60,7 @@ export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenRe
     search: debouncedSearch,
   });
   const messagesList = useMemo(() => data?.pages.flatMap((page) => page.results) ?? [], [data]);
-  console.log(messagesList);
+
   return {
     from_me,
     setFromMe,
