@@ -1,8 +1,8 @@
 import { getMessageDate } from 'modules/conversation/messages-chat/lib/get-message-date';
-import type { ChatResult } from './definitions';
+import type { RestMessageApi } from '../model/messages-list';
 
-export const handlerMessagesList = (messagesList: ChatResult[]): { [date: string]: ChatResult[] } => {
-  const groupedMessagesList = messagesList.reduce<{ [date: string]: ChatResult[] }>((acc, message) => {
+export const handlerMessagesList = (messagesList: RestMessageApi[]): { [date: string]: RestMessageApi[] } => {
+  const groupedMessagesList = messagesList.reduce<{ [date: string]: RestMessageApi[] }>((acc, message) => {
     const date = getMessageDate(message.created_at);
     if (!acc[date]) {
       acc[date] = [];

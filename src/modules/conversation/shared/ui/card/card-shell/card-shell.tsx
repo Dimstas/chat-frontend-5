@@ -8,6 +8,8 @@ import { ImageUI } from 'shared/ui/image';
 import styles from './card-shell.module.scss';
 import { CardShellProps } from './card-shell.props';
 
+const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
+
 export const CardShell = ({ children, href, imageOptions, selected, selectAction }: CardShellProps): JSX.Element => {
   const pathname = usePathname();
   const isActive = pathname === href || pathname === `${href}/info`;
@@ -49,7 +51,7 @@ export const CardShell = ({ children, href, imageOptions, selected, selectAction
           onClick={selectAction}
         >
           <ImageUI
-            src={src}
+            src={src ? src : URL_DEFAUIT_Avatar}
             alt={alt}
             fill
             classNames={{

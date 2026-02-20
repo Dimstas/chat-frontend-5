@@ -7,6 +7,7 @@ import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-bu
 import styles from './header-top.module.scss';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
+const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
 
 export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   const { findByUid, toggleInfoOpen } = useChatStore();
@@ -18,7 +19,13 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.contactWrapper}>
-        <ImageUI src={avatarUrl} alt={firstName} width={40} height={40} className={styles.image} />
+        <ImageUI
+          src={avatarUrl ? avatarUrl : URL_DEFAUIT_Avatar}
+          alt={firstName}
+          width={40}
+          height={40}
+          className={styles.image}
+        />
         <div className={styles.info}>
           <span className={styles.name}>{firstName + ' ' + lastName}</span>
           <span className={styles.status}>{status}</span>
