@@ -1,6 +1,4 @@
-import type { MessagesList } from '../lib/definitions';
-
-export const messagesListDefault: MessagesList | null | undefined = {
+export const messagesListDefault = {
   count: 123,
   next: 'http://api.example.org/accounts/?page=4',
   previous: 'http://api.example.org/accounts/?page=2',
