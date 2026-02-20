@@ -10,7 +10,7 @@ import { CardShellProps } from './card-shell.props';
 
 export const CardShell = ({
   children,
-  contact,
+  uid,
   href,
   imageOptions,
   selected,
@@ -45,7 +45,7 @@ export const CardShell = ({
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu contact={contact} position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
+      <ContextMenu uid={uid} position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
       <li className={styles.li}>
         <Link
           href={href}

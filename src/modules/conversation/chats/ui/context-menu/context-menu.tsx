@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useAddContactQuery } from 'modules/conversation/contacts/api/contact.query';
-import { Contact } from 'modules/conversation/contacts/entity';
+import { useContactsSelectionStore } from 'modules/conversation/contacts/features/contacts-selection';
 import { JSX } from 'react';
 import styles from './context-menu.module.scss';
 import AddContact from './icons/add-contact.svg';
@@ -10,22 +10,26 @@ import PushPin from './icons/push-pin.svg';
 import VolumeOf from './icons/volume-off.svg';
 
 export const ContextMenu = ({
-  contact,
+  uid,
   position,
   visible,
   onClose,
 }: {
-  contact: Contact;
+  uid: string;
   position: { x: number; y: number };
   visible: boolean;
   onClose: () => void;
 }): JSX.Element | null => {
   const { mutate: addContact } = useAddContactQuery();
+  const findGlobalByUid = useContactsSelectionStore((s) => s.findGlobalByUid);
 
   if (!visible) return null;
 
   const handleAddContact = (): void => {
-    addContact({ phone: contact?.phone, first_name: contact?.firstName, last_name: contact?.lastName });
+    const contact = findGlobalByUid(uid);
+    if (!!contact) {
+      addContact({ phone: contact?.phone, first_name: contact?.firstName, last_name: contact?.lastName });
+    }
     onClose();
   };
 

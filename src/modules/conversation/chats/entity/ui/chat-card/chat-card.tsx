@@ -35,6 +35,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
 
   return (
     <CardShell
+      uid={uid}
       href={`/chats/${uid}`}
       imageOptions={{
         src: peer.avatarUrl,
