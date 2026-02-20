@@ -1,11 +1,11 @@
 'use client';
-import type { ChatResult } from 'modules/conversation/messages-chat/lib/definitions';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import { JSX, MouseEvent, useState } from 'react';
+import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
 import styles from './incoming-message-card.module.scss';
 
-export const IncomingMessagesCard = ({ message }: { message: ChatResult }): JSX.Element => {
+export const IncomingMessagesCard = ({ message }: { message: RestMessageApi }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
