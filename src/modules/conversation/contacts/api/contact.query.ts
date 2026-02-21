@@ -4,12 +4,16 @@ import {
   InfiniteData,
   useInfiniteQuery,
   UseInfiniteQueryResult,
+  useMutation,
+  UseMutationResult,
   useQuery,
+  useQueryClient,
   UseQueryResult,
 } from '@tanstack/react-query';
 import { Contact } from 'modules/conversation/contacts/entity';
 import { mapContactFromApi, UserContactApiResponse } from 'modules/conversation/contacts/model/contact';
-import { getContactsList, searchUsers } from './contact.api';
+import { NewContact } from 'modules/info/model/info.api.schema';
+import { addToContact, getContactsList, searchUsers } from './contact.api';
 
 const PAGE_SIZE = 15;
 
@@ -53,5 +57,31 @@ export const useSearchUsersQuery = (query: string): UseQueryResult<Contact[]> =>
     staleTime: 10_000,
     gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
+  });
+};
+
+export const useAddContactQuery = (): UseMutationResult<UserContactApiResponse, Error, NewContact> => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['add', 'contact'],
+
+    mutationFn: async (contact) => {
+      return await addToContact(contact);
+    },
+
+    onSuccess: () => {
+      console.log('Пользователь добавлен в контакты');
+    },
+
+    onError: (error: Error) => {
+      console.error('Ошибка POST‑запроса:', error);
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['contacts', 'contacts-list'],
+      });
+    },
   });
 };

@@ -10,9 +10,16 @@ import { CardShellProps } from './card-shell.props';
 
 const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
 
-export const CardShell = ({ children, href, imageOptions, selected, selectAction }: CardShellProps): JSX.Element => {
+export const CardShell = ({
+  children,
+  uid,
+  href,
+  imageOptions,
+  selected,
+  selectAction,
+}: CardShellProps): JSX.Element => {
   const pathname = usePathname();
-  const isActive = pathname === href || pathname === `${href}/info`;
+  const isActive = pathname === href;
   const { src, alt, classNames } = imageOptions;
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -40,7 +47,7 @@ export const CardShell = ({ children, href, imageOptions, selected, selectAction
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
+      <ContextMenu uid={uid} position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
       <li className={styles.li}>
         <Link
           href={href}
