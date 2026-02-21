@@ -1,4 +1,4 @@
-import { ChatType } from 'modules/conversation/chats/model';
+import { ChatType } from 'modules/conversation/chats/model/chat';
 
 type PeerEntity = {
   uid: string;
@@ -18,7 +18,7 @@ type PeerEntity = {
   wasOnlineAt: number | null;
 };
 
-type ChatEntity = {
+export type ChatEntity = {
   id: number;
   chatKey: string;
   chatType: ChatType;

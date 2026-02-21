@@ -2,6 +2,7 @@
 
 import clsx from 'clsx';
 import { Chat } from 'modules/conversation/chats/entity';
+import { useChatStore } from 'modules/conversation/chats/model/chat.store';
 import { CardHeader, CardShell } from 'modules/conversation/shared/ui/card';
 import { usePathname } from 'next/navigation';
 import { JSX } from 'react';
@@ -12,6 +13,7 @@ import styles from './chat-card.module.scss';
 import { MutedIcon } from './icons';
 
 export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
+  const { setSelected } = useChatStore();
   const { notifications, is_favorite, newMessageCount } = chat;
   const { firstName, lastName, uid } = peer;
   const {
@@ -25,16 +27,22 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   } = messages || {};
 
   const pathname = usePathname();
-  const isSelected = pathname === `/chats/${peer.uid}`;
+  const isSelected = pathname === `/chats/${peer.uid}` || pathname === `/chats/${peer.uid}/info`;
+
+  const handleSelect = (): void => {
+    setSelected(peer.uid);
+  };
 
   return (
     <CardShell
+      uid={uid}
       href={`/chats/${uid}`}
       imageOptions={{
         src: peer.avatarUrl,
         alt: chat.name,
         classNames: { root: styles.imageWrapper },
       }}
+      selectAction={handleSelect}
     >
       <div className={styles.card}>
         <div className={styles.header}>

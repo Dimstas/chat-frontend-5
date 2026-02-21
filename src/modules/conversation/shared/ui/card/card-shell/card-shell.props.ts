@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 
 export type CardShellProps = {
   children: ReactNode;
+  uid: string;
   href: string;
   imageOptions: {
     src: string;
