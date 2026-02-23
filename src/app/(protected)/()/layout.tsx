@@ -16,7 +16,7 @@ export default function Layout({
 }): JSX.Element {
   return (
     <QueryProvider>
-      <ProtectedLayout nav={<Navigation />} list={list} main={children} info={null} />
+      <ProtectedLayout nav={<Navigation />} list={list} main={children} info={info} />
       <QueryDevtools />
     </QueryProvider>
   );

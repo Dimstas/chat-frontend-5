@@ -36,6 +36,14 @@
   padding-left: 1.6rem;
 }
 
+.avatar{
+  width: 20rem;
+  height: 20rem;
+   border-radius: 50%;
+object-fit: cover; 
+overflow: hidden;
+}
+
 .selectImage {
   font-weight: 400;
   font-size: 1.7rem;

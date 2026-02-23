@@ -43,26 +43,17 @@ export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
 
   const { mutate: updateProfile, isPending: isSaving, error: errorSave } = useUpdateProfile();
 
-  const prevProfileUidRef = useRef(profile?.uid);
+  const prevProfileUidRef = useRef<string | undefined>(undefined);
 
-  // Эффект для обновления формы при изменении профиля
   useEffect(() => {
-    const currentUid = profile?.uid;
-    const prevUid = prevProfileUidRef.current;
+    if (profile && profile.uid !== prevProfileUidRef.current) {
+      prevProfileUidRef.current = profile.uid;
 
-    if (prevUid !== currentUid && profile) {
-      prevProfileUidRef.current = currentUid;
-
-      // Используем setTimeout для отложенного обновления
-      const timeoutId = setTimeout(() => {
-        setBirthday(profile.birthday ? new Date(profile.birthday * 1000) : null);
-        setFirstName(profile.first_name);
-        setLastName(profile.last_name || '');
-        setLogin(profile.nickname);
-        setInfo(profile.additional_information || '');
-      }, 0);
-
-      return (): void => clearTimeout(timeoutId);
+      setBirthday(profile.birthday ? new Date(profile.birthday * 1000) : null);
+      setFirstName(profile.first_name);
+      setLastName(profile.last_name || '');
+      setLogin(profile.nickname);
+      setInfo(profile.additional_information || '');
     }
   }, [profile]);
 

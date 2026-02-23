@@ -1,13 +1,11 @@
-import type { MessagesList } from '../lib/definitions';
-
-export const messagesListDefault: MessagesList = {
+export const messagesListDefault = {
   count: 123,
   next: 'http://api.example.org/accounts/?page=4',
   previous: 'http://api.example.org/accounts/?page=2',
   results: [
     {
       id: 0,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -106,7 +104,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 1,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -205,7 +203,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 2,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -304,7 +302,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 3,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -403,7 +401,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 4,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -502,7 +500,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 5,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -601,7 +599,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 6,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -700,7 +698,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 7,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '1',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -799,7 +797,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 8,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '2',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -898,7 +896,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 9,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '2',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',
@@ -997,7 +995,7 @@ export const messagesListDefault: MessagesList = {
 
     {
       id: 10,
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+      uid: '2',
       from_user: {
         uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
         username: 'string',

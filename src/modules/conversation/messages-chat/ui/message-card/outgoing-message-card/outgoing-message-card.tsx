@@ -1,12 +1,12 @@
 'use client';
-import type { ChatResult } from 'modules/conversation/messages-chat/lib/definitions';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import { JSX, MouseEvent, useState } from 'react';
+import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
 import MessageVector from '../icons/message-vector.svg';
 import styles from './outgoing-message-card.module.scss';
 
-export const OutgoingMessagesCard = ({ message }: { message: ChatResult }): JSX.Element => {
+export const OutgoingMessagesCard = ({ message }: { message: RestMessageApi }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
@@ -18,7 +18,8 @@ export const OutgoingMessagesCard = ({ message }: { message: ChatResult }): JSX.
     const y = event.pageY;
     const adjustedX = x + 5;
     const adjustedY = y - menuHeight - 5;
-    const constrainedX = adjustedX + menuWidth > window.innerWidth - 242 ? x - menuWidth - 5 : adjustedX;
+    const constrainedX =
+      adjustedX + menuWidth > window.innerWidth - window.innerWidth / 3.77 ? x - menuWidth - 5 : adjustedX;
     const constrainedY = adjustedY < 150 ? y + 5 : adjustedY;
     setContextMenuPos({ x: constrainedX, y: constrainedY });
     setContextMenuVisible(true);

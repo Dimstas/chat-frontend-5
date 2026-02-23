@@ -1,5 +1,5 @@
 import { InfiniteData, useInfiniteQuery, UseInfiniteQueryResult } from '@tanstack/react-query';
-import { ChatListApiResponse } from 'modules/conversation/chats/model';
+import { ChatListApiResponse } from 'modules/conversation/chats/model/chat';
 import { getChatList } from './chat.api';
 
 const PAGE_SIZE = 15;

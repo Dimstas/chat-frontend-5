@@ -1,0 +1,31 @@
+import { create } from 'zustand';
+
+type ChatsState = {
+  ordering: string;
+  setOrdering: (q: string) => void;
+  clearOrdering: () => void;
+  search: string;
+  setSearch: (q: string) => void;
+  clearSearch: () => void;
+  is_active: boolean;
+  setIsActive: (q: boolean) => void;
+  is_blocked: boolean;
+  setIsBlocked: (q: boolean) => void;
+  is_favorite: boolean;
+  setIsFavorite: (q: boolean) => void;
+};
+
+export const useChatsStore = create<ChatsState>((set) => ({
+  ordering: '',
+  setOrdering: (ordering): void => set({ ordering }),
+  clearOrdering: (): void => set({ ordering: '' }),
+  search: '',
+  setSearch: (search): void => set({ search }),
+  clearSearch: (): void => set({ search: '' }),
+  is_active: true,
+  setIsActive: (is_active): void => set({ is_active: !is_active }),
+  is_blocked: false,
+  setIsBlocked: (is_blocked): void => set({ is_blocked: !is_blocked }),
+  is_favorite: true,
+  setIsFavorite: (is_favorite): void => set({ is_favorite: !is_favorite }),
+}));
