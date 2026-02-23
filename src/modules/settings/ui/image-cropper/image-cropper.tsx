@@ -11,15 +11,15 @@ type ImageCropperProps = {
   onClose: () => void;
   onConfirm: (file: File, zoom: number) => void;
   initialPreviewUrl: string | null; // <-- Новый пропс
-  initialOriginalFile: File | null;  // <-- Новый пропс
+  initialOriginalFile: File | null; // <-- Новый пропс
 };
 
-export const ImageCropper: React.FC<ImageCropperProps> = ({ 
-  onClose, 
+export const ImageCropper: React.FC<ImageCropperProps> = ({
+  onClose,
   onConfirm,
   initialPreviewUrl, // <-- Получаем пропс
   initialOriginalFile, // <-- Получаем пропс
-}) => {
+}: ImageCropperProps) => {
   const {
     zoom,
     setZoom,
@@ -33,20 +33,20 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
 
   // Устанавливаем CSS-переменную для масштаба
   useEffect(() => {
-  const container = document.querySelector(`.${styles.previewContainer}`) as HTMLElement | null;
-  if (container) {
-    container.style.setProperty('--zoom', `${zoom / 100}`);
-  }
-}, [zoom]);
+    const container = document.querySelector(`.${styles.previewContainer}`) as HTMLElement | null;
+    if (container) {
+      container.style.setProperty('--zoom', `${zoom / 100}`);
+    }
+  }, [zoom]);
 
-  const handleConfirm = () => {
+  const handleConfirm = (): void => {
     // Используем originalFile из хука (который теперь синхронизирован)
     if (originalFile) {
       onConfirm(originalFile, zoom);
     }
   };
 
-  const handleCancel = () => {
+  const handleCancel = (): void => {
     reset();
     onClose();
   };
@@ -62,21 +62,14 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
 
       <div className={styles.previewContainer}>
         {previewUrl ? (
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className={styles.previewImage}
-            draggable={false}
-          />
+          <img src={previewUrl} alt="Preview" className={styles.previewImage} draggable={false} />
         ) : (
           <div className={styles.placeholder}>
             <span>Выберите изображение</span>
           </div>
         )}
-      <div className={styles.shadow}>
+        <div className={styles.shadow}></div>
       </div>
-      </div>
-
 
       <div className={styles.sliderContainer}>
         <input
@@ -87,16 +80,10 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({
           onChange={(e) => setZoom(Number(e.target.value))}
           className={styles.slider}
         />
-        <button
-          className={''}
-          onClick={handleConfirm}
-          disabled={!previewUrl}
-        >
-           <Image src={'/images/settings/okImageCropperIcon.svg'} alt="" width={36} height={36} className={''} />
+        <button className={''} onClick={handleConfirm} disabled={!previewUrl}>
+          <Image src={'/images/settings/okImageCropperIcon.svg'} alt="" width={36} height={36} className={''} />
         </button>
       </div>
-
-      
 
       <input
         type="file"

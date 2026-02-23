@@ -8,8 +8,8 @@ import Image from 'next/image';
 import { JSX, useState } from 'react'; // <-- Добавляем useState
 import { ButtonUI } from 'shared/ui';
 import { DateSelector } from '../date-selector';
-import styles from './edit-profile-block.module.scss';
 import { ImageCropperModal } from '../image-cropper/image-cropper-modal';
+import styles from './edit-profile-block.module.scss';
 
 export const EditProfileBlock: React.FC = ({}): JSX.Element => {
   const {
@@ -44,12 +44,9 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
 
   const [croppedZoom, setCroppedZoom] = useState<number | null>(null);
 
-  console.log(birthday,
-firstName,
-lastName,
-login, 'vot vot')
+  console.log(birthday, firstName, lastName, login, 'vot vot');
 
-  const handleConfirmCrop = (file: File, zoom: number) => {
+  const handleConfirmCrop = (file: File, zoom: number): void => {
     setCroppedZoom(zoom);
     closeCropper();
   };
@@ -62,7 +59,7 @@ login, 'vot vot')
     return <div>Ошибка загрузки профиля: {errorProfile.message}</div>;
   }
 
-  const avatarSrc = previewUrl || "/images/settings/noAvatarIcon.svg";
+  const avatarSrc = previewUrl || '/images/settings/noAvatarIcon.svg';
   const avatarStyle: React.CSSProperties = {};
   if (croppedZoom !== null && previewUrl) {
     avatarStyle.transform = `scale(${croppedZoom / 100})`;
@@ -86,14 +83,7 @@ login, 'vot vot')
         </button>
         <div className={styles.imageContainer}>
           <div className={styles.avatar}>
-          <Image
-            src={avatarSrc}
-            alt="Аватар"
-            width={200}
-            height={200}
-            className={''}
-            style={avatarStyle}
-          />
+            <Image src={avatarSrc} alt="Аватар" width={200} height={200} className={''} style={avatarStyle} />
           </div>
           <button type="button" className={styles.selectImage} onClick={triggerFileSelect}>
             Выбрать фотографию

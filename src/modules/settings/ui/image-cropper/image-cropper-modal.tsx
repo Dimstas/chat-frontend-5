@@ -10,7 +10,7 @@ type ImageCropperModalProps = {
   onClose: () => void;
   onConfirm: (file: File, zoom: number) => void;
   initialPreviewUrl: string | null; // <-- Новый пропс
-  initialOriginalFile: File | null;  // <-- Новый пропс
+  initialOriginalFile: File | null; // <-- Новый пропс
 };
 
 export const ImageCropperModal: React.FC<ImageCropperModalProps> = ({

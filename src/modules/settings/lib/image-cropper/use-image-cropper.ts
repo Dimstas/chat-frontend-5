@@ -1,5 +1,5 @@
 // src/modules/settings/lib/image-cropper/use-image-cropper.ts
-import { useState, useRef, useCallback, useEffect } from 'react'; // Добавляем useEffect
+import { useCallback, useRef, useState } from 'react'; // Добавляем useEffect
 
 type UseImageCropperReturn = {
   zoom: number;
@@ -16,7 +16,7 @@ type UseImageCropperReturn = {
 // Принимаем начальные значения
 export const useImageCropper = (
   initialPreviewUrl: string | null = null,
-  initialOriginalFile: File | null = null
+  initialOriginalFile: File | null = null,
 ): UseImageCropperReturn => {
   const [zoom, setZoom] = useState<number>(100);
   // Используем initialPreviewUrl для начального состояния

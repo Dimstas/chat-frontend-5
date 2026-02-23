@@ -1,21 +1,21 @@
 import { apiFetch } from './fetcher';
 
 export type BlacklistedUser = {
-uid: string,
-username: string,
-nickname: string,
-phone: string,
-first_name: string,
-last_name: string,
-avatar: string,
-avatar_url: string,
-avatar_webp: string,
-avatar_webp_url: string,
-additional_information: string,
-birthday: number,
-chat_id: number,
-is_online: boolean,
-was_online_at: number
+  uid: string;
+  username: string;
+  nickname: string;
+  phone: string;
+  first_name: string;
+  last_name: string;
+  avatar: string;
+  avatar_url: string;
+  avatar_webp: string;
+  avatar_webp_url: string;
+  additional_information: string;
+  birthday: number;
+  chat_id: number;
+  is_online: boolean;
+  was_online_at: number;
 };
 
 export type BlacklistResponse = {
@@ -36,9 +36,7 @@ export type GetBlacklistParams = {
  * @param params - Параметры запроса (ordering, page, page_size)
  * @returns Promise<BlacklistResponse>
  */
-export const getBlacklist = (
-  params?: GetBlacklistParams,
-): Promise<BlacklistResponse> => {
+export const getBlacklist = (params?: GetBlacklistParams): Promise<BlacklistResponse> => {
   const url = new URL('/api/proxy/api/v1/contact/blacklist/', window.location.origin);
 
   if (params) {

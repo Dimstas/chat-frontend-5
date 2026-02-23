@@ -36,9 +36,9 @@
   padding-left: 1.6rem;
 }
 
-.listContainer{
-    width:36rem;
-    height: 100%;
+.listContainer {
+  width: 36rem;
+  height: 100%;
 }
 
 .selectImage {
@@ -63,7 +63,6 @@
   align-items: center;
   gap: 1.3rem;
 }
-
 
 .profileForm {
   @include mixins.flex-box(column, space-between, center, 1.2rem);

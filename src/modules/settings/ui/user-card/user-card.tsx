@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { JSX, useState } from 'react';
+import { useState } from 'react';
 import styles from './user-card.module.scss';
 
 type UserCardProps = {
@@ -9,20 +9,19 @@ type UserCardProps = {
   nickName: string;
 };
 
-export const UserCard: React.FC<UserCardProps> = ({ avatar, name, phone, nickName }) => {
+export const UserCard: React.FC<UserCardProps> = ({ avatar, name, phone, nickName }: UserCardProps) => {
   const [imageError, setImageError] = useState(false);
 
-  const handleError = () => {
+  const handleError = (): void => {
     setImageError(true);
   };
 
-  const isValidUrl = typeof avatar === 'string' && 
-    avatar.trim() !== '' && 
+  const isValidUrl =
+    typeof avatar === 'string' &&
+    avatar.trim() !== '' &&
     (avatar.startsWith('/') || avatar.startsWith('http://') || avatar.startsWith('https://'));
 
-  const src = imageError || !isValidUrl 
-    ? '/images/settings/noAvatarIcon.svg' 
-    : avatar;
+  const src = imageError || !isValidUrl ? '/images/settings/noAvatarIcon.svg' : avatar;
 
   return (
     <div className={styles.container}>
