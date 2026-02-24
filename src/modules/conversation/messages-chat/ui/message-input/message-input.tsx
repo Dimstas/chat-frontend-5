@@ -1,23 +1,30 @@
 'use client';
 import { JSX, useRef, useState } from 'react';
 import { ImageUI } from 'shared/ui/image';
+import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { addRecentEmodji } from '../../utils/recent-emodji-array';
 import { EmodjiBlock } from '../emodji-block/emodji-block';
 import SmailIcon from './icon/smail.svg';
 import VioletSmailIcon from './icon/violet-smail.svg';
 import styles from './message-input.module.scss';
 
-export const MessageInput = (): JSX.Element => {
-  const [message, setMessage] = useState<string>('');
+export const MessageInput = ({ user_uid }: { user_uid: string }): JSX.Element => {
+  const [messageInput, setMessageInput] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [recentEmoji, setRecentEmoji] = useState<string[]>([]);
   const [pickerPos, setPickerPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement | null>(null);
+  const { sendMessage } = useWebSocketChat();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setMessage(event.target.value);
+  const handleChangeInput = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    setMessageInput(event.target.value);
   };
+  const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
+    form.preventDefault();
+    sendMessage(messageInput, user_uid);
+  };
+
   const handleEmojiSelect = (emoji: string): void => {
     setSelectedEmoji(emoji);
     setShowEmojiPicker(false);
@@ -41,13 +48,13 @@ export const MessageInput = (): JSX.Element => {
 
   return (
     <div className={styles.inputWrapper}>
-      <form className={styles.form}>
+      <form className={styles.form} onSubmit={handleSubmitForm}>
         <input
           id="message"
           name="message"
-          value={message}
+          value={messageInput}
           placeholder="Сообщение"
-          onChange={handleChange}
+          onChange={handleChangeInput}
           className={styles.input}
         />
         {selectedEmoji && (

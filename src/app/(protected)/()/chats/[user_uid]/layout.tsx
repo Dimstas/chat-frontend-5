@@ -19,7 +19,7 @@ export default async function MessagesLayout({
         <HeaderTop user_uid={user_uid} />
       </Suspense>
       {children}
-      <HeaderBottom />
+      <HeaderBottom user_uid={user_uid} />
     </main>
   );
 }
