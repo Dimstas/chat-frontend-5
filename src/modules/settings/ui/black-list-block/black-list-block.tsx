@@ -59,7 +59,14 @@ export const BlackListBlock: React.FC = (): JSX.Element => {
         {!isLoading && !error && blacklist && (
           <ul>
             {blacklist.map((contact) => (
-              <ContactCardSelectable fullName={'string'} wasOnlineAt={0} key={contact.uid} {...contact} />
+              <ContactCardSelectable
+                firstName={''}
+                lastName={''}
+                fullName={'string'}
+                wasOnlineAt={0}
+                key={contact.uid}
+                {...contact}
+              />
             ))}
           </ul>
         )}
