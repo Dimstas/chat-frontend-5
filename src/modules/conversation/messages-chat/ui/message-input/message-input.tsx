@@ -8,21 +8,23 @@ import SmailIcon from './icon/smail.svg';
 import VioletSmailIcon from './icon/violet-smail.svg';
 import styles from './message-input.module.scss';
 
-export const MessageInput = ({ user_uid }: { user_uid: string }): JSX.Element => {
-  const [messageInput, setMessageInput] = useState<string>('');
+export const MessageInput = ({ user_uid, wsUrl }: { user_uid: string; wsUrl: string }): JSX.Element => {
+  const [textInput, setTextInput] = useState<string>('');
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [recentEmoji, setRecentEmoji] = useState<string[]>([]);
   const [pickerPos, setPickerPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement | null>(null);
-  const { sendMessage } = useWebSocketChat();
+  const { sendMessage } = useWebSocketChat(user_uid, wsUrl);
 
   const handleChangeInput = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setMessageInput(event.target.value);
+    setTextInput(event.target.value);
   };
+
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
-    sendMessage(messageInput, user_uid);
+    sendMessage(textInput);
+    setTextInput('');
   };
 
   const handleEmojiSelect = (emoji: string): void => {
@@ -50,10 +52,10 @@ export const MessageInput = ({ user_uid }: { user_uid: string }): JSX.Element =>
     <div className={styles.inputWrapper}>
       <form className={styles.form} onSubmit={handleSubmitForm}>
         <input
-          id="message"
-          name="message"
-          value={messageInput}
-          placeholder="Сообщение"
+          id="text"
+          name="text"
+          value={textInput}
+          placeholder="Текст сообщения"
           onChange={handleChangeInput}
           className={styles.input}
         />

@@ -6,13 +6,13 @@ export const serializerFileMessageApiSchema = z.object({
 });
 
 export const serializerRequestObjectCreateMessageApiSchema = z.object({
-  to_user_uid: z.string().optional(),
-  chat_key: z.string().optional(),
+  to_user_uid: z.string().nullable().optional(),
+  chat_key: z.string().nullable().optional(),
   content: z.string().trim(),
   status: z.enum(['publish', 'draft']),
-  files: z.array(serializerFileMessageApiSchema).max(10).optional(),
-  replied_messages: z.array(string()).optional(),
-  forwarded_messages: z.array(string()).optional(),
+  files: z.array(serializerFileMessageApiSchema).max(10).nullable().optional(),
+  replied_messages: z.array(string()).nullable().optional(),
+  forwarded_messages: z.array(string()).nullable().optional(),
 });
 
 export const serializerRequestCreatingMessageApiSchema = z.object({
