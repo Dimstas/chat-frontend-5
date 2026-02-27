@@ -5,7 +5,11 @@ import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
 import styles from './incoming-message-card.module.scss';
 
-export const IncomingMessagesCard = ({ message }: { message: RestMessageApi }): JSX.Element => {
+export const IncomingMessagesCard = ({
+  message,
+}: {
+  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' };
+}): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 

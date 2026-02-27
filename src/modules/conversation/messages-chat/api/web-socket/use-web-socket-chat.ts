@@ -12,19 +12,6 @@ export function useWebSocketChat(user_uid: string, wsUrl: string): UseWebSocketC
   const addMessageChat = useMessagesChatStore((s) => s.addMessageChat);
   const updateMessageByUidChat = useMessagesChatStore((s) => s.updateMessageByUidChat);
   const upsertMessageChat = useMessagesChatStore((s) => s.upsertMessageChat);
-
-  // изначально копируем лист сообщений поступивший с сервера и помечаем каждое {status:sent}
-  // const messagesChatStore = useMessagesChatStore((s) => s.messagesChat);
-  // const messagesDefault: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[] = messagesChatStore.map(
-  //   (m) => ({
-  //     ...m,
-  //     status: 'sent',
-  //   }),
-  // );
-  // полный список сообщений для показа в DOM, полученные изначально с сервера
-  // и полученные на клиенте с помощью ws
-  // const [messages, setMessages] =
-  //   useState<(RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[]>(messagesDefault);
   // Ссылка на websocket подключение
   const wsRef = useRef<WebSocket | null>(null);
   //Функция для переподключения ws-coeдинения
@@ -102,7 +89,7 @@ export function useWebSocketChat(user_uid: string, wsUrl: string): UseWebSocketC
         forwarded_messages: [],
         files_list: [],
         new: false,
-        created_at: Number(new Date()),
+        created_at: Date.now() / 1000,
         updated_at: 0,
         chat_id: 0,
         chat_key: '',
@@ -116,11 +103,8 @@ export function useWebSocketChat(user_uid: string, wsUrl: string): UseWebSocketC
         },
         status: 'pending',
       };
-      // Показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
+      // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
       addMessageChat(tempMessage);
-      // setMessages((prev) => {
-      //   return [tempMessage, ...prev];
-      // });
 
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: CreateTextMessageAPI = {
@@ -144,12 +128,11 @@ export function useWebSocketChat(user_uid: string, wsUrl: string): UseWebSocketC
           updateMessageByUidChat(requestUid, { status: 'failed' });
 
           pendingTimeouts.current.delete(requestUid);
-        }, 10000);
+        }, 5000);
         pendingTimeouts.current.set(requestUid, to);
       } else {
         // Если socket не готов отправить на сервер созданное клиентом сообщение, тогда в данном сообщении сразу меняем
         //  статус с 'pending' на 'failed' - {status:failed}.
-        //setMessages((prev) => prev.map((m) => (m.uid === requestUid ? { ...m, status: 'failed' } : m)));
         updateMessageByUidChat(requestUid, { status: 'failed' });
       }
     },

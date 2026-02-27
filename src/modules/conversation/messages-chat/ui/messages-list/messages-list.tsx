@@ -26,15 +26,17 @@ export const MessagesList = ({
       {Object.keys(results).map<JSX.Element>((date: string) => (
         <div key={date}>
           <DateCard date={date} />
-          {results[date].map<JSX.Element>((message: RestMessageApi, index: number) => (
-            <div key={index}>
-              {message.from_user.uid === user_uid ? (
-                <IncomingMessagesCard message={message} />
-              ) : (
-                <OutgoingMessagesCard message={message} />
-              )}
-            </div>
-          ))}
+          {results[date].map<JSX.Element>(
+            (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }, index) => (
+              <div key={index}>
+                {message.from_user.uid === user_uid ? (
+                  <IncomingMessagesCard message={message} />
+                ) : (
+                  <OutgoingMessagesCard message={message} />
+                )}
+              </div>
+            ),
+          )}
         </div>
       ))}
     </div>
