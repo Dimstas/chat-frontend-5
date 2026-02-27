@@ -25,6 +25,5 @@ export async function apiFetch<T>(input: RequestInfo, init?: RequestInit): Promi
   if (contentType?.includes('application/json')) {
     return (await response.json()) as T;
   }
-
   return (await response.text()) as T;
 }
