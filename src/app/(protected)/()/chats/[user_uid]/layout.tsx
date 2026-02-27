@@ -2,7 +2,7 @@ import { HeaderBottom } from 'modules/conversation/messages-chat/ui/header-botto
 import { HeaderTop } from 'modules/conversation/messages-chat/ui/header-top';
 import styles from 'modules/conversation/messages-chat/ui/messages-list-layout/messages-list-layout.module.scss';
 import { cookies } from 'next/headers';
-import { JSX, Suspense } from 'react';
+import { Suspense } from 'react';
 
 const BACKEND_WS = process.env.BACKEND_API_WS_URL!;
 
@@ -12,7 +12,7 @@ export default async function MessagesLayout({
 }: {
   children: React.ReactNode;
   params: Promise<{ user_uid: string }>;
-}): Promise<JSX.Element | void> {
+}): Promise<React.ReactNode> {
   try {
     const user_uid = (await params).user_uid;
     const cookieStore = await cookies();
