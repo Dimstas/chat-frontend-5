@@ -1,43 +1,39 @@
 'use client';
 
-import {
-  ContactCardSelectable,
-  DeleteSelectedContactsButton,
-} from 'modules/conversation/contacts/features/contacts-selection'; // Убедитесь, что путь правильный
+import { Contact } from 'modules/conversation/contacts/entity';
+import { DeleteSelectedContactsButton } from 'modules/conversation/contacts/features/contacts-selection';
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { JSX, useCallback } from 'react';
+import { BlacklistedUser } from 'shared/api/blacklist.api';
 import { useGetBlacklist } from 'shared/query/blacklist.query';
+import { ContactCard } from '../contact-card';
 import styles from './black-list-block.module.scss';
 
 export const BlackListBlock: React.FC = (): JSX.Element => {
   const router = useRouter();
-  const { data: blacklistResponse, isLoading, error } = useGetBlacklist();
+  const { data: blacklistUsers, isLoading, error } = useGetBlacklist();
+
+  console.log('BlackListBlock рендерится', blacklistUsers);
 
   const handleReturnButton = useCallback((): void => {
     router.push('/settings');
   }, [router]);
-  let blacklist = blacklistResponse?.results;
-  blacklist = [
-    {
-      uid: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      username: 'string',
-      nickname: 'string',
-      phone: 'string',
-      first_name: 'string',
-      last_name: 'string',
-      avatar: '/images/avatars/avatar-3.svg',
-      avatar_url: '/images/avatars/avatar-3.svg',
-      avatar_webp: '/images/avatars/avatar-3.svg',
-      avatar_webp_url: '/images/avatars/avatar-3.svg',
-      additional_information: 'string',
-      birthday: 0,
-      chat_id: 0,
-      is_online: true,
-      was_online_at: 0,
-    },
-  ];
+
+  const mapApiProfileToContact = (apiProfile: BlacklistedUser): Contact => {
+    return {
+      uid: apiProfile.uid,
+      phone: apiProfile.phone,
+      firstName: apiProfile.first_name,
+      lastName: apiProfile.last_name,
+      chatId: undefined,
+      fullName: `${apiProfile.first_name} ${apiProfile.last_name}`.trim(),
+      avatar: apiProfile.avatar_url || apiProfile.avatar || '',
+      wasOnlineAt: apiProfile.was_online_at,
+    };
+  };
+
   return (
     <div className={styles.container}>
       <button type="button" className={styles.returnButton} onClick={handleReturnButton}>
@@ -53,26 +49,27 @@ export const BlackListBlock: React.FC = (): JSX.Element => {
         </div>
       </button>
       <ConversationLayout
-        header={<SearchInput query={''} onChange={() => 'void'} />}
+        header={<SearchInput query={''} onChange={() => {}} />}
         footer={<DeleteSelectedContactsButton />}
       >
-        {!isLoading && !error && blacklist && (
+        {!isLoading && !error && blacklistUsers && blacklistUsers.length > 0 && (
           <ul>
-            {blacklist.map((contact) => (
-              <ContactCardSelectable
-                firstName={''}
-                lastName={''}
-                fullName={'string'}
-                wasOnlineAt={0}
-                key={contact.uid}
-                {...contact}
-              />
-            ))}
+            {blacklistUsers.map((apiProfile) => {
+              const contact = mapApiProfileToContact(apiProfile);
+              return (
+                <ContactCard
+                  key={contact.uid}
+                  contact={contact}
+                  selectionMode={false}
+                  selected={false}
+                  onSelectHandler={() => {}}
+                />
+              );
+            })}
           </ul>
         )}
       </ConversationLayout>
-      {/* Если данных нет, но и ошибки нет */}
-      {!isLoading && !error && (!blacklistResponse || blacklist?.length === 0) && <p>Чёрный список пуст.</p>}
+      {!isLoading && !error && (!blacklistUsers || blacklistUsers.length === 0) && <p>Чёрный список пуст.</p>}
     </div>
   );
 };

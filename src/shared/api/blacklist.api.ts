@@ -4,25 +4,29 @@ export type BlacklistedUser = {
   uid: string;
   username: string;
   nickname: string;
-  phone: string;
   first_name: string;
   last_name: string;
-  avatar: string;
-  avatar_url: string;
-  avatar_webp: string;
-  avatar_webp_url: string;
   additional_information: string;
   birthday: number;
-  chat_id: number;
+  phone: string;
+  avatar: string;
+  avatar_url: string;
+  avatar_webp: string | null;
+  avatar_webp_url: string | null;
+  is_deleted: boolean;
   is_online: boolean;
   was_online_at: number;
+};
+
+type BlacklistResultItem = {
+  blocked_user: BlacklistedUser;
 };
 
 export type BlacklistResponse = {
   count: number;
   next: string | null;
   previous: string | null;
-  results: BlacklistedUser[];
+  results: BlacklistResultItem[];
 };
 
 export type GetBlacklistParams = {
@@ -37,6 +41,8 @@ export type GetBlacklistParams = {
  * @returns Promise<BlacklistResponse>
  */
 export const getBlacklist = (params?: GetBlacklistParams): Promise<BlacklistResponse> => {
+  console.log('Вызов API getBlacklist с params:', params); // <-- Добавьте
+
   const url = new URL('/api/proxy/api/v1/contact/blacklist/', window.location.origin);
 
   if (params) {
