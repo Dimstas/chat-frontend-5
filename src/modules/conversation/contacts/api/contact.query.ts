@@ -79,9 +79,8 @@ export const useAddContactQuery = (): UseMutationResult<UserContactApiResponse, 
     },
 
     onSettled: () => {
-      void queryClient.invalidateQueries({
-        queryKey: ['contacts', 'contacts-list'],
-      });
+      queryClient.invalidateQueries({ queryKey: ['chats', 'chat-list'] });
+      queryClient.invalidateQueries({ queryKey: ['contacts', 'contacts-list'] });
     },
   });
 };

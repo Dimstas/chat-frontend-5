@@ -3,6 +3,8 @@ import React, { ReactNode } from 'react';
 export type CardShellProps = {
   children: ReactNode;
   uid: string;
+  nickname: string;
+  isInContacts: boolean;
   href: string;
   imageOptions: {
     src: string;
