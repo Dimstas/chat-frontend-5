@@ -3,10 +3,16 @@ import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-messa
 import { JSX, MouseEvent, useState } from 'react';
 import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
-import MessageVector from '../icons/message-vector.svg';
+import CheckOneIcon from '../icons/check-one.svg';
+import CheckTwoIcon from '../icons/check-two.svg';
+import WatchIcon from '../icons/watch.svg';
 import styles from './outgoing-message-card.module.scss';
 
-export const OutgoingMessagesCard = ({ message }: { message: RestMessageApi }): JSX.Element => {
+export const OutgoingMessagesCard = ({
+  message,
+}: {
+  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' };
+}): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
@@ -37,7 +43,9 @@ export const OutgoingMessagesCard = ({ message }: { message: RestMessageApi }): 
           <div className={styles.messageSentTime}>
             <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
             <div className={styles.messageChatIcons}>
-              <MessageVector />
+              {message.status === 'failed' && <CheckOneIcon />}
+              {message.status === 'pending' && <WatchIcon />}
+              {message.status === 'sent' && <CheckTwoIcon />}
             </div>
           </div>
         </div>

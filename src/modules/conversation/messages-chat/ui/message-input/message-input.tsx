@@ -7,17 +7,19 @@ import SmailIcon from './icon/smail.svg';
 import VioletSmailIcon from './icon/violet-smail.svg';
 import styles from './message-input.module.scss';
 
-export const MessageInput = (): JSX.Element => {
-  const [message, setMessage] = useState<string>('');
+export const MessageInput = ({
+  textInput,
+  setTextInput,
+}: {
+  textInput: string;
+  setTextInput: (text: string) => void;
+}): JSX.Element => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [recentEmoji, setRecentEmoji] = useState<string[]>([]);
   const [pickerPos, setPickerPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement | null>(null);
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-    setMessage(event.target.value);
-  };
   const handleEmojiSelect = (emoji: string): void => {
     setSelectedEmoji(emoji);
     setShowEmojiPicker(false);
@@ -41,13 +43,15 @@ export const MessageInput = (): JSX.Element => {
 
   return (
     <div className={styles.inputWrapper}>
-      <form className={styles.form}>
+      <div className={styles.form}>
         <input
-          id="message"
-          name="message"
-          value={message}
-          placeholder="Сообщение"
-          onChange={handleChange}
+          id="text"
+          name="text"
+          value={textInput}
+          placeholder="Текст сообщения"
+          onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
+            setTextInput(event.target.value);
+          }}
           className={styles.input}
         />
         {selectedEmoji && (
@@ -61,9 +65,9 @@ export const MessageInput = (): JSX.Element => {
             />
           </span>
         )}
-      </form>
+      </div>
       <div className={styles.icon} ref={buttonRef}>
-        <button onMouseEnter={openEmojiPicker}>{showEmojiPicker ? <VioletSmailIcon /> : <SmailIcon />}</button>
+        {showEmojiPicker ? <VioletSmailIcon /> : <SmailIcon onMouseEnter={openEmojiPicker} />}
       </div>
       <div onMouseLeave={closeEmojiPicker}>
         {showEmojiPicker && (
