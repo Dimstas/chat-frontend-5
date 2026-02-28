@@ -1,7 +1,7 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .container {
-  @include mixins.flex-box(column, flex-start, center, 1.6rem);
+  @include mixins.flex-box(column, flex-start, center);
   width: 36rem;
   height: 93.6rem;
   max-width: 36rem;
@@ -36,12 +36,9 @@
   padding-left: 1.6rem;
 }
 
-.avatar {
-  width: 20rem;
-  height: 20rem;
-  border-radius: 50%;
-  object-fit: cover;
-  overflow: hidden;
+.listContainer {
+  width: 36rem;
+  height: 100%;
 }
 
 .selectImage {

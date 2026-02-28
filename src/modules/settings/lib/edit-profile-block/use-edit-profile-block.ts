@@ -1,22 +1,51 @@
+// src/modules/settings/lib/edit-profile-block/use-edit-profile-block.ts
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { ProfileData } from 'shared/api/profile.api';
 import { useGetProfile, useUpdateProfile } from 'shared/query/profile.query';
 
-type ProfileDataForForm = {
-  birthday: number | null;
-  first_name: string;
-  last_name: string;
-  nickname: string;
-  additional_information: string;
-};
-
-export type UseEditProfileBlockReturn = {
+type State = {
   birthday: Date | null;
   firstName: string;
   lastName: string;
   login: string;
   info: string;
+};
+
+type Action =
+  | { type: 'SET_BIRTHDAY'; payload: Date | null }
+  | { type: 'SET_FIRST_NAME'; payload: string }
+  | { type: 'SET_LAST_NAME'; payload: string }
+  | { type: 'SET_LOGIN'; payload: string }
+  | { type: 'SET_INFO'; payload: string }
+  | { type: 'RESET_FROM_PROFILE'; payload: ProfileData };
+
+const reducer = (state: State, action: Action): State => {
+  switch (action.type) {
+    case 'SET_BIRTHDAY':
+      return { ...state, birthday: action.payload };
+    case 'SET_FIRST_NAME':
+      return { ...state, firstName: action.payload };
+    case 'SET_LAST_NAME':
+      return { ...state, lastName: action.payload };
+    case 'SET_LOGIN':
+      return { ...state, login: action.payload };
+    case 'SET_INFO':
+      return { ...state, info: action.payload };
+    case 'RESET_FROM_PROFILE':
+      return {
+        birthday: action.payload.birthday ? new Date(action.payload.birthday * 1000) : null,
+        firstName: action.payload.first_name,
+        lastName: action.payload.last_name || '',
+        login: action.payload.nickname,
+        info: action.payload.additional_information || '',
+      };
+    default:
+      return state;
+  }
+};
+
+export type UseEditProfileBlockReturn = State & {
   isLoadingProfile: boolean;
   isSaving: boolean;
   errorProfile: Error | null;
@@ -33,36 +62,38 @@ export type UseEditProfileBlockReturn = {
 export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
   const router = useRouter();
 
-  const [birthday, setBirthday] = useState<Date | null>(null);
-  const [firstName, setFirstName] = useState<string>('');
-  const [lastName, setLastName] = useState<string>('');
-  const [login, setLogin] = useState<string>('');
-  const [info, setInfo] = useState<string>('');
-
   const { data: profile, isLoading: isLoadingProfile, error: errorProfile } = useGetProfile();
-
   const { mutate: updateProfile, isPending: isSaving, error: errorSave } = useUpdateProfile();
 
-  const prevProfileUidRef = useRef(profile?.uid);
+  const [state, dispatch] = useReducer(reducer, {
+    birthday: null,
+    firstName: '',
+    lastName: '',
+    login: '',
+    info: '',
+  });
 
-  // Эффект для обновления формы при изменении профиля
+  const prevProfileUidRef = useRef<string | undefined>(undefined);
+  const initialLoadDoneRef = useRef(false);
+
+  // Используем useEffect с флагом для начальной загрузки
   useEffect(() => {
-    const currentUid = profile?.uid;
-    const prevUid = prevProfileUidRef.current;
+    if (profile && !initialLoadDoneRef.current) {
+      initialLoadDoneRef.current = true;
+      prevProfileUidRef.current = profile.uid;
 
-    if (prevUid !== currentUid && profile) {
-      prevProfileUidRef.current = currentUid;
+      // Используем dispatch вместо setState
+      dispatch({ type: 'RESET_FROM_PROFILE', payload: profile });
+    }
+  }, [profile]);
 
-      // Используем setTimeout для отложенного обновления
-      const timeoutId = setTimeout(() => {
-        setBirthday(profile.birthday ? new Date(profile.birthday * 1000) : null);
-        setFirstName(profile.first_name);
-        setLastName(profile.last_name || '');
-        setLogin(profile.nickname);
-        setInfo(profile.additional_information || '');
-      }, 0);
+  // Обновление при изменении профиля (кроме первого раза)
+  useEffect(() => {
+    if (profile && profile.uid !== prevProfileUidRef.current && initialLoadDoneRef.current) {
+      prevProfileUidRef.current = profile.uid;
 
-      return (): void => clearTimeout(timeoutId);
+      // Используем dispatch вместо setState
+      dispatch({ type: 'RESET_FROM_PROFILE', payload: profile });
     }
   }, [profile]);
 
@@ -71,33 +102,33 @@ export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
   }, [router]);
 
   const handleBirthdayChange = useCallback((value: Date | null) => {
-    setBirthday(value);
+    dispatch({ type: 'SET_BIRTHDAY', payload: value });
   }, []);
 
   const handleFirstNameChange = useCallback((value: string) => {
-    setFirstName(value);
+    dispatch({ type: 'SET_FIRST_NAME', payload: value });
   }, []);
 
   const handleLastNameChange = useCallback((value: string) => {
-    setLastName(value);
+    dispatch({ type: 'SET_LAST_NAME', payload: value });
   }, []);
 
   const handleLoginChange = useCallback((value: string) => {
-    setLogin(value);
+    dispatch({ type: 'SET_LOGIN', payload: value });
   }, []);
 
   const handleInfoChange = useCallback((value: string) => {
-    setInfo(value);
+    dispatch({ type: 'SET_INFO', payload: value });
   }, []);
 
   const handleSave = useCallback(() => {
-    const birthdayTimestamp = birthday ? Math.floor(birthday.getTime() / 1000) : null;
+    const birthdayTimestamp = state.birthday ? Math.floor(state.birthday.getTime() / 1000) : null;
 
     const updatePayload: ProfileData = {
-      nickname: login,
-      first_name: firstName,
-      last_name: lastName || undefined,
-      additional_information: info || undefined,
+      nickname: state.login,
+      first_name: state.firstName,
+      last_name: state.lastName || undefined,
+      additional_information: state.info || undefined,
       birthday: birthdayTimestamp || undefined,
     };
 
@@ -111,7 +142,7 @@ export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
         console.error('Error updating profile:', error);
       },
     });
-  }, [birthday, firstName, lastName, login, info, updateProfile]);
+  }, [state, updateProfile]);
 
   const typedErrorProfile: Error | null =
     errorProfile instanceof Error ? errorProfile : errorProfile ? new Error(String(errorProfile)) : null;
@@ -119,11 +150,7 @@ export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
     errorSave instanceof Error ? errorSave : errorSave ? new Error(String(errorSave)) : null;
 
   return {
-    birthday,
-    firstName,
-    lastName,
-    login,
-    info,
+    ...state,
     isLoadingProfile,
     isSaving,
     errorProfile: typedErrorProfile,
