@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useAddContactQuery } from 'modules/conversation/contacts/api/contact.query';
-import { useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
+import { useEditChatQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
 import { JSX } from 'react';
 import styles from './context-menu.module.scss';
 import AddContact from './icons/add-contact.svg';
@@ -11,21 +11,26 @@ import VolumeOf from './icons/volume-off.svg';
 
 export const ContextMenu = ({
   uid,
+  chatId,
   nickname,
   isInContacts,
+  notifications,
   position,
   visible,
   onClose,
 }: {
   uid: string;
-  nickname: string;
-  isInContacts: boolean;
+  chatId?: number;
+  nickname?: string;
+  isInContacts?: boolean;
+  notifications?: boolean;
   position: { x: number; y: number };
   visible: boolean;
   onClose: () => void;
 }): JSX.Element | null => {
   const { mutate: addContact } = useAddContactQuery();
-  const { data: users } = useSearchUserByNicknameQuery(nickname);
+  const { data: users } = useSearchUserByNicknameQuery(nickname ?? '');
+  const { mutate: editChat } = useEditChatQuery(chatId ?? 0);
 
   if (!visible) return null;
 
@@ -34,6 +39,13 @@ export const ContextMenu = ({
     if (!!contact) {
       addContact({ phone: contact?.phone, first_name: contact?.first_name, last_name: contact?.last_name });
     }
+    onClose();
+  };
+
+  const handleToggleNotification = (): void => {
+    editChat({
+      notifications: !notifications,
+    });
     onClose();
   };
 
@@ -47,8 +59,8 @@ export const ContextMenu = ({
           </div>
         </button>
       )}
-      <button className={styles.cell} onClick={onClose}>
-        <div className={styles.text}>Выключить уведомления</div>
+      <button className={styles.cell} onClick={handleToggleNotification}>
+        <div className={styles.text}>{notifications ? 'Выключить' : 'Включить'} уведомления</div>
         <div className={styles.icon}>
           <VolumeOf />
         </div>

@@ -36,7 +36,9 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   return (
     <CardShell
       uid={uid}
+      chatId={chat.id}
       nickname={peer.nickname}
+      notifications={notifications}
       isInContacts={peer.isInContacts}
       href={`/chats/${uid}`}
       imageOptions={{
@@ -49,7 +51,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
       <div className={styles.card}>
         <div className={styles.header}>
           <CardHeader title={`${firstName} ${lastName}`} selected={isSelected}>
-            {notifications && <MutedIcon className={styles.mutedIcon} />}
+            {!notifications && <MutedIcon className={styles.mutedIcon} />}
           </CardHeader>
 
           <CardHeaderMeta
