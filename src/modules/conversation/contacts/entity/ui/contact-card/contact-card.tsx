@@ -7,7 +7,7 @@ import styles from './contact-card.module.scss';
 import { ContactCardProps } from './contact-card.props';
 
 export const ContactCard = ({ contact, selected, selectionMode, onSelectHandler }: ContactCardProps): JSX.Element => {
-  const { uid, fullName, avatar, wasOnlineAt } = contact;
+  const { uid, chatId, fullName, avatar, wasOnlineAt } = contact;
   const status = getLastSeenLabel(wasOnlineAt);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>): void => {
@@ -20,6 +20,7 @@ export const ContactCard = ({ contact, selected, selectionMode, onSelectHandler 
   return (
     <CardShell
       uid={uid}
+      chatId={chatId}
       href={`/chats/${uid}`}
       imageOptions={{ src: avatar, alt: fullName, classNames: { root: styles.imageWrapper } }}
       selected={selected}
