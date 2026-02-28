@@ -25,6 +25,7 @@ type UseMessagesListScreenReturn = {
   setSearch: (q: string) => void;
   clearSearch: () => void;
   messagesList: RestMessageApi[];
+  status: string;
 };
 
 export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenReturn => {
@@ -49,7 +50,7 @@ export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenRe
 
   const debouncedSearch = useDebouncedValue(search, 300).trim().toLowerCase();
 
-  const { data } = useMessagesListQuery(user_uid, {
+  const { data, status } = useMessagesListQuery(user_uid, {
     from_me,
     new: newS,
     ordering,
@@ -81,5 +82,6 @@ export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenRe
     setSearch,
     clearSearch,
     messagesList: messagesList,
+    status,
   };
 };
