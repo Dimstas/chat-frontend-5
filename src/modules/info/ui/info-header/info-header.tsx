@@ -1,5 +1,5 @@
-import { useChatStore } from 'modules/conversation/chats/model/chat.store';
 import { useBlockUserMutation } from 'modules/info/api';
+import { useInfoStore } from 'modules/info/model/info.store';
 import { JSX } from 'react';
 import { Dropdown } from 'shared/ui/dropdown';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
@@ -12,7 +12,7 @@ import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
 export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => {
-  const { toggleInfoOpen } = useChatStore();
+  const { toggleInfoOpen } = useInfoStore();
   const { mutate: blockUser } = useBlockUserMutation(uid);
 
   const menuItems: DropdownItem[] = [
