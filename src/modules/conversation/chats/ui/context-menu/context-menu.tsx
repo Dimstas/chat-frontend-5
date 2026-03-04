@@ -10,21 +10,23 @@ import PushPin from './icons/push-pin.svg';
 import VolumeOf from './icons/volume-off.svg';
 
 export const ContextMenu = ({
-  uid,
   chatId,
+  lastMessageId,
   nickname,
   isInContacts,
   isFavorite,
+  hasNewMessages,
   notifications,
   position,
   visible,
   onClose,
 }: {
-  uid: string;
   chatId?: number;
+  lastMessageId?: number;
   nickname?: string;
   isInContacts?: boolean;
   isFavorite?: boolean;
+  hasNewMessages?: boolean;
   notifications?: boolean;
   position: { x: number; y: number };
   visible: boolean;
@@ -58,6 +60,13 @@ export const ContextMenu = ({
     onClose();
   };
 
+  const handleMarkAsRead = (): void => {
+    editChat({
+      last_seen_message: lastMessageId,
+    });
+    onClose();
+  };
+
   return (
     <div className={styles.wrapper} onMouseLeave={onClose} style={{ top: position.y, left: position.x }}>
       {!isInContacts && (
@@ -80,12 +89,14 @@ export const ContextMenu = ({
           <PushPin />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
-        <div className={styles.text}>Пометить прочитанным</div>
-        <div className={styles.icon}>
-          <MarkRead />
-        </div>
-      </button>
+      {hasNewMessages && (
+        <button className={styles.cell} onClick={handleMarkAsRead}>
+          <div className={styles.text}>Пометить прочитанным</div>
+          <div className={styles.icon}>
+            <MarkRead />
+          </div>
+        </button>
+      )}
       <button className={clsx(styles.cell, styles.cellBottom)} onClick={onClose}>
         <div className={clsx(styles.text, styles.textRed)}>Удалить чат</div>
         <div className={styles.icon}>

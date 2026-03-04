@@ -15,7 +15,10 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   const { notifications, is_favorite, newMessageCount } = chat;
   const { firstName, lastName, uid } = peer;
   const {
+    lastSeenMessage,
     lastMessage: {
+      id: lastMessageId,
+      uid: lastMessageUid,
       updatedAt = undefined,
       content = '',
       hasForwardedMessage = false,
@@ -26,11 +29,13 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
 
   const pathname = usePathname();
   const isSelected = pathname === `/chats/${peer.uid}`;
+  const hasNewMessages = lastMessageUid !== uid && lastSeenMessage?.id !== lastMessageId;
 
   return (
     <CardShell
-      uid={uid}
       chatId={chat.id}
+      lastMessageId={lastMessageId}
+      hasNewMessages={hasNewMessages}
       nickname={peer.nickname}
       notifications={notifications}
       isInContacts={peer.isInContacts}

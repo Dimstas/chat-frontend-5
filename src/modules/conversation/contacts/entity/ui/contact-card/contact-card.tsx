@@ -19,7 +19,6 @@ export const ContactCard = ({ contact, selected, selectionMode, onSelectHandler 
 
   return (
     <CardShell
-      uid={uid}
       chatId={chatId}
       nickname={nickname}
       href={`/contacts/${uid}`}
