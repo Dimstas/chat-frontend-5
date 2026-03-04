@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useAddContactQuery } from 'modules/conversation/contacts/api/contact.query';
 import { useEditChatQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
 import { JSX } from 'react';
+import { useDeleteChatMutation } from '../../api/chat.query';
 import styles from './context-menu.module.scss';
 import AddContact from './icons/add-contact.svg';
 import DeleteOutline from './icons/delete-outline.svg';
@@ -35,6 +36,7 @@ export const ContextMenu = ({
   const { mutate: addContact } = useAddContactQuery();
   const { data: users } = useSearchUserByNicknameQuery(nickname ?? '');
   const { mutate: editChat } = useEditChatQuery(chatId ?? 0);
+  const { mutate: deleteChat } = useDeleteChatMutation();
 
   if (!visible) return null;
 
@@ -64,6 +66,13 @@ export const ContextMenu = ({
     editChat({
       last_seen_message: lastMessageId,
     });
+    onClose();
+  };
+
+  const handleDelete = (): void => {
+    if (chatId) {
+      deleteChat(chatId);
+    }
     onClose();
   };
 
@@ -97,7 +106,7 @@ export const ContextMenu = ({
           </div>
         </button>
       )}
-      <button className={clsx(styles.cell, styles.cellBottom)} onClick={onClose}>
+      <button className={clsx(styles.cell, styles.cellBottom)} onClick={handleDelete}>
         <div className={clsx(styles.text, styles.textRed)}>Удалить чат</div>
         <div className={styles.icon}>
           <DeleteOutline />

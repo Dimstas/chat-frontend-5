@@ -1,6 +1,13 @@
-import { InfiniteData, useInfiniteQuery, UseInfiniteQueryResult } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  UseInfiniteQueryResult,
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { ChatListApiResponse } from 'modules/conversation/chats/model/chat';
-import { getChatList } from './chat.api';
+import { deleteChat, getChatList } from './chat.api';
 
 const PAGE_SIZE = 15;
 
@@ -25,6 +32,29 @@ export const useChatsQuery = (): UseInfiniteQueryResult<InfiniteData<ChatListApi
       if (!lastPage.next) return undefined;
       const url = new URL(lastPage.next, 'http://localhost');
       return Number(url.searchParams.get('page'));
+    },
+  });
+};
+
+export const useDeleteChatMutation = (): UseMutationResult<void, Error, number> => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, number>({
+    mutationFn: async (id) => {
+      await deleteChat(id);
+    },
+
+    onSuccess: () => {
+      console.log('Пользователь добавлен в контакты');
+    },
+
+    onError: (error: Error) => {
+      console.error('Ошибка POST‑запроса:', error);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages', 'messages-list'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['chats', 'chat-list'] });
     },
   });
 };
