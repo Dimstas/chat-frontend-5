@@ -14,10 +14,6 @@ export const MessagesListScreen = ({ user_uid }: { user_uid: string }): JSX.Elem
       </Suspense>
     );
   } else {
-    if (status === 'success' && messagesList.length === 0) {
-      return <DefaultMessagesPage />;
-    } else {
-      return <></>;
-    }
+    return <DefaultMessagesPage />;
   }
 };
