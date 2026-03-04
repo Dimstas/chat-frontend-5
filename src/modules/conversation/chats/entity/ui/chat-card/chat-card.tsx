@@ -36,6 +36,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
       isInContacts={peer.isInContacts}
       isFavorite={chat.is_favorite}
       href={`/chats/${uid}`}
+      hasContextMenu={true}
       imageOptions={{
         src: peer.avatarUrl,
         alt: chat.name,

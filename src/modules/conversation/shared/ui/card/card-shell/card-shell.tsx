@@ -20,6 +20,7 @@ export const CardShell = ({
   notifications,
   href,
   imageOptions,
+  hasContextMenu,
   selected,
   selectAction,
 }: CardShellProps): JSX.Element => {
@@ -52,17 +53,19 @@ export const CardShell = ({
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu
-        uid={uid}
-        chatId={chatId}
-        nickname={nickname}
-        isInContacts={isInContacts}
-        isFavorite={isFavorite}
-        notifications={notifications}
-        position={contextMenuPos}
-        visible={contextMenuVisible}
-        onClose={handleCloseMenu}
-      />
+      {hasContextMenu && (
+        <ContextMenu
+          uid={uid}
+          chatId={chatId}
+          nickname={nickname}
+          isInContacts={isInContacts}
+          isFavorite={isFavorite}
+          notifications={notifications}
+          position={contextMenuPos}
+          visible={contextMenuVisible}
+          onClose={handleCloseMenu}
+        />
+      )}
       <li className={styles.li}>
         <Link
           href={href}

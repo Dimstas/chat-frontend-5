@@ -17,7 +17,7 @@ export type CardShellProps = {
       image?: string;
     };
   };
-
+  hasContextMenu?: boolean;
   selectAction?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   selected?: boolean;
 };
