@@ -20,7 +20,7 @@ type UseChatsScreenReturn = {
   setIsBlocked: (q: boolean) => void;
   is_favorite: boolean;
   setIsFavorite: (q: boolean) => void;
-  chats: Chat[] | undefined;
+  chats: Chat[];
 };
 
 export const useChatsScreen = (): UseChatsScreenReturn => {
@@ -48,6 +48,11 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
 
   const chats = useMemo(() => myChats?.pages.flatMap((page) => page.results.map(mapChatFromApi)) ?? [], [myChats]);
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredChats = normalizedSearch
+    ? chats?.filter((c) => `${c.peer.firstName} ${c.peer.lastName}`.toLowerCase().includes(normalizedSearch))
+    : chats;
+
   return {
     ordering,
     setOrdering,
@@ -61,6 +66,6 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
     setIsBlocked,
     is_favorite,
     setIsFavorite,
-    chats,
+    chats: filteredChats,
   };
 };
