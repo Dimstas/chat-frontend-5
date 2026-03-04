@@ -5,7 +5,7 @@ type MessagesChatState = {
   messagesChat: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[];
   setMessagesChat: (q: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[]) => void;
   clearMessagesChat: () => void;
-  updateMessageByUidChat: (uid: string, patch: { status?: 'pending' | 'sent' | 'failed' }) => void;
+  updateMessageByUidChat: (request_uid: string, patch: { status?: 'pending' | 'sent' | 'failed' }) => void;
   upsertMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }) => void;
   addMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }) => void;
 };
@@ -18,9 +18,9 @@ export const useMessagesChatStore = create<MessagesChatState>((set) => ({
     set((s) => ({
       messagesChat: [m, ...s.messagesChat],
     })),
-  updateMessageByUidChat: (uid: string, patch: { status?: 'pending' | 'sent' | 'failed' }): void =>
+  updateMessageByUidChat: (request_uid: string, patch: { status?: 'pending' | 'sent' | 'failed' }): void =>
     set((s) => ({
-      messagesChat: s.messagesChat.map((msg) => (msg.uid === uid ? { ...msg, ...patch } : msg)),
+      messagesChat: s.messagesChat.map((msg) => (msg.uid === request_uid ? { ...msg, ...patch } : msg)),
     })),
   upsertMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }): void =>
     set((s) => {
