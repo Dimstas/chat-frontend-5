@@ -16,6 +16,7 @@ export const CardShell = ({
   chatId,
   nickname,
   isInContacts,
+  isFavorite,
   notifications,
   href,
   imageOptions,
@@ -56,6 +57,7 @@ export const CardShell = ({
         chatId={chatId}
         nickname={nickname}
         isInContacts={isInContacts}
+        isFavorite={isFavorite}
         notifications={notifications}
         position={contextMenuPos}
         visible={contextMenuVisible}

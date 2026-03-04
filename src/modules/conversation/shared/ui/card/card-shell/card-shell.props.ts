@@ -6,6 +6,7 @@ export type CardShellProps = {
   chatId?: number;
   nickname?: string;
   isInContacts?: boolean;
+  isFavorite?: boolean;
   notifications?: boolean;
   href: string;
   imageOptions: {

@@ -14,6 +14,7 @@ export const ContextMenu = ({
   chatId,
   nickname,
   isInContacts,
+  isFavorite,
   notifications,
   position,
   visible,
@@ -23,6 +24,7 @@ export const ContextMenu = ({
   chatId?: number;
   nickname?: string;
   isInContacts?: boolean;
+  isFavorite?: boolean;
   notifications?: boolean;
   position: { x: number; y: number };
   visible: boolean;
@@ -49,6 +51,13 @@ export const ContextMenu = ({
     onClose();
   };
 
+  const handleToggleFavorite = (): void => {
+    editChat({
+      is_favorite: !isFavorite,
+    });
+    onClose();
+  };
+
   return (
     <div className={styles.wrapper} onMouseLeave={onClose} style={{ top: position.y, left: position.x }}>
       {!isInContacts && (
@@ -65,8 +74,8 @@ export const ContextMenu = ({
           <VolumeOf />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
-        <div className={styles.text}>Закрепить</div>
+      <button className={styles.cell} onClick={handleToggleFavorite}>
+        <div className={styles.text}>{isFavorite ? 'Открепить' : 'Закрепить'}</div>
         <div className={styles.icon}>
           <PushPin />
         </div>
