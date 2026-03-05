@@ -13,6 +13,11 @@ type ChatsState = {
   setIsBlocked: (q: boolean) => void;
   is_favorite: boolean;
   setIsFavorite: (q: boolean) => void;
+  selected: number | undefined;
+  setSelected: (id: number | undefined) => void;
+  isDeleteModalOpen: boolean;
+  openDeleteModal: () => void;
+  closeDeleteModal: () => void;
 };
 
 export const useChatsStore = create<ChatsState>((set) => ({
@@ -28,4 +33,16 @@ export const useChatsStore = create<ChatsState>((set) => ({
   setIsBlocked: (is_blocked): void => set({ is_blocked: !is_blocked }),
   is_favorite: true,
   setIsFavorite: (is_favorite): void => set({ is_favorite: !is_favorite }),
+  selected: undefined,
+  setSelected: (id): void => set({ selected: id }),
+  isDeleteModalOpen: false,
+  openDeleteModal: (): void =>
+    set({
+      isDeleteModalOpen: true,
+    }),
+
+  closeDeleteModal: (): void =>
+    set({
+      isDeleteModalOpen: false,
+    }),
 }));
