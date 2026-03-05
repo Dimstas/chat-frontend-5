@@ -55,7 +55,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
 
     socket.onmessage = (event: MessageEvent): void => {
       const data = JSON.parse(event.data);
-      console.log(data);
+
       // после поключения к ws по автоматическому ответу сервера получаем свой текущий user_uid
       if (data.action === 'new_status_user' && data.status === 'OK' && currentUserIdRef.current === '') {
         currentUserIdRef.current = data.object.user.uid;

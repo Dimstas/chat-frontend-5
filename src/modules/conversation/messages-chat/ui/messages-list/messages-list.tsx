@@ -1,5 +1,5 @@
 'use client';
-import { JSX, useEffect, useRef } from 'react';
+import { JSX, useEffect, useMemo, useRef } from 'react';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
 import type { RestMessageApi } from '../../model/messages-list';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
@@ -13,7 +13,8 @@ export const MessagesList = ({ messagesList }: { messagesList: RestMessageApi[] 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const lastItemRef = useRef<HTMLDivElement | null>(null);
   const userIdStore = useUserIdStore((s) => s.userId);
-  const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore] ?? []);
+  const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]);
+
   const setMessagesForUser = useMessagesChatStore((s) => s.setMessagesForUser);
   useEffect(() => {
     if (!userIdStore) return; // защититься от пустого userId
@@ -21,7 +22,10 @@ export const MessagesList = ({ messagesList }: { messagesList: RestMessageApi[] 
     setMessagesForUser(userIdStore, normalized);
   }, [messagesList, userIdStore, setMessagesForUser]);
 
-  const results = handlerMessagesList(messagesByUser);
+  const { results, messagesLength } = useMemo(() => {
+    const messages = messagesByUser ?? [];
+    return { results: handlerMessagesList(messages), messagesLength: messages.length };
+  }, [messagesByUser]);
 
   // Каждый раз, когда results меняется — прокручиваем к последнему сообщению
   useEffect(() => {
@@ -29,7 +33,7 @@ export const MessagesList = ({ messagesList }: { messagesList: RestMessageApi[] 
     if (!el) return;
     // Плавная прокрутка
     el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [results, messagesByUser.length]);
+  }, [results, messagesLength]);
   // Для упрощения: вычислим flat-список отрендеренных сообщений и пометим последний.
   const dateKeysInRenderOrder = Object.keys(results).reverse();
   // Соберём flat-список объектов { date, message } в порядке рендера:
