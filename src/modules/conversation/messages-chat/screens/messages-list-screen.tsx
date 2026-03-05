@@ -12,7 +12,6 @@ export const MessagesListScreen = ({ user_uid }: { user_uid: string }): JSX.Elem
     setUserIdStore(user_uid);
   }, [user_uid, setUserIdStore]);
   const { messagesList, status } = useMessagesListScreen(userIdStore);
-  console.log('Messages list: ', messagesList);
   if (status === 'success' && messagesList.length > 0) {
     return <MessagesList messagesList={messagesList} />;
   } else {

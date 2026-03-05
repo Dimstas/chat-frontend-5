@@ -9,8 +9,13 @@ type UseWebSocketChat = {
 };
 
 export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
-  // user_uid открытого чата из store
-  const userIdStore = useUserIdStore.getState().userId;
+  // прописываем в компоненте актуальный user_uid открытого чата из store
+  const userId = useUserIdStore((s) => s.userId);
+  //делаем ссылку на актуальный user_uid открытого чата
+  const userIdRef = useRef<string>(userId);
+  useEffect(() => {
+    userIdRef.current = userId;
+  }, [userId]);
   // Ссылка на websocket подключение
   const wsRef = useRef<WebSocket | null>(null);
   //ссылка на uid текущего пользователя мессенджера
@@ -19,7 +24,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
   const addMessageForUser = useMessagesChatStore.getState().addMessageForUser;
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
   const upsertMessageForUser = useMessagesChatStore.getState().upsertMessageForUser;
-  const messagesByUser = useMessagesChatStore.getState().messagesByUser;
+
   //Функция для переподключения ws-coeдинения
   const connectWSRef = useRef<() => void>(() => {});
   // maccив интервалов [{requestUid:timeout_id},...] на каждое отправленное сообщение с помошью ws
@@ -50,28 +55,31 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
 
     socket.onmessage = (event: MessageEvent): void => {
       const data = JSON.parse(event.data);
+      console.log(data);
       // после поключения к ws по автоматическому ответу сервера получаем свой текущий user_uid
       if (data.action === 'new_status_user' && data.status === 'OK' && currentUserIdRef.current === '') {
         currentUserIdRef.current = data.object.user.uid;
-        console.log('currentUserIdRef: ', currentUserIdRef.current);
-        console.log('userIdStore: ', userIdStore);
       }
 
       //Cобытия:
       // 1.Подтверждает отправленние созданного исходящего сообщения по request_uid
-      if (data.action === 'create_text_message' && data.status === 'OK' && data.object.to_user.uid === userIdStore) {
+      if (
+        data.action === 'create_text_message' &&
+        data.status === 'OK' &&
+        data.object.to_user.uid === userIdRef.current
+      ) {
         console.log('Ответ ws-сервера (исходящее сообщение) :', data);
         // Если сервер пришлёт подтверждение с request_uid,
         // заменим заклушку стоящую в DOM на присланное сервером сообщение и его статус отметим как sent
         if (data.request_uid) {
-          updateMessageByUidForUser(userIdStore, data.request_uid, { status: 'sent', ...data.object });
+          updateMessageByUidForUser(userIdRef.current, data.request_uid, { status: 'sent', ...data.object });
           // Очистим таймаут подтверждения
           pendingTimeouts.current.delete(data.request_uid);
         }
       }
       // 2. Не подтверждает отправленние созданного исходящего сообщения по request_uid
       if (data.action === 'create_text_message' && data.status === 'error') {
-        updateMessageByUidForUser(userIdStore, data.request_uid, { status: 'failed' });
+        updateMessageByUidForUser(userIdRef.current, data.request_uid, { status: 'failed' });
         // Очистим таймаут подтверждения
         pendingTimeouts.current.delete(data.request_uid);
         console.error('Ответ ws-сервера (исходящее сообщение не прошло):', data.error);
@@ -87,11 +95,11 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         const fromUserUid = data.object.from_user.uid;
         const serverMessage = { ...data.object, status: 'sent' };
         upsertMessageForUser(fromUserUid, serverMessage);
-        console.log(`mesagess ${fromUserUid} :`, messagesByUser.fromUserUid);
+
         // должна быть логика по отметке колличества непрочитанных сообщений в списке чатов
       }
     };
-  }, [wsUrl, updateMessageByUidForUser, upsertMessageForUser, userIdStore, messagesByUser]);
+  }, [wsUrl, updateMessageByUidForUser, upsertMessageForUser, userIdRef]);
 
   // устанавливаем ws-соединение
   useEffect(() => {
@@ -100,7 +108,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
     return (): void => {
       // при следующем эффекте (когда изменется функция connectWS())
       // закрываем ws-соединение и очищаем все созданные таймауты
-      wsRef.current?.close();
+      //wsRef.current?.close();
       pendingTimeouts.current.forEach((id) => clearTimeout(id));
       pendingTimeouts.current.clear();
     };
@@ -123,7 +131,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
           avatar_webp_url: '',
         },
         to_user: {
-          uid: userIdStore,
+          uid: userIdRef.current,
           username: '',
           nickname: '',
           avatar_url: '',
@@ -149,14 +157,14 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         status: 'pending',
       };
       // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
-      addMessageForUser(userIdStore, tempMessage);
+      addMessageForUser(userIdRef.current, tempMessage);
 
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: CreateTextMessageAPI = {
         action: 'create_text_message',
         request_uid: requestUid,
         object: {
-          to_user_uid: userIdStore,
+          to_user_uid: userIdRef.current,
           content,
           status: 'publish',
         },
@@ -170,17 +178,17 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         const to = setTimeout(() => {
           // Если за 10 cек не пришло сообщение-подтверждение от ws меняем в сообщении
           //  статус с 'pending' на 'failed' - {status:failed}
-          updateMessageByUidForUser(userIdStore, requestUid, { status: 'failed' });
+          updateMessageByUidForUser(userIdRef.current, requestUid, { status: 'failed' });
           pendingTimeouts.current.delete(requestUid);
         }, 5000);
         pendingTimeouts.current.set(requestUid, to);
       } else {
         // Если socket не готов отправить на сервер созданное клиентом сообщение, тогда в данном сообщении сразу меняем
         //  статус с 'pending' на 'failed' - {status:failed}.
-        updateMessageByUidForUser(userIdStore, requestUid, { status: 'failed' });
+        updateMessageByUidForUser(userIdRef.current, requestUid, { status: 'failed' });
       }
     },
-    [addMessageForUser, updateMessageByUidForUser, userIdStore],
+    [addMessageForUser, updateMessageByUidForUser, userIdRef],
   );
 
   return {
