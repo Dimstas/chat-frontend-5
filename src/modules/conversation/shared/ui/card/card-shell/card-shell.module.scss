@@ -26,6 +26,10 @@
   &.cardSelect {
     background-color: var(--surface-active-card);
   }
+
+  &.pinned {
+    background-color: var(--surface-base);
+  }
 }
 
 .imageWrapper {

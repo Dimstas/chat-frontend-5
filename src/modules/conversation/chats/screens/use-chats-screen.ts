@@ -53,6 +53,17 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
     ? chats?.filter((c) => `${c.peer.firstName} ${c.peer.lastName}`.toLowerCase().includes(normalizedSearch))
     : chats;
 
+  const sortedChats = filteredChats.sort((a, b) => {
+    if (a.chat.is_favorite !== b.chat.is_favorite) {
+      return a.chat.is_favorite ? -1 : 1;
+    }
+
+    const aCreatedAt = a.messages.lastMessage?.createdAt || 0;
+    const bCreatedAt = b.messages.lastMessage?.createdAt || 0;
+
+    return bCreatedAt - aCreatedAt;
+  });
+
   return {
     ordering,
     setOrdering,
@@ -66,6 +77,6 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
     setIsBlocked,
     is_favorite,
     setIsFavorite,
-    chats: filteredChats,
+    chats: sortedChats,
   };
 };
