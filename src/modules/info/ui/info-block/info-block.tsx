@@ -3,29 +3,25 @@
 import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { AddContactModal } from 'modules/conversation/chats/ui/add-contact-modal';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
-import {
-  useAddContactQuery,
-  useInfoProfileQuery,
-  useSearchUserByNicknameQuery,
-  useUnblockUserMutation,
-} from 'modules/info/api/info.query';
+import { useAddContactQuery, useInfoProfileQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { formatTimestamp } from 'modules/info/shared/utils/date-time';
 import { JSX } from 'react';
 import { ActionButton } from '../action-button';
+import { BlockContactModal } from '../block-contact-modal';
 import { InfoAvatar } from '../info-avatar';
 import { InfoHeader } from '../info-header';
 import { InfoLayout } from '../info-layout';
 import { InfoNotification } from '../info-notification';
 import { InfoSummary } from '../info-summary';
+import { UnblockContactModal } from '../unblock-contact-modal';
 import AddIcon from './icons/add.svg';
 import { InfoBlockProps } from './info-block.props';
 
 export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
-  const { isInfoOpen } = useInfoStore();
+  const { isInfoOpen, openUnblockModal, setSelectedUid } = useInfoStore();
   const { contacts } = useContactsScreen();
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
-  const { mutate: unblockUser } = useUnblockUserMutation(uid);
   const { mutate: addToContact } = useAddContactQuery();
   const { openAddModal, setSelected } = useChatsStore();
 
@@ -44,6 +40,11 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
       setSelected(chatId);
       openAddModal();
     }
+  };
+
+  const handleUnblockContact = (): void => {
+    setSelectedUid(uid);
+    openUnblockModal();
   };
 
   if (!isInfoOpen) return null;
@@ -71,10 +72,12 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
             {!isInContacts && (
               <ActionButton icon={<AddIcon />} label={'Добавить в контакты'} onClick={handleAddContact} />
             )}
-            {isBlocked && <ActionButton icon={<AddIcon />} label={'Разблокировать'} onClick={unblockUser} />}
+            {isBlocked && <ActionButton icon={<AddIcon />} label={'Разблокировать'} onClick={handleUnblockContact} />}
             {/* {MAX_PROFILE.has_uploads && <InfoUploads uid={uid} />} */}
           </InfoLayout>
           <AddContactModal />
+          <BlockContactModal />
+          <UnblockContactModal />
         </>
       )}
     </>

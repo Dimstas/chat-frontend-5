@@ -21,6 +21,7 @@
 
   --text-state-disabled: #{fig.$figma-gray-tone-gray-dark};
   --text-state-error: #{fig.$figma-system-red};
+  --text-state-warn: #{fig.$figma-text-red};
 
   /* ========= Surface / Background ========= */
   --surface-brand: var(--brand-primary);

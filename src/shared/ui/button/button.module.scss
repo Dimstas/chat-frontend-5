@@ -67,6 +67,11 @@
     color: var(--text-brand);
   }
 
+  &.warn {
+    background-color: transparent;
+    color: var(--text-state-warn);
+  }
+
   &.error {
     background-color: transparent;
     color: var(--text-state-error);

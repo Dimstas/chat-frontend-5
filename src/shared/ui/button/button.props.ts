@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes } from 'react';
 
 type AppearanceMap = {
   general: ['primary', 'secondary', 'disabled', 'pending'];
-  modal: ['primary', 'primaryLarge', 'secondary', 'error'];
+  modal: ['primary', 'primaryLarge', 'secondary', 'warn', 'error'];
 };
 
 export type ButtonVariant = keyof AppearanceMap;

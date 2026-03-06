@@ -57,6 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const hasButtons = firstButtonText || secondButtonText;
+  const appearance = secondButtonText === 'Заблокировать' ? 'warn' : 'secondary';
 
   return (
     <div className={styles.backdrop} onClick={handleBackdropClick}>
@@ -83,7 +84,7 @@ export const Modal: React.FC<ModalProps> = ({
             {secondButtonText && (
               <ButtonUI
                 variant="modal"
-                appearance="secondary"
+                appearance={appearance}
                 label={secondButtonText}
                 onClick={() => {
                   if (onSecondButtonClick) onSecondButtonClick();
