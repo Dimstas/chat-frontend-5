@@ -18,6 +18,9 @@ type ChatsState = {
   isDeleteModalOpen: boolean;
   openDeleteModal: () => void;
   closeDeleteModal: () => void;
+  isAddModalOpen: boolean;
+  openAddModal: () => void;
+  closeAddModal: () => void;
 };
 
 export const useChatsStore = create<ChatsState>((set) => ({
@@ -36,13 +39,9 @@ export const useChatsStore = create<ChatsState>((set) => ({
   selected: undefined,
   setSelected: (id): void => set({ selected: id }),
   isDeleteModalOpen: false,
-  openDeleteModal: (): void =>
-    set({
-      isDeleteModalOpen: true,
-    }),
-
-  closeDeleteModal: (): void =>
-    set({
-      isDeleteModalOpen: false,
-    }),
+  openDeleteModal: (): void => set({ isDeleteModalOpen: true }),
+  closeDeleteModal: (): void => set({ isDeleteModalOpen: false }),
+  isAddModalOpen: false,
+  openAddModal: (): void => set({ isAddModalOpen: true }),
+  closeAddModal: (): void => set({ isAddModalOpen: false }),
 }));

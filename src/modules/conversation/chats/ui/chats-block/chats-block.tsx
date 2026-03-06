@@ -5,6 +5,7 @@ import { DeleteSelectedContactsButton } from 'modules/conversation/contacts/feat
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import { JSX } from 'react';
 import { useChatsScreen } from '../../screens/use-chats-screen';
+import { AddContactModal } from '../add-contact-modal';
 import { DeleteChatModal } from '../delete-chat-modal';
 
 // const chats = mockChatListApiResponse.results.map((r) => mapChatFromApi(r));
@@ -43,6 +44,7 @@ export const ChatsBlock = (): JSX.Element => {
         </>
       </ConversationLayout>
       <DeleteChatModal />
+      <AddContactModal />
     </>
   );
 };

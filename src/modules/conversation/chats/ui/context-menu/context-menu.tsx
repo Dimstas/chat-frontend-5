@@ -33,7 +33,7 @@ export const ContextMenu = ({
   visible: boolean;
   onClose: () => void;
 }): JSX.Element | null => {
-  const { openDeleteModal, setSelected } = useChatsStore();
+  const { openDeleteModal, openAddModal, setSelected } = useChatsStore();
   const { mutate: addContact } = useAddContactQuery();
   const { data: users } = useSearchUserByNicknameQuery(nickname ?? '');
   const { mutate: editChat } = useEditChatQuery(chatId ?? 0);
@@ -44,6 +44,8 @@ export const ContextMenu = ({
     const contact = users ? users[0] : undefined;
     if (!!contact) {
       addContact({ phone: contact?.phone, first_name: contact?.first_name, last_name: contact?.last_name });
+      setSelected(chatId);
+      openAddModal();
     }
     onClose();
   };

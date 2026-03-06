@@ -1,5 +1,7 @@
 'use client';
 
+import { useChatsStore } from 'modules/conversation/chats/model/search';
+import { AddContactModal } from 'modules/conversation/chats/ui/add-contact-modal';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import {
   useAddContactQuery,
@@ -25,6 +27,7 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
   const { mutate: unblockUser } = useUnblockUserMutation(uid);
   const { mutate: addToContact } = useAddContactQuery();
+  const { openAddModal, setSelected } = useChatsStore();
 
   const contact = contacts?.find((c) => c.uid === uid);
 
@@ -38,6 +41,8 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
   const handleAddContact = (): void => {
     if (!!user) {
       addToContact({ phone: user?.phone, first_name: user?.first_name, last_name: user?.last_name });
+      setSelected(chatId);
+      openAddModal();
     }
   };
 
@@ -48,26 +53,29 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
       {isLoading ? (
         <div>Загрузка...</div>
       ) : (
-        <InfoLayout header={<InfoHeader uid={uid} isBlocked={isBlocked ?? false} />}>
-          <InfoAvatar
-            avatarHref={avatarUrl ?? '/images/profile/default.png'}
-            firstName={firstName ?? ''}
-            lastName={lastName ?? ''}
-            isOnline={isOnline ?? false}
-          />
-          <InfoNotification chatId={chatId} />
-          <InfoSummary
-            nickname={nickname ?? ''}
-            phoneNumber={user?.phone}
-            birthDay={formatTimestamp(user?.birthday)}
-            about={user?.additional_information}
-          />
-          {!isInContacts && (
-            <ActionButton icon={<AddIcon />} label={'Добавить в контакты'} onClick={handleAddContact} />
-          )}
-          {isBlocked && <ActionButton icon={<AddIcon />} label={'Разблокировать'} onClick={unblockUser} />}
-          {/* {MAX_PROFILE.has_uploads && <InfoUploads uid={uid} />} */}
-        </InfoLayout>
+        <>
+          <InfoLayout header={<InfoHeader uid={uid} isBlocked={isBlocked ?? false} />}>
+            <InfoAvatar
+              avatarHref={avatarUrl ?? '/images/profile/default.png'}
+              firstName={firstName ?? ''}
+              lastName={lastName ?? ''}
+              isOnline={isOnline ?? false}
+            />
+            <InfoNotification chatId={chatId} />
+            <InfoSummary
+              nickname={nickname ?? ''}
+              phoneNumber={user?.phone}
+              birthDay={formatTimestamp(user?.birthday)}
+              about={user?.additional_information}
+            />
+            {!isInContacts && (
+              <ActionButton icon={<AddIcon />} label={'Добавить в контакты'} onClick={handleAddContact} />
+            )}
+            {isBlocked && <ActionButton icon={<AddIcon />} label={'Разблокировать'} onClick={unblockUser} />}
+            {/* {MAX_PROFILE.has_uploads && <InfoUploads uid={uid} />} */}
+          </InfoLayout>
+          <AddContactModal />
+        </>
       )}
     </>
   );
