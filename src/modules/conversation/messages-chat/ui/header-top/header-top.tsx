@@ -19,7 +19,7 @@ export const HeaderTop = (): JSX.Element => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.contactWrapper}>
+      <div onClick={() => toggleInfoOpen()} className={styles.contactWrapper}>
         <ImageUI
           src={avatarUrl ? avatarUrl : URL_DEFAUIT_Avatar}
           alt={firstName}
@@ -32,7 +32,7 @@ export const HeaderTop = (): JSX.Element => {
           <span className={styles.status}>{status}</span>
         </div>
         <div className={styles.icon}>
-          <button onClick={() => toggleInfoOpen()}>
+          <button>
             <SearchIcon />
           </button>
         </div>

@@ -24,6 +24,7 @@ export const MessagesList = ({ messagesList }: { messagesList: RestMessageApi[] 
 
   const { results, messagesLength } = useMemo(() => {
     const messages = messagesByUser ?? [];
+    console.log(messages);
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 

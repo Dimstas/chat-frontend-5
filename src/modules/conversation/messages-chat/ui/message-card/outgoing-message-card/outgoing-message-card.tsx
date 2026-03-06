@@ -4,7 +4,7 @@ import { JSX, MouseEvent, useState } from 'react';
 import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
 import CheckOneIcon from '../icons/check-one.svg';
-// import CheckTwoIcon from '../icons/check-two.svg';
+import CheckTwoIcon from '../icons/check-two.svg';
 import WatchIcon from '../icons/watch.svg';
 import styles from './outgoing-message-card.module.scss';
 
@@ -43,9 +43,9 @@ export const OutgoingMessagesCard = ({
           <div className={styles.messageSentTime}>
             <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
             <div className={styles.messageChatIcons}>
-              {message.status === 'sent' && <CheckOneIcon />}
+              {message.status === 'sent' && message.new === true && <CheckOneIcon />}
               {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
-              {/* {message.status === 'failed' && <CheckTwoIcon />} */}
+              {message.status === 'sent' && message.new === false && <CheckTwoIcon />}
             </div>
           </div>
         </div>

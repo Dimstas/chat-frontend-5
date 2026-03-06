@@ -1,7 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import type { CreateTextMessageAPI, RestMessageApi } from '../../model/messages-list';
+import type { ChangeStatusReadMessageAPI, CreateTextMessageAPI, RestMessageApi } from '../../model/messages-list';
+import {
+  serializerRequestChangeStatusReadMessageApiSchema,
+  serializerRequestCreatingMessageApiSchema,
+} from '../../model/messages-list';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 
 type UseWebSocketChat = {
@@ -24,7 +28,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
   const addMessageForUser = useMessagesChatStore.getState().addMessageForUser;
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
   const upsertMessageForUser = useMessagesChatStore.getState().upsertMessageForUser;
-
+  const updateReadMessageByUidForUser = useMessagesChatStore.getState().updateReadMessageByUidForUser;
   //Функция для переподключения ws-coeдинения
   const connectWSRef = useRef<() => void>(() => {});
   // maccив интервалов [{requestUid:timeout_id},...] на каждое отправленное сообщение с помошью ws
@@ -32,6 +36,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
   // либо его вообще не пришлет
   const pendingTimeouts = useRef<Map<string, number | NodeJS.Timeout>>(new Map()); //
   // Функция для подключаемся к ws-соединению и регистрации ws-обработчиков
+
   const connectWS = useCallback(() => {
     // Закрываем старое ws подключение, если он есть
     if (wsRef.current?.readyState === WebSocket.OPEN || wsRef.current?.readyState === WebSocket.CONNECTING) {
@@ -55,7 +60,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
 
     socket.onmessage = (event: MessageEvent): void => {
       const data = JSON.parse(event.data);
-
+      console.log(data);
       // после поключения к ws по автоматическому ответу сервера получаем свой текущий user_uid
       if (data.action === 'new_status_user' && data.status === 'OK' && currentUserIdRef.current === '') {
         currentUserIdRef.current = data.object.user.uid;
@@ -68,7 +73,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         data.status === 'OK' &&
         data.object.to_user.uid === userIdRef.current
       ) {
-        console.log('Ответ ws-сервера (исходящее сообщение) :', data);
+        console.log('Ответ ws-сервера (на исходящее сообщение) :', data);
         // Если сервер пришлёт подтверждение с request_uid,
         // заменим заклушку стоящую в DOM на присланное сервером сообщение и его статус отметим как sent
         if (data.request_uid) {
@@ -85,21 +90,54 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         console.error('Ответ ws-сервера (исходящее сообщение не прошло):', data.error);
       }
 
-      //  3. Поступление входящего сообщения
+      //  3. Поступило входящее сообщение
       if (
         data.action === 'create_text_message' &&
         data.status === 'OK' &&
         data.object.to_user.uid === currentUserIdRef.current
       ) {
         console.log('Ответ ws-сервера (входящее сообщение) :', data);
+        console.log('userIdRef.current: ', userIdRef.current);
+        // добавляем входящее сообщение в {store} в массив с ключом userId===data.object.from_user.uid
+        // (это id лица отправивщего входящее сообщение)
         const fromUserUid = data.object.from_user.uid;
         const serverMessage = { ...data.object, status: 'sent' };
         upsertMessageForUser(fromUserUid, serverMessage);
-
-        // должна быть логика по отметке колличества непрочитанных сообщений в списке чатов
+        // частный случай входящего сообщения, когда пользователь мессенджера находится
+        // на странице чата от которого пришло входящее сообщение
+        if (data.object.from_user.uid === userIdRef.current) {
+          //отправляем сообщение на изменение read-status входящему сообщению
+          sendChangeStatusReadMessage(data.object.uid);
+        }
+      }
+      //4. входящее ws-сообщение read-status поступило получателю первоначального входящего текстового сообщения
+      if (
+        data.action === 'change_status_read_message' &&
+        data.status === 'OK' &&
+        data.object.to_user.uid === currentUserIdRef.current
+      ) {
+        console.log('Ответ ws-сервера (изменение read-status входящего сообщения) :', data);
+        // // Если сервер пришлёт подтверждение с request_uid,
+        // const toUserUid = data.object.to_user.uid;
+        // // в store находим нужное первоначальное исходящее {текстовое сообщение} в котором свойство new меняем на false
+        // updateReadMessageByUidForUser(toUserUid, data.object.uid);
+        // // Очистим таймаут подтверждения
+        // pendingTimeouts.current.delete(data.request_uid);
+      }
+      //5. входящее ws-сообщение read-status поступило отправителю первоначального исходящего текстового сообщения
+      if (
+        data.action === 'change_status_read_message' &&
+        data.status === 'OK' &&
+        data.object.from_user.uid === currentUserIdRef.current
+      ) {
+        console.log('Ответ ws-сервера (изменение read-status входящего сообщения) :', data);
+        // Если сервер пришлёт подтверждение с request_uid,
+        const toUserUid = data.object.to_user.uid;
+        // в store находим нужное первоначальное исходящее {текстовое сообщение} в котором свойство new меняем на false
+        updateReadMessageByUidForUser(toUserUid, data.object.uid);
       }
     };
-  }, [wsUrl, updateMessageByUidForUser, upsertMessageForUser, userIdRef]);
+  }, [wsUrl, updateMessageByUidForUser, upsertMessageForUser, updateReadMessageByUidForUser]);
 
   // устанавливаем ws-соединение
   useEffect(() => {
@@ -169,11 +207,13 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
           status: 'publish',
         },
       };
+      //валидация c помощью zod
+      const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);
 
       const socket = wsRef.current;
-      if (socket && socket.readyState === WebSocket.OPEN) {
+      if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
         socket.send(JSON.stringify(payloadMessage));
-        console.log('Send of server: ', payloadMessage);
+        console.log('Send of server message: ', payloadMessage);
         //Устанавливаем таймаут ожидания подтверждения (10cek)
         const to = setTimeout(() => {
           // Если за 10 cек не пришло сообщение-подтверждение от ws меняем в сообщении
@@ -189,6 +229,32 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
       }
     },
     [addMessageForUser, updateMessageByUidForUser, userIdRef],
+  );
+
+  // Функция отправки сообщения на изменение статуса прочитки входящего сообщения
+  const sendChangeStatusReadMessage = useCallback(
+    (uid: string): void => {
+      if (!uid) return;
+      const requestUid = crypto.randomUUID();
+      // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
+      const payloadMessage: ChangeStatusReadMessageAPI = {
+        action: 'change_status_read_message',
+        request_uid: requestUid,
+        object: {
+          uid,
+        },
+      };
+      //валидация c помощью zod
+      const resultZod = serializerRequestChangeStatusReadMessageApiSchema.safeParse(payloadMessage);
+
+      const socket = wsRef.current;
+      if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+        //отправляем запрос
+        socket.send(JSON.stringify(payloadMessage));
+        console.log('Send of server change-status-read-message: ', payloadMessage);
+      }
+    },
+    [wsRef],
   );
 
   return {
