@@ -12,13 +12,16 @@ const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
 
 export const CardShell = ({
   children,
-  uid,
   chatId,
+  lastMessageId,
+  hasNewMessages,
   nickname,
   isInContacts,
+  isFavorite,
   notifications,
   href,
   imageOptions,
+  hasContextMenu,
   selected,
   selectAction,
 }: CardShellProps): JSX.Element => {
@@ -51,16 +54,20 @@ export const CardShell = ({
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu
-        uid={uid}
-        chatId={chatId}
-        nickname={nickname}
-        isInContacts={isInContacts}
-        notifications={notifications}
-        position={contextMenuPos}
-        visible={contextMenuVisible}
-        onClose={handleCloseMenu}
-      />
+      {hasContextMenu && (
+        <ContextMenu
+          chatId={chatId}
+          lastMessageId={lastMessageId}
+          nickname={nickname}
+          isInContacts={isInContacts}
+          isFavorite={isFavorite}
+          hasNewMessages={hasNewMessages}
+          notifications={notifications}
+          position={contextMenuPos}
+          visible={contextMenuVisible}
+          onClose={handleCloseMenu}
+        />
+      )}
       <li className={styles.li}>
         <Link
           href={href}

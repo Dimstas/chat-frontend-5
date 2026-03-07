@@ -1,13 +1,13 @@
 'use client';
 import clsx from 'clsx';
-import { useChatStore } from 'modules/conversation/chats/model/chat.store';
+import { useInfoStore } from 'modules/info/model/info.store';
 import { JSX } from 'react';
 import { Header } from './header';
 import styles from './protected-layout.module.scss';
 import { ProtectedLayoutProps } from './protected-layout.props';
 
 export const ProtectedLayout = ({ nav, list, main, info }: ProtectedLayoutProps): JSX.Element => {
-  const { isInfoOpen } = useChatStore();
+  const { isInfoOpen } = useInfoStore();
 
   return (
     <div className={styles.root}>

@@ -14,3 +14,7 @@ export const getChatList = (params: ChatQuery): Promise<ChatListApiResponse> => 
     method: 'GET',
   });
 };
+
+export const deleteChat = async (id: number): Promise<void> => {
+  await apiFetch<void>(`/api/proxy/api/v1/chat/list/${id}/`, { method: 'DELETE' });
+};

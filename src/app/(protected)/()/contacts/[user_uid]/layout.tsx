@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 
 const BACKEND_WS = process.env.BACKEND_API_WS_URL!;
 
-export default async function MessagesLayout({
+export default async function ContactsLayout({
   children,
   params,
 }: {
@@ -25,9 +25,7 @@ export default async function MessagesLayout({
           <HeaderTop user_uid={user_uid} />
         </Suspense>
         {children}
-        <Suspense>
-          <HeaderBottom wsUrl={wsUrl} />
-        </Suspense>
+        <HeaderBottom wsUrl={wsUrl} />
       </main>
     );
   } catch (error) {

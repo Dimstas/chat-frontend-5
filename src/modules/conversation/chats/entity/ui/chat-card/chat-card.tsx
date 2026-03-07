@@ -2,7 +2,6 @@
 
 import clsx from 'clsx';
 import { Chat } from 'modules/conversation/chats/entity';
-import { useChatStore } from 'modules/conversation/chats/model/chat.store';
 import { CardHeader, CardShell } from 'modules/conversation/shared/ui/card';
 import { usePathname } from 'next/navigation';
 import { JSX } from 'react';
@@ -13,11 +12,13 @@ import styles from './chat-card.module.scss';
 import { MutedIcon } from './icons';
 
 export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
-  const { setSelected } = useChatStore();
   const { notifications, is_favorite, newMessageCount } = chat;
   const { firstName, lastName, uid } = peer;
   const {
+    lastSeenMessage,
     lastMessage: {
+      id: lastMessageId,
+      uid: lastMessageUid,
       updatedAt = undefined,
       content = '',
       hasForwardedMessage = false,
@@ -27,26 +28,25 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   } = messages || {};
 
   const pathname = usePathname();
-  const isSelected = pathname === `/chats/${peer.uid}` || pathname === `/chats/${peer.uid}/info`;
-
-  const handleSelect = (): void => {
-    setSelected(peer.uid);
-  };
+  const isSelected = pathname === `/chats/${peer.uid}`;
+  const hasNewMessages = lastMessageUid !== uid && lastSeenMessage?.id !== lastMessageId;
 
   return (
     <CardShell
-      uid={uid}
       chatId={chat.id}
+      lastMessageId={lastMessageId}
+      hasNewMessages={hasNewMessages}
       nickname={peer.nickname}
       notifications={notifications}
       isInContacts={peer.isInContacts}
+      isFavorite={chat.is_favorite}
       href={`/chats/${uid}`}
+      hasContextMenu={true}
       imageOptions={{
         src: peer.avatarUrl,
         alt: chat.name,
         classNames: { root: styles.imageWrapper },
       }}
-      selectAction={handleSelect}
     >
       <div className={styles.card}>
         <div className={styles.header}>

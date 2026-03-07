@@ -3,8 +3,10 @@ export type Contact = {
   phone: string;
   firstName: string;
   lastName: string;
+  nickname: string;
   chatId?: number;
   fullName: string;
-  avatar: string;
+  avatarUrl: string;
+  isOnline: boolean;
   wasOnlineAt: number;
 };

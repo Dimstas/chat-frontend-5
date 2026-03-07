@@ -1,8 +1,8 @@
 export type ProfileInfo = {
   uid: string;
   isDeleted: boolean;
-  userName: string;
-  nickName: string;
+  username: string;
+  nickname: string;
   firstName: string;
   lastName: string;
   avatar: string;

@@ -1,13 +1,15 @@
 import clsx from 'clsx';
-import { useChatStore } from 'modules/conversation/chats/model/chat.store';
+import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useEditChatQuery } from 'modules/info/api/info.query';
 import { JSX } from 'react';
 import styles from './info-notification.module.scss';
 import { InfoNotificationProps } from './info-notification.props';
 
 export const InfoNotification = ({ chatId }: InfoNotificationProps): JSX.Element => {
-  const { selected } = useChatStore();
+  const { chats } = useChatsScreen();
   const { mutate: editChat } = useEditChatQuery(chatId ?? 0);
+
+  const selected = chats.find((c) => c.chat.id === chatId);
 
   const handleToggle = (): void => {
     if (selected?.chat) {

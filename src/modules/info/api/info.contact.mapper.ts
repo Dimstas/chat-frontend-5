@@ -25,8 +25,8 @@ export const mapInfoProfileFromApi = (api: InfoProfileApi): ProfileInfo => {
   return {
     uid,
     isDeleted: is_deleted,
-    userName: username,
-    nickName: nickname,
+    username,
+    nickname,
     firstName: first_name,
     lastName: last_name,
     avatar,

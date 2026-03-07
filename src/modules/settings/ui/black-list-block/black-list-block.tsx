@@ -27,9 +27,11 @@ export const BlackListBlock: React.FC = (): JSX.Element => {
       phone: apiProfile.phone,
       firstName: apiProfile.first_name,
       lastName: apiProfile.last_name,
+      nickname: apiProfile.nickname,
+      isOnline: apiProfile.is_online,
       chatId: undefined,
       fullName: `${apiProfile.first_name} ${apiProfile.last_name}`.trim(),
-      avatar: apiProfile.avatar_url || apiProfile.avatar || '',
+      avatarUrl: apiProfile.avatar_url || apiProfile.avatar || '',
       wasOnlineAt: apiProfile.was_online_at,
     };
   };

@@ -21,6 +21,21 @@
   gap: 2rem;
 }
 
+.infoModal {
+  @include mixins.flex-box($direction: column);
+  background-color: var(--surface-base);
+  border-radius: 0.8rem;
+  max-width: 40rem;
+  padding: 2.4rem;
+  position: relative;
+}
+
+.icon {
+  width: 52;
+  height: 52;
+  margin-bottom: 16px;
+}
+
 .title {
   font-size: 1.8rem;
   font-weight: 500;
