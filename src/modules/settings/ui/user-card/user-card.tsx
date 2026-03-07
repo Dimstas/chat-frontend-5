@@ -23,6 +23,9 @@ export const UserCard: React.FC<UserCardProps> = ({ avatar, name, phone, nickNam
 
   const src = imageError || !isValidUrl ? '/images/settings/noAvatarIcon.svg' : avatar;
 
+  const truncateText = (text: string, maxLength: number): string => {
+    return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;
+  };
   return (
     <div className={styles.container}>
       <Image
@@ -35,9 +38,9 @@ export const UserCard: React.FC<UserCardProps> = ({ avatar, name, phone, nickNam
         unoptimized={true}
       />
       <div className={styles.content}>
-        <p className={styles.name}>{name}</p>
+        <p className={styles.name}>{truncateText(name, 20)}</p>
         <p className={styles.secondaryText}>{phone}</p>
-        <p className={styles.secondaryText}>{nickName}</p>
+        <p className={styles.secondaryText}>{truncateText(nickName, 20)}</p>
       </div>
     </div>
   );
