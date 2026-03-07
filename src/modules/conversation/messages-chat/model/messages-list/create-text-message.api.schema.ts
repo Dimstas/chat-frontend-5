@@ -1,11 +1,11 @@
 import { string, z } from 'zod';
 
-export const serializerFileMessageApiSchema = z.object({
+const serializerFileMessageApiSchema = z.object({
   filename: z.string().default('document.pdf'),
   data: z.string().default('UERGLTEuNCBmaWxlIGNvbnRlbnQ='),
 });
 
-export const serializerRequestObjectCreateMessageApiSchema = z.object({
+const serializerRequestObjectCreateMessageApiSchema = z.object({
   to_user_uid: z.string().nullable().optional(),
   chat_key: z.string().nullable().optional(),
   content: z.string().trim(),
@@ -22,3 +22,17 @@ export const serializerRequestCreatingMessageApiSchema = z.object({
 });
 
 export type CreateTextMessageAPI = z.infer<typeof serializerRequestCreatingMessageApiSchema>;
+
+const serializerRequestObjectChangeStatusReadMessageApiSchema = z.object({
+  uid: z.string(),
+  reader_uid: z.string().nullable().optional(),
+  new_read_status: z.boolean().optional(),
+  chat_key: z.string().optional(),
+});
+
+export const serializerRequestChangeStatusReadMessageApiSchema = z.object({
+  action: z.enum(['change_status_read_message']),
+  request_uid: z.string().optional(),
+  object: serializerRequestObjectChangeStatusReadMessageApiSchema,
+});
+export type ChangeStatusReadMessageAPI = z.infer<typeof serializerRequestChangeStatusReadMessageApiSchema>;

@@ -1,5 +1,5 @@
 import { MessagesListScreen } from 'modules/conversation/messages-chat/screens';
-import { JSX } from 'react';
+import { JSX, Suspense } from 'react';
 
 export default async function MessagesPage({
   params,
@@ -9,7 +9,9 @@ export default async function MessagesPage({
   const user_uid = (await params).user_uid;
   return (
     <>
-      <MessagesListScreen user_uid={user_uid} />
+      <Suspense>
+        <MessagesListScreen user_uid={user_uid} />
+      </Suspense>
     </>
   );
 }
