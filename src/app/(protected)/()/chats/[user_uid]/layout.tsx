@@ -6,15 +6,8 @@ import { Suspense } from 'react';
 
 const BACKEND_WS = process.env.BACKEND_API_WS_URL!;
 
-export default async function MessagesLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ user_uid: string }>;
-}): Promise<React.ReactNode> {
+export default async function MessagesLayout({ children }: { children: React.ReactNode }): Promise<React.ReactNode> {
   try {
-    const user_uid = (await params).user_uid;
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access')?.value;
     const wsUrl = `${BACKEND_WS}/ws/chat?authorization=${accessToken}`;
@@ -22,10 +15,12 @@ export default async function MessagesLayout({
     return (
       <main className={styles.wrapper}>
         <Suspense>
-          <HeaderTop user_uid={user_uid} />
+          <HeaderTop />
         </Suspense>
         {children}
-        <HeaderBottom user_uid={user_uid} wsUrl={wsUrl} />
+        <Suspense>
+          <HeaderBottom wsUrl={wsUrl} />
+        </Suspense>
       </main>
     );
   } catch (error) {
