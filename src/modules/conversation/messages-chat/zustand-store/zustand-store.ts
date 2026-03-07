@@ -1,33 +1,89 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
 
+type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' };
+
 type MessagesChatState = {
-  messagesChat: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[];
-  setMessagesChat: (q: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[]) => void;
-  clearMessagesChat: () => void;
-  updateMessageByUidChat: (uid: string, patch: { status?: 'pending' | 'sent' | 'failed' }) => void;
-  upsertMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }) => void;
-  addMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }) => void;
+  messagesByUser: Record<string, Msg[]>;
+  setMessagesForUser: (userId: string, messages: Msg[]) => void;
+  clearMessagesForUser: (userId?: string) => void; // если userId не передан — очищает все
+  addMessageForUser: (userId: string, m: Msg) => void;
+  upsertMessageForUser: (userId: string, m: Msg) => void;
+  updateMessageByUidForUser: (userId: string, request_uid: string, patch: Partial<Pick<Msg, 'status'>>) => void;
+  updateReadMessageByUidForUser: (userId: string, request_uid: string) => void;
 };
 
-export const useMessagesChatStore = create<MessagesChatState>((set) => ({
-  messagesChat: [],
-  setMessagesChat: (messagesChat): void => set({ messagesChat }),
-  clearMessagesChat: (): void => set({ messagesChat: [] }),
-  addMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }): void =>
+export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
+  messagesByUser: {},
+
+  setMessagesForUser: (userId: string, messages: Msg[]): void =>
     set((s) => ({
-      messagesChat: [m, ...s.messagesChat],
+      messagesByUser: {
+        ...s.messagesByUser,
+        [userId]: messages,
+      },
     })),
-  updateMessageByUidChat: (uid: string, patch: { status?: 'pending' | 'sent' | 'failed' }): void =>
-    set((s) => ({
-      messagesChat: s.messagesChat.map((msg) => (msg.uid === uid ? { ...msg, ...patch } : msg)),
-    })),
-  upsertMessageChat: (m: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }): void =>
+
+  clearMessagesForUser: (userId?: string): void =>
     set((s) => {
-      const exists = s.messagesChat.find((x) => x.uid === m.uid);
-      if (exists) {
-        return { messagesChat: s.messagesChat.map((x) => (x.uid === m.uid ? { ...x, ...m } : x)) };
+      if (typeof userId === 'string' && userId.length) {
+        return { messagesByUser: { ...s.messagesByUser, [userId]: [] } };
       }
-      return { messagesChat: [m, ...s.messagesChat] };
+      return { messagesByUser: {} };
     }),
+
+  addMessageForUser: (userId: string, m: Msg): void =>
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      return { messagesByUser: { ...s.messagesByUser, [userId]: [m, ...prev] } };
+    }),
+
+  upsertMessageForUser: (userId: string, m: Msg): void =>
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      const exists = prev.find((x) => x.uid === m.uid);
+      if (exists) {
+        return {
+          messagesByUser: {
+            ...s.messagesByUser,
+            [userId]: prev.map((x) => (x.uid === m.uid ? { ...x, ...m } : x)),
+          },
+        };
+      }
+      return { messagesByUser: { ...s.messagesByUser, [userId]: [m, ...prev] } };
+    }),
+
+  updateMessageByUidForUser: (userId: string, request_uid: string, patch): void =>
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      return {
+        messagesByUser: {
+          ...s.messagesByUser,
+          [userId]: prev.map((msg) => (msg.uid === request_uid ? { ...msg, ...patch } : msg)),
+        },
+      };
+    }),
+  updateReadMessageByUidForUser: (userId: string, uid: string): void =>
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      const newMessages = prev.map((msg) => (msg.uid === uid ? { ...msg, new: false } : msg));
+      return {
+        messagesByUser: {
+          ...s.messagesByUser,
+          [userId]: newMessages,
+        },
+      };
+    }),
+}));
+
+type UserIdState = {
+  userId: string;
+  setUserId: (q: string) => void;
+  clearUserId: () => void;
+};
+
+export const useUserIdStore = create<UserIdState>((set) => ({
+  userId: '',
+  setUserId: (userId): void => set({ userId }),
+  clearUserId: (): void => set({ userId: '' }),
 }));

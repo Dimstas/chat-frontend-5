@@ -43,9 +43,9 @@ export const OutgoingMessagesCard = ({
           <div className={styles.messageSentTime}>
             <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
             <div className={styles.messageChatIcons}>
-              {message.status === 'failed' && <CheckOneIcon />}
-              {message.status === 'pending' && <WatchIcon />}
-              {message.status === 'sent' && <CheckTwoIcon />}
+              {message.status === 'sent' && message.new === true && <CheckOneIcon />}
+              {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
+              {message.status === 'sent' && message.new === false && <CheckTwoIcon />}
             </div>
           </div>
         </div>
