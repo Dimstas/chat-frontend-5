@@ -1,11 +1,10 @@
-// src/modules/settings/ui/edit-profile-block/edit-profile-block.tsx
 'use client';
 
 import { TextInput } from 'modules/settings';
 import { useEditProfileBlock } from 'modules/settings/lib/edit-profile-block/use-edit-profile-block';
 import { useImageUpload } from 'modules/settings/lib/edit-profile-block/use-image-upload';
 import Image from 'next/image';
-import { JSX, useState } from 'react'; // <-- Добавляем useState
+import { JSX, useState } from 'react';
 import { ButtonUI } from 'shared/ui';
 import { DateSelector } from '../date-selector';
 import { ImageCropperModal } from '../image-cropper/image-cropper-modal';
@@ -149,7 +148,7 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
       </div>
 
       {isCropperOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className={styles.overlay}>
           <ImageCropperModal
             isOpen={isCropperOpen}
             onClose={closeCropper}

@@ -1,0 +1,88 @@
+@use 'shared/styles/03_mixins' as mixins;
+
+.container {
+  @include mixins.flex-box($direction: column, $justify: flex-start, $align: stretch);
+  border-radius: 0.8rem;
+  overflow: hidden;
+  width: 100%;
+  max-width: 40rem;
+  background: #fff;
+}
+
+.fieldContainer {
+  width: 100%;
+}
+
+.inputWrapper {
+  position: relative;
+  padding: 1.6rem 1.2rem 0.8rem;
+  background: white;
+}
+
+.input {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 1.6rem;
+  padding: 0.8rem 0 0.4rem;
+  background: transparent;
+  padding-right: 7rem;
+  box-sizing: border-box;
+}
+
+.label {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.6rem;
+  color: #999;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.labelActive {
+  top: 0.8rem;
+  transform: translateY(0);
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.counter {
+  position: absolute;
+  right: 1.2rem;
+  top: 0.8rem;
+  font-size: 1.2rem;
+  color: #999;
+  pointer-events: none;
+  line-height: 1;
+}
+
+.clearButton {
+  position: absolute;
+  right: 1.2rem;
+  top: 60%;
+  transform: translateY(-50%);
+  @include mixins.flex-box($justify: center, $align: center);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  color: #999;
+  padding: 0.4rem;
+  transition: color 0.2s;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.divider {
+  height: 0.1rem;
+  background-color: #ccc;
+  margin: 0;
+}
+
+.focused {
+  background-color: #f9f9f9;
+}
