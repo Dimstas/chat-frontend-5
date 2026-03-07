@@ -13,7 +13,6 @@ const URL_DEFAULT_Avatar = '/images/messages-chats/default-avatar.svg';
 export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   const { chats } = useChatsScreen();
   const { toggleInfoOpen } = useInfoStore();
-
   const chat = chats.find((c) => c.peer.uid === user_uid);
   const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
