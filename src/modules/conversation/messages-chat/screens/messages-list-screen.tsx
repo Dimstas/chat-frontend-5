@@ -5,7 +5,7 @@ import { MessagesList } from '../ui/messages-list/messages-list';
 import { useUserIdStore } from '../zustand-store/zustand-store';
 import { useMessagesListScreen } from './use-messages-list-screen';
 
-export const MessagesListScreen = ({ user_uid }: { user_uid: string }): JSX.Element => {
+export const MessagesListScreen = ({ user_uid, wsUrl }: { user_uid: string; wsUrl: string }): JSX.Element => {
   const userIdStore = useUserIdStore((s) => s.userId);
   const setUserIdStore = useUserIdStore((s) => s.setUserId);
   useEffect(() => {
@@ -13,7 +13,7 @@ export const MessagesListScreen = ({ user_uid }: { user_uid: string }): JSX.Elem
   }, [user_uid, setUserIdStore]);
   const { messagesList, status } = useMessagesListScreen(userIdStore);
   if (status === 'success' && messagesList.length > 0) {
-    return <MessagesList messagesList={messagesList} />;
+    return <MessagesList messagesList={messagesList} wsUrl={wsUrl} />;
   } else {
     return <DefaultMessagesPage />;
   }
