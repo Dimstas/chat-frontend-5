@@ -45,7 +45,7 @@ export const OutgoingMessagesCard = ({
             <div className={styles.messageChatIcons}>
               {message.status === 'sent' && message.new === true && <CheckOneIcon />}
               {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
-              {message.status === 'read' && <CheckTwoIcon />}
+              {message.new === false && <CheckTwoIcon />}
             </div>
           </div>
         </div>

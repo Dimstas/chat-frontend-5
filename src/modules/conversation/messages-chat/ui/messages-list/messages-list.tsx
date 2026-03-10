@@ -1,5 +1,5 @@
 'use client';
-import { JSX, useEffect, useMemo, useRef } from 'react';
+import { JSX, useEffect, useMemo, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { useIntersectionRead } from '../../hooks/use-intersection-read';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
@@ -13,19 +13,21 @@ import styles from './message-list.module.scss';
 export const MessagesList = ({
   messagesList,
   wsUrl,
+  currentUserId,
 }: {
   messagesList: RestMessageApi[];
   wsUrl: string;
+  currentUserId: string;
 }): JSX.Element => {
-  // ref на контейнер и на последний элемент списка
   const wrapperRef = useRef<HTMLDivElement | null>(null);
-  const lastItemRef = useRef<HTMLDivElement | null>(null);
+  const targetItemRef = useRef<HTMLDivElement | null>(null);
   const userIdStore = useUserIdStore((s) => s.userId);
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]);
-
   const setMessagesForUser = useMessagesChatStore((s) => s.setMessagesForUser);
+  const [hasScrolledToTarget, setHasScrolledToTarget] = useState(false);
+
   useEffect(() => {
-    if (!userIdStore) return; // защититься от пустого userId
+    if (!userIdStore) return;
     const normalized = messagesList.map((m) => ({ ...m, status: 'sent' as const }));
     setMessagesForUser(userIdStore, normalized);
   }, [messagesList, userIdStore, setMessagesForUser]);
@@ -36,16 +38,8 @@ export const MessagesList = ({
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 
-  // Каждый раз, когда results меняется — прокручиваем к последнему сообщению
-  useEffect(() => {
-    const el = lastItemRef.current;
-    if (!el) return;
-    // Плавная прокрутка
-    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-  }, [results, messagesLength]);
-  // Для упрощения: вычислим flat-список отрендеренных сообщений и пометим последний.
+  // Соберём flat-список в порядке рендера
   const dateKeysInRenderOrder = Object.keys(results).reverse();
-  // Соберём flat-список объектов { date, message } в порядке рендера:
   const flatList: Array<{
     date: string;
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
@@ -57,11 +51,36 @@ export const MessagesList = ({
       .reverse()
       .forEach((m) => flatList.push({ date, message: m }));
   });
-  const lastIndex = flatList.length - 1;
-  // хук для работы c ws в частности определяем функцию для отправки ws-сообщения чтобы изменить статус входящего сообщения на "прочитанное"
-  const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl);
-  //xyk для определения прочтено ли вxодящее сообщение либо нет(было ли сообщение вмонтировано (показано) в DOM либо еще нет)
+
+  // вычисляем targetIndex: первого непрочитанного входящего, иначе последний элемент
+  const targetIndex = useMemo(() => {
+    const keys = Object.keys(results).reverse();
+    const ordered: Array<RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }> = [];
+    keys.forEach((date) => {
+      const msgs = results[date] ?? [];
+      msgs
+        .slice()
+        .reverse()
+        .forEach((m) => ordered.push(m));
+    });
+    if (!ordered.length) return -1;
+    const firstUnreadIncoming = ordered.findIndex((m) => m.to_user.uid === currentUserId && m.new === true);
+    if (firstUnreadIncoming !== -1) return firstUnreadIncoming;
+    return ordered.length - 1;
+  }, [results, currentUserId]);
+
+  // хук ws + hook для определения прочтения видимости
+  const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
+
+  // Эффект прокрутки к targetIndex (если есть)
+  useEffect(() => {
+    if (targetIndex === -1) return;
+    if (hasScrolledToTarget) return; // уже скроллили — больше не трогаем
+    const el = targetItemRef.current;
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [results, messagesLength, targetIndex]);
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -73,19 +92,17 @@ export const MessagesList = ({
             .reverse()
             .map<JSX.Element>(
               (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }, index) => {
-                // Bычислим globalIndex как позицию в flatList, но здесь используем closure:
-                // compute offset: позиция первой записи для этой date в flatList:
+                // вычисляем globalIndex
                 const dateIndex = dateKeysInRenderOrder.indexOf(date);
-                // Рассчёт globalIndex (не самый оптимальный, но понятный):
                 let globalIndex = 0;
                 for (let i = 0; i < dateIndex; i++) {
                   const d = dateKeysInRenderOrder[i];
                   globalIndex += (results[d] ?? []).length;
                 }
-                globalIndex += index; // index внутри reversed array
-                const isLast = globalIndex === lastIndex;
+                globalIndex += index;
+                const isTarget = globalIndex === targetIndex;
                 return (
-                  <div key={globalIndex} tabIndex={-1} ref={isLast ? lastItemRef : undefined}>
+                  <div key={globalIndex} tabIndex={-1} ref={isTarget ? targetItemRef : undefined}>
                     {message.from_user.uid === userIdStore ? (
                       <IncomingMessagesCard message={message} register={register} />
                     ) : (
@@ -100,5 +117,3 @@ export const MessagesList = ({
     </div>
   );
 };
-
-export default MessagesList;

@@ -13,7 +13,7 @@ type UseWebSocketChat = {
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
 };
 
-export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
+export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSocketChat {
   // прописываем в компоненте актуальный user_uid открытого чата из store
   const userId = useUserIdStore((s) => s.userId);
   //делаем ссылку на актуальный user_uid открытого чата
@@ -24,7 +24,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
   // Ссылка на websocket подключение
   const wsRef = useRef<WebSocket | null>(null);
   //ссылка на uid текущего пользователя мессенджера
-  const currentUserIdRef = useRef<string>('');
+  const currentUserIdRef = useRef<string>(currentUserId);
   // установим начальныe значения сообщений из чатов, если пришёл user_uid с сервера
   const addMessageForUser = useMessagesChatStore.getState().addMessageForUser;
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
@@ -61,11 +61,6 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
 
     socket.onmessage = (event: MessageEvent): void => {
       const data = JSON.parse(event.data);
-      console.log(data);
-      // после поключения к ws по автоматическому ответу сервера получаем свой текущий user_uid
-      if (data.action === 'new_status_user' && data.status === 'OK' && currentUserIdRef.current === '') {
-        currentUserIdRef.current = data.object.user.uid;
-      }
 
       //Cобытия:
       // 1.Подтверждает отправленние созданного исходящего сообщения по request_uid
@@ -117,6 +112,15 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         // в store находим нужное первоначальное исходящее {текстовое сообщение} в котором свойство new меняем на false
         updateMessageByUidForUser(data.object.to_user.uid, data.object.uid, { status: 'read', new: false });
       }
+      //5. входящее ws-сообщение read-status поступило получателю первоначального входящего текстового сообщения
+      if (
+        data.action === 'change_status_read_message' &&
+        data.status === 'OK' &&
+        data.object.to_user.uid === currentUserIdRef.current
+      ) {
+        //console.log('Входящее сообщение об изменение read-status первоначального входящего сообщения :', data);
+        pendingTimeouts.current.delete(data.request_uid);
+      }
     };
   }, [wsUrl, updateMessageByUidForUser, upsertMessageForUser]);
 
@@ -160,7 +164,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         replied_messages: [],
         forwarded_messages: [],
         files_list: [],
-        new: false,
+        new: true,
         created_at: Date.now() / 1000,
         updated_at: 0,
         chat_id: 0,
@@ -215,7 +219,7 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
   // Функция отправки сообщения на изменение статуса прочитки входящего сообщения
   const sendChangeStatusReadMessage = useCallback(
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
-      if (!message.uid || message.status === 'read') return;
+      if (!message.uid || message.new === false) return;
       const requestUid = crypto.randomUUID();
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: ChangeStatusReadMessageAPI = {
@@ -223,6 +227,8 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         request_uid: requestUid,
         object: {
           uid: message.uid,
+          reader_uid: currentUserIdRef.current,
+          new_read_status: false,
         },
       };
       //валидация c помощью zod
@@ -233,6 +239,13 @@ export function useWebSocketChat(wsUrl: string): UseWebSocketChat {
         //отправляем запрос
         socket.send(JSON.stringify(payloadMessage));
         console.log('Send of server change-status-read-message: ', payloadMessage);
+        const to = setTimeout(() => {
+          // Если за 5 cек не пришло сообщение-подтверждение от ws,
+          //  направляем повторно send ws-сообщение
+          socket.send(JSON.stringify(payloadMessage));
+          pendingTimeouts.current.delete(requestUid);
+        }, 5000);
+        pendingTimeouts.current.set(requestUid, to);
       }
     },
     [wsRef, updateMessageByUidForUser],

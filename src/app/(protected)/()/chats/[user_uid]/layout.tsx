@@ -1,6 +1,7 @@
 import { HeaderBottom } from 'modules/conversation/messages-chat/ui/header-bottom';
 import { HeaderTop } from 'modules/conversation/messages-chat/ui/header-top';
 import styles from 'modules/conversation/messages-chat/ui/messages-list-layout/messages-list-layout.module.scss';
+import { parseJwtToken } from 'modules/conversation/messages-chat/utils/parse-jwt-token';
 import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 
@@ -18,7 +19,7 @@ export default async function MessagesLayout({
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('access')?.value;
     const wsUrl = `${BACKEND_WS}/ws/chat?authorization=${accessToken}`;
-
+    const payload = parseJwtToken(accessToken ?? '');
     return (
       <main className={styles.wrapper}>
         <Suspense>
@@ -26,7 +27,7 @@ export default async function MessagesLayout({
         </Suspense>
         {children}
         <Suspense>
-          <HeaderBottom wsUrl={wsUrl} />
+          <HeaderBottom wsUrl={wsUrl} currentUserId={payload.user_id} />
         </Suspense>
       </main>
     );
