@@ -16,12 +16,24 @@ export const MessagesListScreen = ({
 }): JSX.Element => {
   const userIdStore = useUserIdStore((s) => s.userId);
   const setUserIdStore = useUserIdStore((s) => s.setUserId);
+
   useEffect(() => {
     setUserIdStore(user_uid);
   }, [user_uid, setUserIdStore]);
-  const { messagesList, status } = useMessagesListScreen(userIdStore);
+
+  const { messagesList, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessagesListScreen(userIdStore);
+
   if (status === 'success' && messagesList.length > 0) {
-    return <MessagesList messagesList={messagesList} wsUrl={wsUrl} currentUserId={currentUserId} />;
+    return (
+      <MessagesList
+        messagesList={messagesList}
+        wsUrl={wsUrl}
+        currentUserId={currentUserId}
+        fetchNextPage={fetchNextPage}
+        hasNextPage={hasNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      />
+    );
   } else {
     return <DefaultMessagesPage />;
   }
