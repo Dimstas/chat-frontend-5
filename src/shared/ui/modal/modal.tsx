@@ -57,7 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
   };
 
   const hasButtons = firstButtonText || secondButtonText;
-  const appearance = secondButtonText === 'Заблокировать' ? 'warn' : 'secondary';
+  const appearance = secondButtonText === 'Заблокировать' || 'Очистить' ? 'warn' : 'secondary';
 
   return (
     <div className={styles.backdrop} onClick={handleBackdropClick}>

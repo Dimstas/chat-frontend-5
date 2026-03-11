@@ -4,22 +4,32 @@ type InfoState = {
   isInfoOpen: boolean;
   isBlockModalOpen: boolean;
   isUnblockModalOpen: boolean;
-  selectedUid: string | undefined;
-  setSelectedUid: (uid: string) => void;
+  isClearModalOpen: boolean;
+  uid: string | undefined;
+  setUid: (uid: string) => void;
+  chatId: number | undefined;
+  setChatId: (id: number) => void;
   toggleInfoOpen: () => void;
   openBlockModal: () => void;
   closeBlockModal: () => void;
   openUnblockModal: () => void;
   closeUnblockModal: () => void;
+  openClearModal: () => void;
+  closeClearModal: () => void;
 };
 
 export const useInfoStore = create<InfoState>((set, get) => ({
   isInfoOpen: false,
   isBlockModalOpen: false,
   isUnblockModalOpen: false,
-  selectedUid: undefined,
-  setSelectedUid: (uid): void => {
-    set({ selectedUid: uid });
+  isClearModalOpen: false,
+  uid: undefined,
+  setUid: (uid): void => {
+    set({ uid: uid });
+  },
+  chatId: undefined,
+  setChatId: (chatId): void => {
+    set({ chatId: chatId });
   },
   toggleInfoOpen: (): void => {
     const state = get();
@@ -29,4 +39,6 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   closeBlockModal: (): void => set({ isBlockModalOpen: false }),
   openUnblockModal: (): void => set({ isUnblockModalOpen: true }),
   closeUnblockModal: (): void => set({ isUnblockModalOpen: false }),
+  openClearModal: (): void => set({ isClearModalOpen: true }),
+  closeClearModal: (): void => set({ isClearModalOpen: false }),
 }));
