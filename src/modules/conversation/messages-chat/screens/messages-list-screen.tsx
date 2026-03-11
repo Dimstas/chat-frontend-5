@@ -35,6 +35,10 @@ export const MessagesListScreen = ({
       />
     );
   } else {
-    return <DefaultMessagesPage />;
+    if (status === 'success' && messagesList.length === 0) {
+      return <DefaultMessagesPage />;
+    } else {
+      return <></>;
+    }
   }
 };

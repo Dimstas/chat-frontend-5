@@ -34,3 +34,38 @@ export const useMessagesListQuery = (
     },
   });
 };
+
+// ---- Функция для безопасного вызова fetchNextPage с сохранением позиции при prepend ----
+// Эта функция вызывается при пересечении sentinel (вверху) — у вас может потребоваться триггерить fetchNextPage
+// и логика ниже также может быть использована при прокрутке вверх (если вы подгружаете старые).
+const fetchOlder = async (): Promise<void> => {
+  const el = wrapperRef.current;
+  if (!el) return;
+  if (!hasNextPage) return;
+  if (isFetchingNextPage || fetchingRef.current) return;
+  // Сохраним текущие параметры прокрутки
+  const previousScrollTop = el.scrollTop;
+  const previousScrollHeight = el.scrollHeight;
+
+  fetchingRef.current = true;
+  try {
+    await fetchNextPage();
+    // После того, как новые (старые) сообщения были добавлены в DOM, реактивно обновится results,
+    // и в этот момент браузер ещё может не законить рендер — сделаем requestAnimationFrame.
+    requestAnimationFrame(() => {
+      // Новая высота
+      const newScrollHeight = el.scrollHeight;
+      // Хотим сохранить визуальную позицию: выставляем scrollTop так, чтобы
+      // элемент, который был внизу видимой области, оставался на том же месте.
+      // Формула:
+      // newScrollTop = newScrollHeight - previousScrollHeight + previousScrollTop
+      const newScrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;
+      // Устанавливаем значение (защищаем от отрицательных)
+      el.scrollTop = Math.max(0, newScrollTop);
+    });
+  } catch (e) {
+    console.error('fetchNextPage failed', e);
+  } finally {
+    fetchingRef.current = false;
+  }
+};

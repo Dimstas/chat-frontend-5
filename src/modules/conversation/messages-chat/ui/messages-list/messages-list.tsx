@@ -1,6 +1,6 @@
 'use client';
 import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult } from '@tanstack/react-query';
-import { JSX, useEffect, useMemo, useRef } from 'react';
+import { JSX, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { useIntersectionRead } from '../../hooks/use-intersection-read';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
@@ -9,6 +9,7 @@ import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustan
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
+import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
 
 export const MessagesList = ({
@@ -74,11 +75,11 @@ export const MessagesList = ({
         .forEach((m) => ordered.push(m));
     });
     if (!ordered.length) return -1;
-    //для первых непрочитанных сообщений
+    //для первых непрочитанных входящих сообщений
     // const firstUnreadIncoming = ordered.findIndex((m) => m.to_user.uid === currentUserId && m.new === true);
     // if (firstUnreadIncoming !== -1) return firstUnreadIncoming;
     return ordered.length - 1;
-  }, [results, currentUserId]);
+  }, [results]);
 
   // хук ws + hook для определения прочтения видимости
   const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
@@ -107,16 +108,6 @@ export const MessagesList = ({
       });
       return;
     }
-    // Если изменилось количество сообщений и мы подгружали старые (prepend),
-    // нужно сохранить видимую позицию.
-    // Подход: если мы находимся не в самом низу => вероятно, пользователь читает историю и
-    // мы подгрузили старые сообщения (fetchNextPage), поэтому корректируем scrollTop.
-    // Для корректной работы мы используем previousScrollHeight, previousScrollTop, которые
-    // задаются при начале загрузки (см. fetchOlder function ниже).
-    // Здесь просто защита: если fetchingRef.current === true, подождём заверщения загрузки,
-    // а затем скорректируем позицию в finally блоке внутри fetchOlder.
-    // Без дополнительной логики — всё что нужно для простого случая: при любых изменениях
-    // списка, если пользователь был внизу — оставляем его внизу.
     const tolerance = 50;
     const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= tolerance;
     if (isNearBottom) {
@@ -125,27 +116,18 @@ export const MessagesList = ({
         el.scrollTop = el.scrollHeight;
       });
     }
-    // иначе — не трогаем, position сохранится, а при prepend мы корректируем (см. fetchOlder)
-
-    //el.scrollTop = el.scrollHeight;
-    // Немного отложим прокрутку, чтобы DOM точно обновился
-    // // (позволяет React закончить отрисовку новых элементов)
-    // requestAnimationFrame(() => {
-    //   el.scrollIntoView({ behavior: 'smooth', block: 'end' });
-    // });
   }, [results, messagesLength]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
   const fetchingRef = useRef(false);
   // ---- Функция для безопасного вызова fetchNextPage с сохранением позиции при prepend ----
-  // Эта функция вызывается при пересечении sentinel (внизу) — у вас может потребоваться триггерить fetchNextPage
+  // Эта функция вызывается при пересечении sentinel (вверху) — у вас может потребоваться триггерить fetchNextPage
   // и логика ниже также может быть использована при прокрутке вверх (если вы подгружаете старые).
   const fetchOlder = async (): Promise<void> => {
     const el = wrapperRef.current;
     if (!el) return;
     if (!hasNextPage) return;
     if (isFetchingNextPage || fetchingRef.current) return;
-
     // Сохраним текущие параметры прокрутки
     const previousScrollTop = el.scrollTop;
     const previousScrollHeight = el.scrollHeight;
@@ -159,7 +141,7 @@ export const MessagesList = ({
         // Новая высота
         const newScrollHeight = el.scrollHeight;
         // Хотим сохранить визуальную позицию: выставляем scrollTop так, чтобы
-        // элемент, который был вверху видимой области, оставался на том же месте.
+        // элемент, который был внизу видимой области, оставался на том же месте.
         // Формула:
         // newScrollTop = newScrollHeight - previousScrollHeight + previousScrollTop
         const newScrollTop = newScrollHeight - previousScrollHeight + previousScrollTop;
@@ -205,6 +187,37 @@ export const MessagesList = ({
   // подгружаем когда пользователь приблизится к 1 элементу от вверха
   const triggerIndex = 1;
 
+  //эффект для расчета позиции <ScrollButton /> внутри <MessagesList> в зависимости от размера экрана
+  const [pos, setPos] = useState({ right: 0, bottom: 0 });
+  useLayoutEffect(() => {
+    const updatePos = (): void => {
+      const rect = wrapperRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      // расстояние от правого края контейнера до правого края окна
+      const gapRight = Math.max(12, window.innerWidth - (rect.left + rect.width) + 12);
+      const gapBottom = Math.max(12, Math.max(12, window.innerHeight - (rect.top + rect.height) + 12));
+      setPos({ right: gapRight, bottom: gapBottom });
+    };
+
+    updatePos();
+    window.addEventListener('resize', updatePos);
+    // опционально: ResizeObserver для контейнера
+    const ro = new ResizeObserver(updatePos);
+    if (wrapperRef.current) ro.observe(wrapperRef.current);
+
+    return (): void => {
+      window.removeEventListener('resize', updatePos);
+      ro.disconnect();
+    };
+  }, []);
+  // обработчик события onClick для компонента  <ScrollButton /> медленно скролит в низ до первого сообщения
+  const onClickScrollButton = (): void => {
+    if (targetIndex === -1) return;
+    const el = targetItemRef.current;
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  };
+
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       {/* Если список пуст, всё равно рендерим sentinel чтобы observer был стабилен */}
@@ -247,6 +260,19 @@ export const MessagesList = ({
             )}
         </div>
       ))}
+      {wrapperRef.current && wrapperRef.current.scrollHeight > wrapperRef.current.clientHeight && (
+        <button
+          style={{
+            position: 'fixed',
+            right: `${pos.right}px`,
+            bottom: `${pos.bottom}px`,
+          }}
+          onClick={onClickScrollButton}
+          aria-label="Scroll to top"
+        >
+          <ScrollButton />
+        </button>
+      )}
     </div>
   );
 };
