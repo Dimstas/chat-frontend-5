@@ -11,6 +11,7 @@ import { IncomingMessagesCard } from '../message-card/incoming-message-card/inco
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
+import { useFixedTargetIndex } from './use-fixed-target-index';
 
 export const MessagesList = ({
   messagesList,
@@ -45,7 +46,7 @@ export const MessagesList = ({
 
   const { results, messagesLength } = useMemo(() => {
     const messages = messagesByUser ?? [];
-    //console.log(messages);
+    console.log(messages);
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 
@@ -62,24 +63,8 @@ export const MessagesList = ({
       .reverse()
       .forEach((m) => flatList.push({ date, message: m }));
   });
-
   //вычисляем targetIndex: первого непрочитанного входящего, иначе последний элемент
-  const targetIndex = useMemo(() => {
-    const keys = Object.keys(results).reverse();
-    const ordered: Array<RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }> = [];
-    keys.forEach((date) => {
-      const msgs = results[date] ?? [];
-      msgs
-        .slice()
-        .reverse()
-        .forEach((m) => ordered.push(m));
-    });
-    if (!ordered.length) return -1;
-    //для первых непрочитанных входящих сообщений
-    // const firstUnreadIncoming = ordered.findIndex((m) => m.to_user.uid === currentUserId && m.new === true);
-    // if (firstUnreadIncoming !== -1) return firstUnreadIncoming;
-    return ordered.length - 1;
-  }, [results]);
+  const targetIndex = useFixedTargetIndex(results, currentUserId);
 
   // хук ws + hook для определения прочтения видимости
   const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
@@ -87,36 +72,12 @@ export const MessagesList = ({
 
   // Эффект прокрутки к targetIndex (если есть)
   useEffect(() => {
+    console.log(targetIndex);
     if (targetIndex === -1) return;
     const el = targetItemRef.current;
     if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    el.scrollIntoView({ behavior: 'auto', block: 'start' });
   }, [results, messagesLength, targetIndex]);
-
-  // ---- Автоскролл при первичной загрузке и "бережная" логика при prepend ----
-  const isInitialMountRef = useRef(true);
-  // Эффект прокрутки к targetIndex (если есть)
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (!el) return;
-    // Частный случай если это первая отрисовка после монтирования — просто прыгнем в низ.
-    if (isInitialMountRef.current) {
-      isInitialMountRef.current = false;
-      // Ждём рендера DOM
-      requestAnimationFrame(() => {
-        el.scrollTop = el.scrollHeight;
-      });
-      return;
-    }
-    const tolerance = 50;
-    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight <= tolerance;
-    if (isNearBottom) {
-      // если пользователь у низа — оставляем его внизу
-      requestAnimationFrame(() => {
-        el.scrollTop = el.scrollHeight;
-      });
-    }
-  }, [results, messagesLength]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
   const fetchingRef = useRef(false);
@@ -215,7 +176,7 @@ export const MessagesList = ({
     if (targetIndex === -1) return;
     const el = targetItemRef.current;
     if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
