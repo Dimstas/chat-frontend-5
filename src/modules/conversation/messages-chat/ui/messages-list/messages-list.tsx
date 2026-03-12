@@ -37,7 +37,7 @@ export const MessagesList = ({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    console.log(messagesList);
+    //console.log(messagesList);
     if (!userIdStore) return;
     const normalized = messagesList.map((m) => ({ ...m, status: 'sent' as const }));
     setMessagesForUser(userIdStore, normalized);
@@ -194,8 +194,8 @@ export const MessagesList = ({
       const rect = wrapperRef.current?.getBoundingClientRect();
       if (!rect) return;
       // расстояние от правого края контейнера до правого края окна
-      const gapRight = Math.max(12, window.innerWidth - (rect.left + rect.width) + 12);
-      const gapBottom = Math.max(12, Math.max(12, window.innerHeight - (rect.top + rect.height) + 12));
+      const gapRight = Math.max(12, window.innerWidth - (rect.left + rect.width) + 5);
+      const gapBottom = Math.max(12, Math.max(12, window.innerHeight - (rect.top + rect.height) + 1));
       setPos({ right: gapRight, bottom: gapBottom });
     };
 

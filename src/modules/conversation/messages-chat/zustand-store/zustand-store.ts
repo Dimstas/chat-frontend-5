@@ -16,12 +16,31 @@ export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
   messagesByUser: {},
 
   setMessagesForUser: (userId: string, messages: Msg[]): void =>
-    set((s) => ({
-      messagesByUser: {
-        ...s.messagesByUser,
-        [userId]: messages,
-      },
-    })),
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      const seen = new Set();
+      const result = [];
+      for (const msg of prev) {
+        const uid = msg.uid;
+        if (!seen.has(uid)) {
+          seen.add(uid);
+          result.push(msg);
+        }
+      }
+      for (const msg of messages) {
+        const uid = msg.uid;
+        if (!seen.has(uid)) {
+          seen.add(uid);
+          result.push(msg);
+        }
+      }
+      return {
+        messagesByUser: {
+          ...s.messagesByUser,
+          [userId]: result,
+        },
+      };
+    }),
 
   clearMessagesForUser: (userId?: string): void =>
     set((s) => {
