@@ -11,13 +11,13 @@ import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
 export const InfoHeader = ({ isBlocked }: InfoHeaderProps): JSX.Element => {
-  const { toggleInfoOpen, openBlockModal, openClearModal } = useInfoStore();
+  const { toggleInfoOpen, openBlockModal, openClearModal, openForwardModal } = useInfoStore();
 
   const menuItems: DropdownItem[] = [
     {
       label: 'Поделиться профилем',
       icon: <ForwardIcon />,
-      onClick: () => console.log('click forward'),
+      onClick: openForwardModal,
     },
     {
       label: 'Очистить чат',

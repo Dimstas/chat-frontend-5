@@ -5,6 +5,7 @@ type InfoState = {
   isBlockModalOpen: boolean;
   isUnblockModalOpen: boolean;
   isClearModalOpen: boolean;
+  isForwardModalOpen: boolean;
   uid: string | undefined;
   setUid: (uid: string) => void;
   chatId: number | undefined;
@@ -16,6 +17,8 @@ type InfoState = {
   closeUnblockModal: () => void;
   openClearModal: () => void;
   closeClearModal: () => void;
+  openForwardModal: () => void;
+  closeForwardModal: () => void;
 };
 
 export const useInfoStore = create<InfoState>((set, get) => ({
@@ -23,6 +26,7 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   isBlockModalOpen: false,
   isUnblockModalOpen: false,
   isClearModalOpen: false,
+  isForwardModalOpen: false,
   uid: undefined,
   setUid: (uid): void => {
     set({ uid: uid });
@@ -41,4 +45,6 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   closeUnblockModal: (): void => set({ isUnblockModalOpen: false }),
   openClearModal: (): void => set({ isClearModalOpen: true }),
   closeClearModal: (): void => set({ isClearModalOpen: false }),
+  openForwardModal: (): void => set({ isForwardModalOpen: true }),
+  closeForwardModal: (): void => set({ isForwardModalOpen: false }),
 }));
