@@ -22,11 +22,12 @@ export const CardShell = ({
   href,
   imageOptions,
   hasContextMenu,
+  isModal,
   selected,
   selectAction,
 }: CardShellProps): JSX.Element => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = isModal ? selected : pathname === href || selected;
   const { src, alt, classNames } = imageOptions;
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -72,7 +73,7 @@ export const CardShell = ({
         <Link
           href={href}
           className={clsx(styles.link, {
-            [styles.cardSelect]: selected || isActive,
+            [styles.cardSelect]: isActive,
             [styles.contextMenu]: contextMenuVisible,
           })}
           onClick={selectAction}
