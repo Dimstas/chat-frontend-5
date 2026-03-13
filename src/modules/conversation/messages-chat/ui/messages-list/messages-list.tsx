@@ -64,7 +64,7 @@ export const MessagesList = ({
       .forEach((m) => flatList.push({ date, message: m }));
   });
   //вычисляем targetIndex: первого непрочитанного входящего, иначе последний элемент
-  const targetIndex = useFixedTargetIndex(results, currentUserId);
+  const { targetIndex, setTargetIndex, lastIndex } = useFixedTargetIndex(results, currentUserId);
 
   // хук ws + hook для определения прочтения видимости
   const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
@@ -76,7 +76,9 @@ export const MessagesList = ({
     if (targetIndex === -1) return;
     const el = targetItemRef.current;
     if (!el) return;
-    el.scrollIntoView({ behavior: 'auto', block: 'start' });
+    el.scrollIntoView({ behavior: 'auto', block: 'center' });
+    //размонтируем targetIndex
+    if (targetIndex === lastIndex || targetIndex === -1) setTargetIndex(null);
   }, [results, messagesLength, targetIndex]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
@@ -176,7 +178,7 @@ export const MessagesList = ({
     if (targetIndex === -1) return;
     const el = targetItemRef.current;
     if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   return (
@@ -210,6 +212,9 @@ export const MessagesList = ({
                     tabIndex={-1}
                     ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : undefined}
                   >
+                    {isTarget && lastIndex - targetIndex > 14 && (
+                      <div className={styles.text}>непрочитанные сообщения</div>
+                    )}
                     {message.from_user.uid === userIdStore ? (
                       <IncomingMessagesCard message={message} register={register} />
                     ) : (

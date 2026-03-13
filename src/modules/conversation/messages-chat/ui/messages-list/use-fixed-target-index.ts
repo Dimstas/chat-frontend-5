@@ -1,9 +1,18 @@
 import { useMemo, useState } from 'react';
 import { RestMessageApi } from '../../model/messages-list';
 
-export const useFixedTargetIndex = (results: Record<string, RestMessageApi[]>, currentUserId: string): number => {
+type UseFixedTargetIndex = {
+  targetIndex: number | null;
+  setTargetIndex: (i: number | null) => void;
+  lastIndex: number;
+};
+
+export const useFixedTargetIndex = (
+  results: Record<string, RestMessageApi[]>,
+  currentUserId: string,
+): UseFixedTargetIndex => {
   // null — ещё не зафиксировано; иначе — индекс, который мы должны использовать
-  const [initialTargetIndex, setInitialTargetIndex] = useState<number | null>(null);
+  const [targetIndex, setTargetIndex] = useState<number | null>(null);
 
   // вспомогательная функция: преобразовать results -> ordered (как в вашем коде)
   const ordered = useMemo(() => {
@@ -32,22 +41,24 @@ export const useFixedTargetIndex = (results: Record<string, RestMessageApi[]>, c
 
   const lastIndex = ordered.length ? ordered.length - 1 : -1;
 
-  if (initialTargetIndex === null) {
+  if (targetIndex === null) {
     // первый раз: фиксируем минимальный (первый непрочитанный входящий), иначе последний
     const startIndex = currentFirstUnreadIncoming !== -1 ? currentFirstUnreadIncoming : lastIndex;
-    setInitialTargetIndex(startIndex);
+    console.log('startIndex: ', startIndex);
+    console.log('lastIndex: ', lastIndex);
+    setTargetIndex(startIndex);
   }
 
   // initialTargetIndex уже зафиксирован ранее
   // если в текущих данных непрочитанных входящих нет — обновляем initialTargetIndex на последний
-  if (currentFirstUnreadIncoming === -1) {
+  if (targetIndex !== null && currentFirstUnreadIncoming === -1) {
     // обновляем только если последний индекс изменился (чтобы избежать лишних setState)
-    if (initialTargetIndex !== lastIndex) {
-      setInitialTargetIndex(lastIndex);
+    if (targetIndex !== lastIndex) {
+      setTargetIndex(lastIndex);
     }
   }
   // иначе (есть ещё непрочитанные) — НЕ меняем initialTargetIndex
 
   // Возвращаем зафиксированный индекс (если null — временно можно возвращать -1)
-  return initialTargetIndex ?? -1;
+  return { targetIndex: targetIndex ?? -1, setTargetIndex, lastIndex };
 };

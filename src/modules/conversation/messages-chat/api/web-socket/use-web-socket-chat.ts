@@ -131,7 +131,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     return (): void => {
       // при следующем эффекте (когда изменется функция connectWS())
       // закрываем ws-соединение и очищаем все созданные таймауты
-      //wsRef.current?.close();
+      wsRef.current?.close();
       pendingTimeouts.current.forEach((id) => clearTimeout(id));
       pendingTimeouts.current.clear();
     };
