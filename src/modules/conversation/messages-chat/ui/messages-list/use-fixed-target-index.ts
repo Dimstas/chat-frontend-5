@@ -44,8 +44,6 @@ export const useFixedTargetIndex = (
   if (targetIndex === null) {
     // первый раз: фиксируем минимальный (первый непрочитанный входящий), иначе последний
     const startIndex = currentFirstUnreadIncoming !== -1 ? currentFirstUnreadIncoming : lastIndex;
-    console.log('startIndex: ', startIndex);
-    console.log('lastIndex: ', lastIndex);
     setTargetIndex(startIndex);
   }
 

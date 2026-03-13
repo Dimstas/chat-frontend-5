@@ -38,7 +38,6 @@ export const MessagesList = ({
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    //console.log(messagesList);
     if (!userIdStore) return;
     const normalized = messagesList.map((m) => ({ ...m, status: 'sent' as const }));
     setMessagesForUser(userIdStore, normalized);
@@ -46,7 +45,7 @@ export const MessagesList = ({
 
   const { results, messagesLength } = useMemo(() => {
     const messages = messagesByUser ?? [];
-    console.log(messages);
+    //console.log(messages);
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 
@@ -72,11 +71,10 @@ export const MessagesList = ({
 
   // Эффект прокрутки к targetIndex (если есть)
   useEffect(() => {
-    console.log(targetIndex);
     if (targetIndex === -1) return;
     const el = targetItemRef.current;
     if (!el) return;
-    el.scrollIntoView({ behavior: 'auto', block: 'center' });
+    el.scrollIntoView({ behavior: 'auto', block: 'start' });
     //размонтируем targetIndex
     if (targetIndex === lastIndex || targetIndex === -1) setTargetIndex(null);
   }, [results, messagesLength, targetIndex]);
@@ -178,7 +176,7 @@ export const MessagesList = ({
     if (targetIndex === -1) return;
     const el = targetItemRef.current;
     if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   return (
