@@ -1,10 +1,13 @@
 'use client';
 
+import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult } from '@tanstack/react-query';
 import { useDebouncedValue } from 'modules/conversation/shared/hooks';
 import { useMemo } from 'react';
 import { useMessagesListQuery } from '../api/messages-list.query';
 import type { RestMessageApi } from '../model/messages-list';
+import { MessagesListApiResponse } from '../model/messages-list';
 import { useMessagesListStore } from '../model/messages-list-search';
+
 type UseMessagesListScreenReturn = {
   from_me: boolean;
   setFromMe: (q: boolean) => void;
@@ -26,6 +29,11 @@ type UseMessagesListScreenReturn = {
   clearSearch: () => void;
   messagesList: RestMessageApi[];
   status: string;
+  fetchNextPage: (
+    options?: FetchNextPageOptions,
+  ) => Promise<InfiniteQueryObserverResult<InfiniteData<MessagesListApiResponse>, unknown>>;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
 };
 
 export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenReturn => {
@@ -50,7 +58,7 @@ export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenRe
 
   const debouncedSearch = useDebouncedValue(search, 300).trim().toLowerCase();
 
-  const { data, status } = useMessagesListQuery(user_uid, {
+  const { data, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessagesListQuery(user_uid, {
     from_me,
     new: newS,
     ordering,
@@ -83,5 +91,8 @@ export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenRe
     clearSearch,
     messagesList: messagesList,
     status,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
   };
 };

@@ -7,10 +7,10 @@ import ClipIcon from './icon/clip.svg';
 import MicIcon from './icon/mic.svg';
 import Submit from './icon/submit.svg';
 
-export const HeaderBottom = ({ wsUrl }: { wsUrl: string }): JSX.Element => {
+export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentUserId: string }): JSX.Element => {
   const [textInput, setTextInput] = useState<string>('');
 
-  const { sendMessage } = useWebSocketChat(wsUrl);
+  const { sendMessage } = useWebSocketChat(wsUrl, currentUserId);
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();

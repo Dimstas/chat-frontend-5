@@ -9,7 +9,7 @@ export default async function ContactsPage({
   const user_uid = (await params).user_uid;
   return (
     <>
-      <MessagesListScreen user_uid={user_uid} />
+      <MessagesListScreen user_uid={user_uid} currentUserId={' '} wsUrl={' '} />
     </>
   );
 }

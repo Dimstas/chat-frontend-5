@@ -7,8 +7,10 @@ import styles from './incoming-message-card.module.scss';
 
 export const IncomingMessagesCard = ({
   message,
+  register,
 }: {
-  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' };
+  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
+  register: (el: Element | null, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
 }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -32,7 +34,14 @@ export const IncomingMessagesCard = ({
     setContextMenuVisible(false);
   };
   return (
-    <div className={styles.wrapper} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
+    <div
+      className={styles.wrapper}
+      onContextMenu={handleContextMenu}
+      onMouseLeave={handleCloseMenu}
+      ref={(el) => {
+        register(el, message);
+      }}
+    >
       <ContextMenu position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
       <div className={styles.item}>
         <div className={styles.message}>

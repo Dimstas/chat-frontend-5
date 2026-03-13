@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
 
-type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' };
+type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 
 type MessagesChatState = {
   messagesByUser: Record<string, Msg[]>;
@@ -9,20 +9,38 @@ type MessagesChatState = {
   clearMessagesForUser: (userId?: string) => void; // если userId не передан — очищает все
   addMessageForUser: (userId: string, m: Msg) => void;
   upsertMessageForUser: (userId: string, m: Msg) => void;
-  updateMessageByUidForUser: (userId: string, request_uid: string, patch: Partial<Pick<Msg, 'status'>>) => void;
-  updateReadMessageByUidForUser: (userId: string, request_uid: string) => void;
+  updateMessageByUidForUser: (userId: string, request_uid: string, patch: Partial<Msg>) => void;
 };
 
 export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
   messagesByUser: {},
 
   setMessagesForUser: (userId: string, messages: Msg[]): void =>
-    set((s) => ({
-      messagesByUser: {
-        ...s.messagesByUser,
-        [userId]: messages,
-      },
-    })),
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      const seen = new Set();
+      const result = [];
+      for (const msg of prev) {
+        const uid = msg.uid;
+        if (!seen.has(uid)) {
+          seen.add(uid);
+          result.push(msg);
+        }
+      }
+      for (const msg of messages) {
+        const uid = msg.uid;
+        if (!seen.has(uid)) {
+          seen.add(uid);
+          result.push(msg);
+        }
+      }
+      return {
+        messagesByUser: {
+          ...s.messagesByUser,
+          [userId]: result,
+        },
+      };
+    }),
 
   clearMessagesForUser: (userId?: string): void =>
     set((s) => {
@@ -60,17 +78,6 @@ export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
         messagesByUser: {
           ...s.messagesByUser,
           [userId]: prev.map((msg) => (msg.uid === request_uid ? { ...msg, ...patch } : msg)),
-        },
-      };
-    }),
-  updateReadMessageByUidForUser: (userId: string, uid: string): void =>
-    set((s) => {
-      const prev = s.messagesByUser[userId] ?? [];
-      const newMessages = prev.map((msg) => (msg.uid === uid ? { ...msg, new: false } : msg));
-      return {
-        messagesByUser: {
-          ...s.messagesByUser,
-          [userId]: newMessages,
         },
       };
     }),
