@@ -9,7 +9,7 @@ export default async function MessagesPage({
   params,
 }: {
   params: Promise<{ user_uid: string }>;
-}): Promise<JSX.Element | void> {
+}): Promise<JSX.Element | undefined> {
   try {
     const user_uid = (await params).user_uid;
     const cookieStore = await cookies();

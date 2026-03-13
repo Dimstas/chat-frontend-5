@@ -25,7 +25,7 @@ export default async function ContactsLayout({
           <HeaderTop user_uid={user_uid} />
         </Suspense>
         {children}
-        <HeaderBottom wsUrl={wsUrl} />
+        <HeaderBottom wsUrl={wsUrl} currentUserId={' '} />
       </main>
     );
   } catch (error) {
