@@ -44,13 +44,15 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
         <div className={styles.search}>
           <SearchInput query={modalSearch} onChange={setModalSearch} />
         </div>
-        <>
-          <ul>
-            {modalChats.map((c) => (
-              <ChatCardModal key={c.peer.uid} chat={c} onSelectHandler={handleSelectClick} />
-            ))}
-          </ul>
-        </>
+        <div className={styles.cards}>
+          <>
+            <ul>
+              {modalChats.map((c) => (
+                <ChatCardModal key={c.peer.uid} chat={c} onSelectHandler={handleSelectClick} />
+              ))}
+            </ul>
+          </>
+        </div>
       </div>
     </div>
   );

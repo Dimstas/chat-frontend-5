@@ -34,3 +34,24 @@
   padding: 0.8rem 1.6rem;
   border-bottom: 0.1rem solid var(--border-layout);
 }
+
+.cards {
+  max-height: 41.6rem;
+  overflow-y: hidden;
+  scrollbar-gutter: stable;
+}
+
+.cards::-webkit-scrollbar {
+  width: 0.6rem;
+  height: 12rem;
+}
+
+.cards::-webkit-scrollbar-thumb {
+  background-color: var(--surface-scroll);
+  border-radius: 0.4rem;
+  transition: opacity 0.3s;
+}
+
+.cards:hover {
+  overflow-y: auto;
+}
