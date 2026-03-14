@@ -7,6 +7,9 @@ type ChatsState = {
   search: string;
   setSearch: (q: string) => void;
   clearSearch: () => void;
+  modalSearch: string;
+  setModalSearch: (s: string) => void;
+  clearModalSearch: () => void;
   is_active: boolean;
   setIsActive: (q: boolean) => void;
   is_blocked: boolean;
@@ -15,6 +18,7 @@ type ChatsState = {
   setIsFavorite: (q: boolean) => void;
   selected: number | undefined;
   setSelected: (id: number | undefined) => void;
+  clearSelected: () => void;
   isDeleteModalOpen: boolean;
   openDeleteModal: () => void;
   closeDeleteModal: () => void;
@@ -30,6 +34,9 @@ export const useChatsStore = create<ChatsState>((set) => ({
   search: '',
   setSearch: (search): void => set({ search }),
   clearSearch: (): void => set({ search: '' }),
+  modalSearch: '',
+  setModalSearch: (modalSearch): void => set({ modalSearch }),
+  clearModalSearch: (): void => set({ modalSearch: '' }),
   is_active: true,
   setIsActive: (is_active): void => set({ is_active: !is_active }),
   is_blocked: false,
@@ -38,6 +45,7 @@ export const useChatsStore = create<ChatsState>((set) => ({
   setIsFavorite: (is_favorite): void => set({ is_favorite: !is_favorite }),
   selected: undefined,
   setSelected: (id): void => set({ selected: id }),
+  clearSelected: (): void => set({ selected: undefined }),
   isDeleteModalOpen: false,
   openDeleteModal: (): void => set({ isDeleteModalOpen: true }),
   closeDeleteModal: (): void => set({ isDeleteModalOpen: false }),

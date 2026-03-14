@@ -21,4 +21,5 @@ export type CardShellProps = {
   hasContextMenu?: boolean;
   selectAction?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
   selected?: boolean;
+  isModal?: boolean;
 };

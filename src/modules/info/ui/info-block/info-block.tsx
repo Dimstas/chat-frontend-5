@@ -10,6 +10,7 @@ import { JSX, useEffect } from 'react';
 import { ActionButton } from '../action-button';
 import { BlockContactModal } from '../block-contact-modal';
 import { ClearChatModal } from '../clear-chat-modal';
+import { FrowardProfileModal } from '../forward-profile-modal';
 import { InfoAvatar } from '../info-avatar';
 import { InfoHeader } from '../info-header';
 import { InfoLayout } from '../info-layout';
@@ -83,6 +84,7 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
           <BlockContactModal />
           <UnblockContactModal />
           <ClearChatModal />
+          <FrowardProfileModal />
         </>
       )}
     </>
