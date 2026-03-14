@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { ChatListApiResponse } from 'modules/conversation/chats/model/chat';
-import { deleteChat, getChatList } from './chat.api';
+import { clearChat, deleteChat, getChatList } from './chat.api';
 
 const PAGE_SIZE = 15;
 
@@ -55,6 +55,28 @@ export const useDeleteChatMutation = (): UseMutationResult<void, Error, number> 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['messages', 'messages-list'], exact: false });
       queryClient.invalidateQueries({ queryKey: ['chats', 'chat-list'] });
+    },
+  });
+};
+
+export const useClearChatMutation = (): UseMutationResult<void, Error, number> => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, number>({
+    mutationFn: async (id) => {
+      await clearChat(id);
+    },
+
+    onSuccess: () => {
+      console.log('Чат очищен');
+    },
+
+    onError: (error: Error) => {
+      console.error('Ошибка POST‑запроса:', error);
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['messages', 'messages-list'], exact: false });
     },
   });
 };

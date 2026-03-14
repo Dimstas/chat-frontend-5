@@ -6,15 +6,15 @@ import { Modal } from 'shared/ui';
 
 export const UnblockContactModal = (): JSX.Element | null => {
   const { contacts, globals } = useContactsScreen();
-  const { selectedUid, isUnblockModalOpen, closeUnblockModal } = useInfoStore();
+  const { uid, isUnblockModalOpen, closeUnblockModal } = useInfoStore();
 
-  const { mutate: unblockContact } = useUnblockUserMutation(selectedUid ?? '');
+  const { mutate: unblockContact } = useUnblockUserMutation(uid ?? '');
 
-  const contact = contacts?.find((c) => c.uid === selectedUid) ?? globals?.find((c) => c.uid === selectedUid);
+  const contact = contacts?.find((c) => c.uid === uid) ?? globals?.find((c) => c.uid === uid);
   const { firstName, lastName } = contact ?? {};
 
   const handleUnblock = (): void => {
-    if (selectedUid) {
+    if (uid) {
       unblockContact();
     }
     closeUnblockModal();

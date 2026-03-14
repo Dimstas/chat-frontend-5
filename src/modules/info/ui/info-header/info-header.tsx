@@ -10,13 +10,8 @@ import ForwardIcon from './icons/forward.svg';
 import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
-export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => {
-  const { toggleInfoOpen, openBlockModal, setSelectedUid } = useInfoStore();
-
-  const handleBlockContact = (): void => {
-    setSelectedUid(uid);
-    openBlockModal();
-  };
+export const InfoHeader = ({ isBlocked }: InfoHeaderProps): JSX.Element => {
+  const { toggleInfoOpen, openBlockModal, openClearModal } = useInfoStore();
 
   const menuItems: DropdownItem[] = [
     {
@@ -27,7 +22,7 @@ export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => 
     {
       label: 'Очистить чат',
       icon: <ClearIcon />,
-      onClick: () => console.log('click clear'),
+      onClick: openClearModal,
     },
   ];
 
@@ -36,13 +31,13 @@ export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => 
       label: 'Заблокировать',
       icon: <BlockIcon />,
       variant: 'alert',
-      onClick: handleBlockContact,
+      onClick: openBlockModal,
     });
   }
 
   return (
     <div className={styles.header}>
-      <button className={styles.delete} onClick={() => toggleInfoOpen()}>
+      <button className={styles.delete} onClick={toggleInfoOpen}>
         <CloseIcon />
       </button>
       <span className={styles.label}>Информация</span>
