@@ -12,18 +12,22 @@ const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
 
 export const CardShell = ({
   children,
-  uid,
   chatId,
+  lastMessageId,
+  hasNewMessages,
   nickname,
   isInContacts,
+  isFavorite,
   notifications,
   href,
   imageOptions,
+  hasContextMenu,
+  isModal,
   selected,
   selectAction,
 }: CardShellProps): JSX.Element => {
   const pathname = usePathname();
-  const isActive = pathname === href;
+  const isActive = isModal ? selected : pathname === href || selected;
   const { src, alt, classNames } = imageOptions;
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -51,21 +55,25 @@ export const CardShell = ({
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu
-        uid={uid}
-        chatId={chatId}
-        nickname={nickname}
-        isInContacts={isInContacts}
-        notifications={notifications}
-        position={contextMenuPos}
-        visible={contextMenuVisible}
-        onClose={handleCloseMenu}
-      />
+      {hasContextMenu && (
+        <ContextMenu
+          chatId={chatId}
+          lastMessageId={lastMessageId}
+          nickname={nickname}
+          isInContacts={isInContacts}
+          isFavorite={isFavorite}
+          hasNewMessages={hasNewMessages}
+          notifications={notifications}
+          position={contextMenuPos}
+          visible={contextMenuVisible}
+          onClose={handleCloseMenu}
+        />
+      )}
       <li className={styles.li}>
         <Link
           href={href}
           className={clsx(styles.link, {
-            [styles.cardSelect]: selected || isActive,
+            [styles.cardSelect]: isActive,
             [styles.contextMenu]: contextMenuVisible,
           })}
           onClick={selectAction}

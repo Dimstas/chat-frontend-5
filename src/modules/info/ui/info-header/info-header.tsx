@@ -1,5 +1,4 @@
-import { useChatStore } from 'modules/conversation/chats/model/chat.store';
-import { useBlockUserMutation } from 'modules/info/api';
+import { useInfoStore } from 'modules/info/model/info.store';
 import { JSX } from 'react';
 import { Dropdown } from 'shared/ui/dropdown';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
@@ -11,20 +10,19 @@ import ForwardIcon from './icons/forward.svg';
 import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
-export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => {
-  const { toggleInfoOpen } = useChatStore();
-  const { mutate: blockUser } = useBlockUserMutation(uid);
+export const InfoHeader = ({ isBlocked }: InfoHeaderProps): JSX.Element => {
+  const { toggleInfoOpen, openBlockModal, openClearModal, openForwardModal } = useInfoStore();
 
   const menuItems: DropdownItem[] = [
     {
       label: 'Поделиться профилем',
       icon: <ForwardIcon />,
-      onClick: () => console.log('click forward'),
+      onClick: openForwardModal,
     },
     {
       label: 'Очистить чат',
       icon: <ClearIcon />,
-      onClick: () => console.log('click clear'),
+      onClick: openClearModal,
     },
   ];
 
@@ -33,13 +31,13 @@ export const InfoHeader = ({ uid, isBlocked }: InfoHeaderProps): JSX.Element => 
       label: 'Заблокировать',
       icon: <BlockIcon />,
       variant: 'alert',
-      onClick: blockUser,
+      onClick: openBlockModal,
     });
   }
 
   return (
     <div className={styles.header}>
-      <button className={styles.delete} onClick={() => toggleInfoOpen()}>
+      <button className={styles.delete} onClick={toggleInfoOpen}>
         <CloseIcon />
       </button>
       <span className={styles.label}>Информация</span>

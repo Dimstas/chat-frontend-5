@@ -11,7 +11,7 @@ import styles from './outgoing-message-card.module.scss';
 export const OutgoingMessagesCard = ({
   message,
 }: {
-  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' };
+  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -45,7 +45,7 @@ export const OutgoingMessagesCard = ({
             <div className={styles.messageChatIcons}>
               {message.status === 'sent' && message.new === true && <CheckOneIcon />}
               {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
-              {message.status === 'sent' && message.new === false && <CheckTwoIcon />}
+              {message.new === false && <CheckTwoIcon />}
             </div>
           </div>
         </div>

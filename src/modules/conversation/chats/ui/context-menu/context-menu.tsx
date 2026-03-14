@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useAddContactQuery } from 'modules/conversation/contacts/api/contact.query';
 import { useEditChatQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
 import { JSX } from 'react';
+import { useChatsStore } from '../../model/search';
 import styles from './context-menu.module.scss';
 import AddContact from './icons/add-contact.svg';
 import DeleteOutline from './icons/delete-outline.svg';
@@ -10,24 +11,29 @@ import PushPin from './icons/push-pin.svg';
 import VolumeOf from './icons/volume-off.svg';
 
 export const ContextMenu = ({
-  uid,
   chatId,
+  lastMessageId,
   nickname,
   isInContacts,
+  isFavorite,
+  hasNewMessages,
   notifications,
   position,
   visible,
   onClose,
 }: {
-  uid: string;
   chatId?: number;
+  lastMessageId?: number;
   nickname?: string;
   isInContacts?: boolean;
+  isFavorite?: boolean;
+  hasNewMessages?: boolean;
   notifications?: boolean;
   position: { x: number; y: number };
   visible: boolean;
   onClose: () => void;
 }): JSX.Element | null => {
+  const { openDeleteModal, openAddModal, setSelected } = useChatsStore();
   const { mutate: addContact } = useAddContactQuery();
   const { data: users } = useSearchUserByNicknameQuery(nickname ?? '');
   const { mutate: editChat } = useEditChatQuery(chatId ?? 0);
@@ -38,6 +44,8 @@ export const ContextMenu = ({
     const contact = users ? users[0] : undefined;
     if (!!contact) {
       addContact({ phone: contact?.phone, first_name: contact?.first_name, last_name: contact?.last_name });
+      setSelected(chatId);
+      openAddModal();
     }
     onClose();
   };
@@ -46,6 +54,26 @@ export const ContextMenu = ({
     editChat({
       notifications: !notifications,
     });
+    onClose();
+  };
+
+  const handleToggleFavorite = (): void => {
+    editChat({
+      is_favorite: !isFavorite,
+    });
+    onClose();
+  };
+
+  const handleMarkAsRead = (): void => {
+    editChat({
+      last_seen_message: lastMessageId,
+    });
+    onClose();
+  };
+
+  const handleDelete = (): void => {
+    setSelected(chatId);
+    openDeleteModal();
     onClose();
   };
 
@@ -65,19 +93,21 @@ export const ContextMenu = ({
           <VolumeOf />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
-        <div className={styles.text}>Закрепить</div>
+      <button className={styles.cell} onClick={handleToggleFavorite}>
+        <div className={styles.text}>{isFavorite ? 'Открепить' : 'Закрепить'}</div>
         <div className={styles.icon}>
           <PushPin />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
-        <div className={styles.text}>Пометить прочитанным</div>
-        <div className={styles.icon}>
-          <MarkRead />
-        </div>
-      </button>
-      <button className={clsx(styles.cell, styles.cellBottom)} onClick={onClose}>
+      {hasNewMessages && (
+        <button className={styles.cell} onClick={handleMarkAsRead}>
+          <div className={styles.text}>Пометить прочитанным</div>
+          <div className={styles.icon}>
+            <MarkRead />
+          </div>
+        </button>
+      )}
+      <button className={clsx(styles.cell, styles.cellBottom)} onClick={handleDelete}>
         <div className={clsx(styles.text, styles.textRed)}>Удалить чат</div>
         <div className={styles.icon}>
           <DeleteOutline />

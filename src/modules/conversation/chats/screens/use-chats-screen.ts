@@ -14,13 +14,17 @@ type UseChatsScreenReturn = {
   search: string;
   setSearch: (q: string) => void;
   clearSearch: () => void;
+  modalSearch: string;
+  setModalSearch: (s: string) => void;
+  clearModalSearch: () => void;
   is_active: boolean;
   setIsActive: (q: boolean) => void;
   is_blocked: boolean;
   setIsBlocked: (q: boolean) => void;
   is_favorite: boolean;
   setIsFavorite: (q: boolean) => void;
-  chats: Chat[] | undefined;
+  chats: Chat[];
+  modalChats: Chat[];
 };
 
 export const useChatsScreen = (): UseChatsScreenReturn => {
@@ -31,6 +35,10 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
   const search = useChatsStore((s) => s.search);
   const setSearch = useChatsStore((s) => s.setSearch);
   const clearSearch = useChatsStore((s) => s.clearSearch);
+
+  const modalSearch = useChatsStore((s) => s.modalSearch);
+  const setModalSearch = useChatsStore((s) => s.setModalSearch);
+  const clearModalSearch = useChatsStore((s) => s.clearModalSearch);
 
   const is_active = useChatsStore((s) => s.is_active);
   const setIsActive = useChatsStore((s) => s.setIsActive);
@@ -48,6 +56,34 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
 
   const chats = useMemo(() => myChats?.pages.flatMap((page) => page.results.map(mapChatFromApi)) ?? [], [myChats]);
 
+  const normalizedSearch = search.trim().toLowerCase();
+  const filteredChats = normalizedSearch
+    ? chats?.filter((c) => `${c.peer.firstName} ${c.peer.lastName}`.toLowerCase().includes(normalizedSearch))
+    : chats;
+
+  const sortedChats = filteredChats.sort((a, b) => {
+    if (a.chat.is_favorite !== b.chat.is_favorite) {
+      return a.chat.is_favorite ? -1 : 1;
+    }
+
+    const aCreatedAt = a.messages.lastMessage?.createdAt || 0;
+    const bCreatedAt = b.messages.lastMessage?.createdAt || 0;
+
+    return bCreatedAt - aCreatedAt;
+  });
+
+  const normalizedModalSearch = modalSearch.trim().toLowerCase();
+  const filteredModalChats = normalizedModalSearch
+    ? chats?.filter((c) => `${c.peer.firstName} ${c.peer.lastName}`.toLowerCase().includes(normalizedModalSearch))
+    : chats;
+
+  const sortedModalChats = filteredModalChats.sort((a, b) => {
+    const aCreatedAt = a.messages.lastMessage?.createdAt || 0;
+    const bCreatedAt = b.messages.lastMessage?.createdAt || 0;
+
+    return bCreatedAt - aCreatedAt;
+  });
+
   return {
     ordering,
     setOrdering,
@@ -55,12 +91,16 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
     search,
     setSearch,
     clearSearch,
+    modalSearch,
+    setModalSearch,
+    clearModalSearch,
     is_active,
     setIsActive,
     is_blocked,
     setIsBlocked,
     is_favorite,
     setIsFavorite,
-    chats,
+    chats: sortedChats,
+    modalChats: sortedModalChats,
   };
 };

@@ -1,0 +1,18 @@
+@use 'shared/styles/03_mixins' as mixins;
+
+.wrapper {
+  @include mixins.flex-box($align: end);
+  width: 3.5rem;
+  height: 3.5rem;
+}
+
+.circle {
+  @include mixins.flex-box();
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0.033rem;
+  border-radius: 50%;
+  background-color: var(--surface-base);
+  border-color: #0000004d;
+  color: rgba(0, 0, 0, 0.3);
+}

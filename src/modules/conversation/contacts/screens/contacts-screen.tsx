@@ -3,22 +3,14 @@
 import {
   DeleteSelectedContactsButton,
   DeleteSelectedContactsModal,
-  useContactsSelectionStore,
 } from 'modules/conversation/contacts/features/contacts-selection';
 import { ContactsPanel } from 'modules/conversation/contacts/widgets/contacts-panel/';
 import { ConversationEmptyState, ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
-import { JSX, useEffect } from 'react';
+import { JSX } from 'react';
 import { useContactsScreen } from './use-contacts-screen';
 
 export const ContactsScreen = (): JSX.Element => {
   const { query, setQuery, clearQuery, contacts, globals } = useContactsScreen();
-  const setContacts = useContactsSelectionStore((s) => s.setContacts);
-  const setGlobals = useContactsSelectionStore((s) => s.setGlobals);
-
-  useEffect(() => {
-    setContacts(contacts ?? []);
-    setGlobals(globals ?? []);
-  }, [contacts, globals, setContacts, setGlobals]);
 
   const renderWithLayout = (content: JSX.Element): JSX.Element => (
     <>

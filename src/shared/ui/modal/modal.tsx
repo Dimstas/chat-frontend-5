@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import React, { JSX } from 'react';
 import { ButtonUI } from '../button';
 import styles from './modal.module.scss';
@@ -29,6 +30,7 @@ import styles from './modal.module.scss';
  */
 
 type ModalProps = {
+  icon?: JSX.Element;
   title?: string;
   content: string;
   firstButtonText?: string;
@@ -39,6 +41,7 @@ type ModalProps = {
 };
 
 export const Modal: React.FC<ModalProps> = ({
+  icon,
   title,
   content,
   firstButtonText,
@@ -53,9 +56,19 @@ export const Modal: React.FC<ModalProps> = ({
     }
   };
 
+  const hasButtons = firstButtonText || secondButtonText;
+  const appearance = secondButtonText === 'Заблокировать' || 'Очистить' ? 'warn' : 'secondary';
+
   return (
     <div className={styles.backdrop} onClick={handleBackdropClick}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby={title ? 'modal-title' : undefined}>
+      <div
+        className={clsx(hasButtons ? styles.modal : styles.infoModal)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={title ? 'modal-title' : undefined}
+      >
+        {icon && <div className={styles.icon}>{icon}</div>}
+
         {title && (
           <div id="modal-title" className={styles.title}>
             {title}
@@ -66,29 +79,31 @@ export const Modal: React.FC<ModalProps> = ({
         <p className={styles.content}>{content}</p>
 
         {/* Кнопки */}
-        <div className={styles.buttonContainer}>
-          {secondButtonText && (
-            <ButtonUI
-              variant="modal"
-              appearance="secondary"
-              label={secondButtonText}
-              onClick={() => {
-                if (onSecondButtonClick) onSecondButtonClick();
-              }}
-            />
-          )}
+        {hasButtons && (
+          <div className={styles.buttonContainer}>
+            {secondButtonText && (
+              <ButtonUI
+                variant="modal"
+                appearance={appearance}
+                label={secondButtonText}
+                onClick={() => {
+                  if (onSecondButtonClick) onSecondButtonClick();
+                }}
+              />
+            )}
 
-          {firstButtonText && (
-            <ButtonUI
-              variant="modal"
-              appearance="primary"
-              label={firstButtonText}
-              onClick={() => {
-                if (onFirstButtonClick) onFirstButtonClick();
-              }}
-            />
-          )}
-        </div>
+            {firstButtonText && (
+              <ButtonUI
+                variant="modal"
+                appearance="primary"
+                label={firstButtonText}
+                onClick={() => {
+                  if (onFirstButtonClick) onFirstButtonClick();
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

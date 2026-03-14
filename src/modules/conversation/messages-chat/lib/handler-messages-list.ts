@@ -2,11 +2,11 @@ import { getMessageDate } from 'modules/conversation/messages-chat/lib/get-messa
 import type { RestMessageApi } from '../model/messages-list';
 
 export const handlerMessagesList = (
-  messagesList: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[],
-): { [date: string]: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[] } => {
+  messagesList: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' })[],
+): { [date: string]: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' })[] } => {
   const groupedMessagesList = messagesList.reduce<{
-    [date: string]: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' })[];
-  }>((acc, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' }) => {
+    [date: string]: (RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' })[];
+  }>((acc, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => {
     const date = getMessageDate(message.created_at);
     if (!acc[date]) {
       acc[date] = [];
