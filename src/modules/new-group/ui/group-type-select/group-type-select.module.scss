@@ -17,7 +17,8 @@
 
 .field {
   @include mixins.flex-box($direction: row, $justify: space-between, $align: center);
-  padding: 1rem 1.6rem;
+  padding: 1rem 0rem;
+  padding-right: 1.6rem;
   border-radius: 0.8rem;
   background: #fff;
   cursor: pointer;

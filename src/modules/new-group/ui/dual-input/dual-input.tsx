@@ -1,5 +1,6 @@
+// components/dual-input/dual-input.tsx
 import Image from 'next/image';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useDualInput } from '../../lib/dual-input/use-dual-input';
 import styles from './dual-input.module.scss';
 
@@ -29,8 +30,8 @@ const DualInput: React.FC<DualInputProps> = ({
     secondFocused,
     firstLength,
     secondLength,
-    handleFirstChange,
-    handleSecondChange,
+    setFirstLength,
+    setSecondLength,
     handleFirstFocus,
     handleFirstBlur,
     handleSecondFocus,
@@ -44,14 +45,47 @@ const DualInput: React.FC<DualInputProps> = ({
     initialSecond: valueSecond,
   });
 
-  const onFirstChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    handleFirstChange(e);
-    onChangeFirst?.(e.target.value);
+  const firstTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const secondTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const adjustFirstHeight = (): void => {
+    const textarea = firstTextareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
   };
 
-  const onSecondChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    handleSecondChange(e);
-    onChangeSecond?.(e.target.value);
+  const adjustSecondHeight = (): void => {
+    const textarea = secondTextareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustFirstHeight();
+  }, [valueFirst]);
+
+  useEffect(() => {
+    adjustSecondHeight();
+  }, [valueSecond]);
+
+  const onFirstChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    const newValue = e.target.value;
+    if (newValue.length <= maxFirst) {
+      onChangeFirst?.(newValue);
+      setFirstLength(newValue.length);
+    }
+  };
+
+  const onSecondChange = (e: React.ChangeEvent<HTMLTextAreaElement>): void => {
+    const newValue = e.target.value;
+    if (newValue.length <= maxSecond) {
+      onChangeSecond?.(newValue);
+      setSecondLength(newValue.length);
+    }
   };
 
   const onClearFirst = (): void => {
@@ -71,13 +105,14 @@ const DualInput: React.FC<DualInputProps> = ({
           <label className={`${styles.label} ${firstFocused || valueFirst ? styles.labelActive : ''}`}>
             {placeholderFirst}
           </label>
-          <input
-            type="text"
+          <textarea
+            ref={firstTextareaRef}
             value={valueFirst}
             onChange={onFirstChange}
             onFocus={handleFirstFocus}
             onBlur={handleFirstBlur}
             className={styles.input}
+            rows={1}
           />
           {firstFocused && (
             <>
@@ -107,13 +142,14 @@ const DualInput: React.FC<DualInputProps> = ({
           <label className={`${styles.label} ${secondFocused || valueSecond ? styles.labelActive : ''}`}>
             {placeholderSecond}
           </label>
-          <input
-            type="text"
+          <textarea
+            ref={secondTextareaRef}
             value={valueSecond}
             onChange={onSecondChange}
             onFocus={handleSecondFocus}
             onBlur={handleSecondBlur}
             className={styles.input}
+            rows={1}
           />
           {secondFocused && (
             <>

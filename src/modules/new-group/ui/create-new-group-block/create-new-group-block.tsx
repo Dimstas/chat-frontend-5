@@ -3,6 +3,7 @@
 import { useImageUpload } from 'modules/settings/lib/edit-profile-block/use-image-upload';
 import { ImageCropperModal } from 'modules/settings/ui/image-cropper/image-cropper-modal';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { JSX, useState } from 'react';
 import { ButtonUI } from 'shared/ui';
 import DualInput from '../dual-input/dual-input';
@@ -21,6 +22,7 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
     closeCropper,
   } = useImageUpload();
 
+  const router = useRouter();
   const [croppedZoom, setCroppedZoom] = useState<number | null>(null);
 
   const [groupName, setGroupName] = useState('');
@@ -29,6 +31,10 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
   const handleConfirmCrop = (file: File, zoom: number): void => {
     setCroppedZoom(zoom);
     closeCropper();
+  };
+
+  const next = (): void => {
+    router.push('/new-group/invite-members');
   };
 
   const avatarSrc = previewUrl || '/images/settings/noAvatarIcon.svg';
@@ -73,13 +79,7 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
           {imageUploadError && <div className={styles.error}>{imageUploadError}</div>}
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            console.log('Сохранение группы', { groupName, groupDescription });
-          }}
-          className={styles.profileForm}
-        >
+        <div className={styles.profileForm}>
           <DualInput
             maxFirst={100}
             maxSecond={250}
@@ -93,8 +93,15 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
 
           <GroupTypeSelect initial="closed" onChange={(type) => console.log('Выбран тип:', type)} />
 
-          <ButtonUI variant="general" appearance="primary" label="Далее" type="submit" disabled={true} />
-        </form>
+          <ButtonUI
+            variant="general"
+            appearance="primary"
+            label="Далее"
+            type="button"
+            disabled={false}
+            onClick={next}
+          />
+        </div>
       </div>
 
       {isCropperOpen && (

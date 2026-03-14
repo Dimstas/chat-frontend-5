@@ -12,6 +12,8 @@ export const ContactsPanel = ({
   contacts?: Contact[];
   variant: 'personal' | 'globals';
 }): JSX.Element => {
+  console.log(contacts, 'vot');
+
   return (
     <div>
       <SectionHeaderSelection variant={variant} />

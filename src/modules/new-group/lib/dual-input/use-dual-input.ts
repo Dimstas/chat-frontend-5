@@ -1,4 +1,5 @@
-import { ChangeEvent, useState } from 'react';
+// lib/dual-input/use-dual-input.ts
+import { useState } from 'react';
 
 type UseDualInputProps = {
   maxFirst?: number;
@@ -12,8 +13,8 @@ type UseDualInputReturn = {
   secondFocused: boolean;
   firstLength: number;
   secondLength: number;
-  handleFirstChange: (e: ChangeEvent<HTMLInputElement>) => void;
-  handleSecondChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  setFirstLength: (length: number) => void;
+  setSecondLength: (length: number) => void;
   handleFirstFocus: () => void;
   handleFirstBlur: () => void;
   handleSecondFocus: () => void;
@@ -28,24 +29,10 @@ export const useDualInput = ({
   initialFirst = '',
   initialSecond = '',
 }: UseDualInputProps = {}): UseDualInputReturn => {
-  const [firstFocused, setFirstFocused] = useState<boolean>(false);
-  const [secondFocused, setSecondFocused] = useState<boolean>(false);
-  const [firstLength, setFirstLength] = useState<number>(initialFirst.length);
-  const [secondLength, setSecondLength] = useState<number>(initialSecond.length);
-
-  const handleFirstChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-    if (value.length <= maxFirst) {
-      setFirstLength(value.length);
-    }
-  };
-
-  const handleSecondChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-    if (value.length <= maxSecond) {
-      setSecondLength(value.length);
-    }
-  };
+  const [firstFocused, setFirstFocused] = useState(false);
+  const [secondFocused, setSecondFocused] = useState(false);
+  const [firstLength, setFirstLength] = useState(initialFirst.length);
+  const [secondLength, setSecondLength] = useState(initialSecond.length);
 
   const handleFirstFocus = (): void => setFirstFocused(true);
   const handleFirstBlur = (): void => setFirstFocused(false);
@@ -60,8 +47,8 @@ export const useDualInput = ({
     secondFocused,
     firstLength,
     secondLength,
-    handleFirstChange,
-    handleSecondChange,
+    setFirstLength,
+    setSecondLength,
     handleFirstFocus,
     handleFirstBlur,
     handleSecondFocus,
