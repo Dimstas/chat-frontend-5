@@ -5,6 +5,7 @@ type UseFixedTargetIndex = {
   targetIndex: number | null;
   setTargetIndex: (i: number | null) => void;
   lastIndex: number;
+  currentFirstUnreadIncoming: number;
 };
 
 export const useFixedTargetIndex = (
@@ -58,5 +59,5 @@ export const useFixedTargetIndex = (
   // иначе (есть ещё непрочитанные) — НЕ меняем initialTargetIndex
 
   // Возвращаем зафиксированный индекс (если null — временно можно возвращать -1)
-  return { targetIndex: targetIndex ?? -1, setTargetIndex, lastIndex };
+  return { targetIndex: targetIndex ?? -1, setTargetIndex, lastIndex, currentFirstUnreadIncoming };
 };

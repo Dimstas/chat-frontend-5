@@ -45,7 +45,7 @@ export const MessagesList = ({
 
   const { results, messagesLength } = useMemo(() => {
     const messages = messagesByUser ?? [];
-    //console.log(messages);
+    console.log(messages);
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 
@@ -63,7 +63,10 @@ export const MessagesList = ({
       .forEach((m) => flatList.push({ date, message: m }));
   });
   //вычисляем targetIndex: первого непрочитанного входящего, иначе последний элемент
-  const { targetIndex, setTargetIndex, lastIndex } = useFixedTargetIndex(results, currentUserId);
+  const { targetIndex, setTargetIndex, lastIndex, currentFirstUnreadIncoming } = useFixedTargetIndex(
+    results,
+    currentUserId,
+  );
 
   // хук ws + hook для определения прочтения видимости
   const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
@@ -71,12 +74,20 @@ export const MessagesList = ({
 
   // Эффект прокрутки к targetIndex (если есть)
   useEffect(() => {
+    console.log(targetIndex);
     if (targetIndex === -1) return;
+    if (
+      currentFirstUnreadIncoming !== -1 &&
+      targetIndex !== null &&
+      currentFirstUnreadIncoming - 1 > targetIndex &&
+      currentFirstUnreadIncoming - 1 < lastIndex
+    )
+      return;
     const el = targetItemRef.current;
     if (!el) return;
     el.scrollIntoView({ behavior: 'auto', block: 'start' });
     //размонтируем targetIndex
-    if (targetIndex === lastIndex || targetIndex === -1) setTargetIndex(null);
+    if (targetIndex === lastIndex) setTargetIndex(null);
   }, [results, messagesLength, targetIndex]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
@@ -210,7 +221,7 @@ export const MessagesList = ({
                     tabIndex={-1}
                     ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : undefined}
                   >
-                    {isTarget && lastIndex - targetIndex > 14 && (
+                    {targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === userIdStore ? (
