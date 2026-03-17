@@ -1,10 +1,10 @@
 import { string, z } from 'zod';
 
+//RequestCreatingMessageApi
 const serializerFileMessageApiSchema = z.object({
   filename: z.string().default('document.pdf'),
   data: z.string().default('UERGLTEuNCBmaWxlIGNvbnRlbnQ='),
 });
-
 const serializerRequestObjectCreateMessageApiSchema = z.object({
   to_user_uid: z.string().nullable().optional(),
   chat_key: z.string().nullable().optional(),
@@ -14,7 +14,6 @@ const serializerRequestObjectCreateMessageApiSchema = z.object({
   replied_messages: z.array(string()).nullable().optional(),
   forwarded_messages: z.array(string()).nullable().optional(),
 });
-
 export const serializerRequestCreatingMessageApiSchema = z.object({
   action: z.enum(['create_text_message']),
   request_uid: z.string().optional(),
@@ -23,6 +22,7 @@ export const serializerRequestCreatingMessageApiSchema = z.object({
 
 export type CreateTextMessageAPI = z.infer<typeof serializerRequestCreatingMessageApiSchema>;
 
+//RequestChangeStatusReadMessageApi
 const serializerRequestObjectChangeStatusReadMessageApiSchema = z.object({
   uid: z.string(),
   reader_uid: z.string().nullable().optional(),
@@ -36,3 +36,16 @@ export const serializerRequestChangeStatusReadMessageApiSchema = z.object({
   object: serializerRequestObjectChangeStatusReadMessageApiSchema,
 });
 export type ChangeStatusReadMessageAPI = z.infer<typeof serializerRequestChangeStatusReadMessageApiSchema>;
+
+//RequestDeleteMessageApi
+const serializerRequestObjectDeleteMessageApiSchema = z.object({
+  uid: z.string(),
+  for_all: z.boolean().optional(),
+  chat_key: z.string().optional(),
+});
+export const serializerRequestDeleteMessageApiSchema = z.object({
+  action: z.enum(['delete_message']),
+  request_uid: z.string().optional(),
+  object: serializerRequestObjectDeleteMessageApiSchema,
+});
+export type DeleteMessageApi = z.infer<typeof serializerRequestDeleteMessageApiSchema>;

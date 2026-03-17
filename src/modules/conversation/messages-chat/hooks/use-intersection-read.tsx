@@ -3,7 +3,7 @@ import type { RestMessageApi } from '../model/messages-list';
 
 type UseIntersectionReadOptions = {
   threshold?: number; // default 0.6
-  holdMs?: number; // default 500
+  holdMs?: number; // default 100
   root?: Element | null;
   rootMargin?: string;
 };
@@ -16,7 +16,7 @@ export function useIntersectionRead(
   onRead: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void,
   options: UseIntersectionReadOptions = {},
 ): UseIntersectionRead {
-  const { threshold = 0.6, holdMs = 500, root = null, rootMargin = '0px' } = options;
+  const { threshold = 0.6, holdMs = 100, root = null, rootMargin = '0px' } = options;
 
   const reportedRef = useRef<Set<string>>(new Set());
   const timersRef = useRef<Map<Element, ReturnType<typeof setTimeout>>>(new Map());

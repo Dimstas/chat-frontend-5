@@ -5,6 +5,7 @@ import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { useIntersectionRead } from '../../hooks/use-intersection-read';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
 import type { MessagesListApiResponse, RestMessageApi } from '../../model/messages-list';
+import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
@@ -32,6 +33,7 @@ export const MessagesList = ({
 }): JSX.Element => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const targetItemRef = useRef<HTMLDivElement | null>(null);
+  const lastItemRef = useRef<HTMLDivElement | null>(null);
   const userIdStore = useUserIdStore((s) => s.userId);
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]);
   const setMessagesForUser = useMessagesChatStore((s) => s.setMessagesForUser);
@@ -139,7 +141,7 @@ export const MessagesList = ({
       if (!entry) return;
       if (entry.isIntersecting) {
         // Если sentinel пересёкся — вызовем безопасный fetchOlder
-        fetchOlder();
+        if (currentFirstUnreadIncoming === -1) fetchOlder();
       }
     };
 
@@ -154,7 +156,7 @@ export const MessagesList = ({
     return () => {
       observer.disconnect();
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, messagesLength]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, results, messagesLength]);
 
   // подгружаем когда пользователь приблизится к 1 элементу от вверха
   const triggerIndex = 1;
@@ -184,10 +186,18 @@ export const MessagesList = ({
   }, []);
   // обработчик события onClick для компонента  <ScrollButton /> медленно скролит в низ до первого сообщения
   const onClickScrollButton = (): void => {
-    if (targetIndex === -1) return;
-    const el = targetItemRef.current;
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (targetIndex === lastIndex) {
+      console.log('targetIndex: ', targetIndex);
+      const el = targetItemRef.current;
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.log('lastIndex: ', lastIndex);
+      const el = lastItemRef.current;
+      const container = wrapperRef.current;
+      if (!el || !container || !targetIndex) return;
+      smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * 100);
+    }
   };
 
   return (
@@ -214,12 +224,13 @@ export const MessagesList = ({
 
                 const isTarget = globalIndex === targetIndex;
                 const isSentinel = globalIndex === triggerIndex;
+                const isLast = globalIndex === lastIndex;
 
                 return (
                   <div
                     key={globalIndex}
                     tabIndex={-1}
-                    ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : undefined}
+                    ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : isLast ? lastItemRef : undefined}
                   >
                     {targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
