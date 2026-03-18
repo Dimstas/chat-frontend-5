@@ -1,4 +1,5 @@
 'use client';
+import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import { JSX, MouseEvent, useState } from 'react';
 import type { RestMessageApi } from '../../../model/messages-list';
@@ -8,9 +9,11 @@ import styles from './incoming-message-card.module.scss';
 export const IncomingMessagesCard = ({
   message,
   register,
+  sendDeleteMessage,
 }: {
   message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
   register: (el: Element | null, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
+  sendDeleteMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
 }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -33,6 +36,23 @@ export const IncomingMessagesCard = ({
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
+
+  const { confirm } = useAlert();
+
+  const handleDeleteClick = async (): Promise<void> => {
+    const ok = await confirm({
+      title: 'Удалить сообщение',
+      message: 'Вы действительно хотите удалить сообщение?',
+    });
+
+    if (ok) {
+      // вызываем переданный обработчик удаления
+      sendDeleteMessage(message);
+    } else {
+      // отмена — ничего не делаем
+    }
+  };
+
   return (
     <div
       className={styles.wrapper}
@@ -42,7 +62,12 @@ export const IncomingMessagesCard = ({
         register(el, message);
       }}
     >
-      <ContextMenu position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
+      <ContextMenu
+        position={contextMenuPos}
+        visible={contextMenuVisible}
+        onClose={handleCloseMenu}
+        handleDeleteClick={handleDeleteClick}
+      />
       <div className={styles.item}>
         <div className={styles.message}>
           <span className={styles.messageText}> {message.content} </span>

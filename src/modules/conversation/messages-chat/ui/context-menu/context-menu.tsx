@@ -11,10 +11,12 @@ export const ContextMenu = ({
   position,
   visible,
   onClose,
+  handleDeleteClick,
 }: {
   position: { x: number; y: number };
   visible: boolean;
   onClose: () => void;
+  handleDeleteClick: () => Promise<void>;
 }): JSX.Element | null => {
   if (!visible) return null;
   return (
@@ -43,7 +45,7 @@ export const ContextMenu = ({
           <Check />
         </div>
       </button>
-      <button className={clsx(styles.cell, styles.cellBottom)} onClick={onClose}>
+      <button className={clsx(styles.cell, styles.cellBottom)} onClick={handleDeleteClick}>
         <div className={clsx(styles.text, styles.textRed)}>Удалить</div>
         <div className={styles.icon}>
           <Delete />

@@ -2,7 +2,7 @@
 import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult } from '@tanstack/react-query';
 import { JSX, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
-import { useIntersectionRead } from '../../hooks/use-intersection-read';
+import { READING_TIME, useIntersectionRead } from '../../hooks/use-intersection-read';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
 import type { MessagesListApiResponse, RestMessageApi } from '../../model/messages-list';
 import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
@@ -71,7 +71,7 @@ export const MessagesList = ({
   );
 
   // хук ws + hook для определения прочтения видимости
-  const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
+  const { sendChangeStatusReadMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
 
   // Эффект прокрутки к targetIndex (если есть)
@@ -196,7 +196,7 @@ export const MessagesList = ({
       const el = lastItemRef.current;
       const container = wrapperRef.current;
       if (!el || !container || !targetIndex) return;
-      smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * 100);
+      smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME);
     }
   };
 
@@ -236,7 +236,11 @@ export const MessagesList = ({
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === userIdStore ? (
-                      <IncomingMessagesCard message={message} register={register} />
+                      <IncomingMessagesCard
+                        message={message}
+                        register={register}
+                        sendDeleteMessage={sendDeleteMessage}
+                      />
                     ) : (
                       <OutgoingMessagesCard message={message} />
                     )}

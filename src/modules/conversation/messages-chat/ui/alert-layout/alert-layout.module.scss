@@ -1,0 +1,96 @@
+@use 'shared/styles/03_mixins' as mixins;
+
+.wrapperIncoming {
+  @include mixins.flex-box($direction: column, $gap: 2rem);
+  width: 40rem;
+  height: 15.1rem;
+  border-radius: 0.8rem;
+  padding: 2.3rem;
+  background-color: var(--text-inverse);
+}
+.contentIncoming {
+  @include mixins.flex-box($direction: column, $gap: 0.8rem);
+  width: 100%;
+  height: 5.1rem;
+}
+.titleIncoming {
+  @include mixins.flex-box($justify: start);
+  width: 100%;
+  height: 2.2rem;
+  font-style: medium;
+  line-height: 1.2;
+  font-size: 1.8rem;
+  letter-spacing: 0.01;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.textIncoming {
+  @include mixins.flex-box($justify: start);
+  width: 100%;
+  height: 2.1rem;
+  line-height: 1.3rem;
+  font-size: 1.6rem;
+  letter-spacing: 0.01;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+.buttonsBlock {
+  @include mixins.flex-box($justify: end, $gap: 0.8rem);
+  width: 100%;
+  height: 3.2rem;
+}
+.buttonCancel {
+  @include mixins.flex-box();
+  width: 9rem;
+  height: 3.2rem;
+  border-radius: 0.4rem;
+  padding: 0.6rem 1.6rem;
+  color: var(--brand-primary);
+}
+
+.buttonDelete {
+  @include mixins.flex-box();
+  width: 9rem;
+  height: 3.2rem;
+  border-radius: 0.4rem;
+  padding: 0.6rem 1.6rem;
+  background-color: var(--brand-primary);
+  color: var(--text-inverse);
+}
+.textButton {
+  @include mixins.flex-box();
+  width: 100%;
+  height: 2.4rem;
+  line-height: 2.4rem;
+  font-size: 1.6rem;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+// .textButtonCancel {
+//   color: var(--brand-primary);
+// }
+// .textButtonDelete {
+//   color: var(--text-inverse);
+// }
+.buttonCancel:hover {
+  color: var(--brand-violet-white);
+}
+.buttonCancel:active {
+  color: var(--brand-dark);
+}
+// .textButtonDelete:hover {
+//   color: var(--brand-primary);
+// }
+// .textButtonDelete:active {
+//   color: var(--text-inverse);
+// }
+.buttonDelete:hover {
+  background-color: var(--brand-violet-white);
+  color: var(--brand-primary);
+}
+.buttonDelete:active {
+  background-color: var(--brand-dark);
+  color: var(--text-inverse);
+}

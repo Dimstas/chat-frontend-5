@@ -10,6 +10,7 @@ type MessagesChatState = {
   addMessageForUser: (userId: string, m: Msg) => void;
   upsertMessageForUser: (userId: string, m: Msg) => void;
   updateMessageByUidForUser: (userId: string, request_uid: string, patch: Partial<Msg>) => void;
+  deleteMessageByUidForUser: (userId: string, m: Msg) => void;
 };
 
 export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
@@ -80,6 +81,21 @@ export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
           [userId]: prev.map((msg) => (msg.uid === request_uid ? { ...msg, ...patch } : msg)),
         },
       };
+    }),
+
+  deleteMessageByUidForUser: (userId: string, m: Msg): void =>
+    set((s) => {
+      const prev = s.messagesByUser[userId] ?? [];
+      const exists = prev.find((x) => x.uid === m.uid);
+      if (exists) {
+        return {
+          messagesByUser: {
+            ...s.messagesByUser,
+            [userId]: prev.filter((x) => x.uid !== m.uid),
+          },
+        };
+      }
+      return { messagesByUser: { ...s.messagesByUser, [userId]: [...prev] } };
     }),
 }));
 

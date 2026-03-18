@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react';
 import type { RestMessageApi } from '../model/messages-list';
 
+export const READING_TIME = 100;
 type UseIntersectionReadOptions = {
   threshold?: number; // default 0.6
   holdMs?: number; // default 100
   root?: Element | null;
   rootMargin?: string;
 };
-
 type UseIntersectionRead = {
   register: (el: Element | null, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
 };
@@ -16,7 +16,7 @@ export function useIntersectionRead(
   onRead: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void,
   options: UseIntersectionReadOptions = {},
 ): UseIntersectionRead {
-  const { threshold = 0.6, holdMs = 100, root = null, rootMargin = '0px' } = options;
+  const { threshold = 0.6, holdMs = READING_TIME, root = null, rootMargin = '0px' } = options;
 
   const reportedRef = useRef<Set<string>>(new Set());
   const timersRef = useRef<Map<Element, ReturnType<typeof setTimeout>>>(new Map());
