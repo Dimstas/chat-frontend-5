@@ -9,7 +9,7 @@ import styles from './select-chat-modal.module.scss';
 type SelectChatModalProps = {
   title: string;
   onClose: () => void;
-  onSelect: () => void;
+  onSelect: (toUid: string) => void;
 };
 
 export const SelectChatModal: React.FC<SelectChatModalProps> = ({
@@ -26,8 +26,8 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
     }
   };
 
-  const handleSelectClick = (): void => {
-    onSelect();
+  const handleSelectClick = (toUid: string): void => {
+    onSelect(toUid);
     clearSelected();
     onClose();
   };
@@ -48,7 +48,7 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
           <>
             <ul>
               {modalChats.map((c) => (
-                <ChatCardModal key={c.peer.uid} chat={c} onSelectHandler={handleSelectClick} />
+                <ChatCardModal key={c.peer.uid} chat={c} onSelectHandler={() => handleSelectClick(c.peer.uid)} />
               ))}
             </ul>
           </>
