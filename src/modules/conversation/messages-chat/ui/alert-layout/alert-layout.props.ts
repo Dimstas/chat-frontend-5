@@ -5,6 +5,10 @@ export type AlertLayoutProps = {
   okText?: string;
   cancelText?: string;
   showCheckBox?: boolean;
+  labelCheckBox?: string;
   onOk: () => void;
   onCancel: () => void;
+};
+export type CheckBoxProps = {
+  labelCheckBox: string | undefined;
 };

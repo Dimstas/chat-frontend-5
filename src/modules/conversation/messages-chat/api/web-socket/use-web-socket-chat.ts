@@ -17,7 +17,10 @@ import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustan
 type UseWebSocketChat = {
   sendMessage: (content: string) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
-  sendDeleteMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
+  sendDeleteMessage: (
+    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
+    selected?: boolean,
+  ) => void;
 };
 
 export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSocketChat {
@@ -68,7 +71,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
     socket.onmessage = (event: MessageEvent): void => {
       const data = JSON.parse(event.data);
-
+      //console.log(data);
       //Cобытия:
       // 1.Подтверждает отправленние созданного исходящего сообщения по request_uid
       if (
@@ -131,10 +134,16 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       //6.входящее ws-сообщение delete_message oб удалении входящего сообщения
       if (
         data.action === 'delete_message' &&
-        data.status === 'OK' &&
-        data.object.to_user.uid === currentUserIdRef.current
+        data.status === 'OK'
+        //data.object.to_user.uid === currentUserIdRef.current
       ) {
-        console.log('Входящее сообщение об удалении входящего сообщения :', data);
+        console.log('Cообщение сервера об удалении входящего либо исходящего сообщения :', data);
+        // локально удаляем сообщение из store и сразу его отсутствие показываем в DOM
+        if (data.object.from_user.uid === currentUserIdRef.current) {
+          deleteMessageByUidForUser(data.object.to_user.uid, data.object.uid);
+        } else {
+          deleteMessageByUidForUser(data.object.from_user.uid, data.object.uid);
+        }
         pendingTimeouts.current.delete(data.request_uid);
       }
     };
@@ -269,7 +278,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция удаления сообщения
   const sendDeleteMessage = useCallback(
-    (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
+    (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }, for_all?: boolean | null): void => {
+      //console.log('Start: ', for_all);
       if (!message.uid) return;
       const requestUid = crypto.randomUUID();
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
@@ -278,14 +288,14 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         request_uid: requestUid,
         object: {
           uid: message.uid,
-          for_all: true,
+          for_all: for_all ?? false,
           //chat_key: '',
         },
       };
       //валидация c помощью zod
       const resultZod = serializerRequestDeleteMessageApiSchema.safeParse(payloadMessage);
       // локально удаляем сообщение из store и сразу его отсутствие показываем в DOM
-      deleteMessageByUidForUser(userIdRef.current, message);
+      deleteMessageByUidForUser(userIdRef.current, message.uid);
       const socket = wsRef.current;
       if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
         //отправляем запрос

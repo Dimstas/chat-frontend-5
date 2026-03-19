@@ -10,6 +10,7 @@ export type AlertOptions = {
   okText?: string;
   cancelText?: string;
   showCheckBox?: boolean;
+  labelCheckBox?: string;
   closeOnScrim?: boolean;
   blurPage?: boolean;
   blurAmount?: number;
@@ -176,7 +177,8 @@ export const AlertProvider = ({
                   message={a.message}
                   okText={a.okText ?? 'Удалить'}
                   cancelText={a.cancelText ?? 'Отмена'}
-                  showCheckBox={a.showCheckBox !== false}
+                  showCheckBox={a.showCheckBox}
+                  labelCheckBox={a.labelCheckBox}
                   onOk={() => handleOk(a.id)}
                   onCancel={() => handleCancel(a.id)}
                 />

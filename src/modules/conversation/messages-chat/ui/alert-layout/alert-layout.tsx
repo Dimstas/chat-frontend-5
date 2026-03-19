@@ -1,8 +1,9 @@
+'use client';
 import clsx from 'clsx';
-import { JSX } from 'react';
+import { JSX, useEffect, useState } from 'react';
+import { useForAllDeleteStore } from '../../zustand-store/zustand-store';
 import styles from './alert-layout.module.scss';
-import type { AlertLayoutProps } from './alert-layout.props';
-
+import type { AlertLayoutProps, CheckBoxProps } from './alert-layout.props';
 export const AlertLayout = ({
   id,
   title,
@@ -10,6 +11,7 @@ export const AlertLayout = ({
   okText = 'Удалить',
   cancelText = 'Отмена',
   showCheckBox = false,
+  labelCheckBox,
   onOk,
   onCancel,
 }: AlertLayoutProps): JSX.Element => {
@@ -25,7 +27,7 @@ export const AlertLayout = ({
         <div className={styles.titleIncoming}>{title}</div>
         <div className={styles.textIncoming}>{message}</div>
       </div>
-      {showCheckBox && <CheckBox />}
+      {showCheckBox && <CheckBox labelCheckBox={labelCheckBox} />}
       <div className={styles.buttonsBlock}>
         <button className={styles.buttonCancel} onClick={onCancel}>
           <div className={clsx(styles.textButton, styles.textButton)}>{cancelText}</div>
@@ -38,6 +40,28 @@ export const AlertLayout = ({
   );
 };
 
-const CheckBox = (): JSX.Element => {
-  return <></>;
+const CheckBox = ({ labelCheckBox }: CheckBoxProps): JSX.Element => {
+  const [selected, setSelected] = useState<boolean>(true);
+  const setForAllDeleteStore = useForAllDeleteStore((s) => s.setForAllDelete);
+  useEffect(() => setForAllDeleteStore(selected), [selected, setForAllDeleteStore]);
+
+  const handleChange = (): void => {
+    setSelected(!selected);
+  };
+  return (
+    <div className={styles.checkBox}>
+      <input
+        id="delete"
+        name="delete"
+        type="checkbox"
+        className={styles.check}
+        checked={selected}
+        onChange={() => handleChange()}
+        aria-describedby="Удалить у всех"
+      />
+      <label htmlFor="delete" className={styles.labelCheck}>
+        {labelCheckBox}
+      </label>
+    </div>
+  );
 };

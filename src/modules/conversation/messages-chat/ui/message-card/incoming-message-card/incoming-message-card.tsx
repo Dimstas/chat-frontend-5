@@ -13,7 +13,10 @@ export const IncomingMessagesCard = ({
 }: {
   message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
   register: (el: Element | null, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
-  sendDeleteMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
+  sendDeleteMessage: (
+    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
+    selected?: boolean,
+  ) => void;
 }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -43,6 +46,7 @@ export const IncomingMessagesCard = ({
     const ok = await confirm({
       title: 'Удалить сообщение',
       message: 'Вы действительно хотите удалить сообщение?',
+      showCheckBox: false,
     });
 
     if (ok) {

@@ -10,7 +10,7 @@ type MessagesChatState = {
   addMessageForUser: (userId: string, m: Msg) => void;
   upsertMessageForUser: (userId: string, m: Msg) => void;
   updateMessageByUidForUser: (userId: string, request_uid: string, patch: Partial<Msg>) => void;
-  deleteMessageByUidForUser: (userId: string, m: Msg) => void;
+  deleteMessageByUidForUser: (userId: string, uid: string) => void;
 };
 
 export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
@@ -83,15 +83,15 @@ export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
       };
     }),
 
-  deleteMessageByUidForUser: (userId: string, m: Msg): void =>
+  deleteMessageByUidForUser: (userId: string, uid: string): void =>
     set((s) => {
       const prev = s.messagesByUser[userId] ?? [];
-      const exists = prev.find((x) => x.uid === m.uid);
+      const exists = prev.find((x) => x.uid === uid);
       if (exists) {
         return {
           messagesByUser: {
             ...s.messagesByUser,
-            [userId]: prev.filter((x) => x.uid !== m.uid),
+            [userId]: prev.filter((x) => x.uid !== uid),
           },
         };
       }
@@ -109,4 +109,13 @@ export const useUserIdStore = create<UserIdState>((set) => ({
   userId: '',
   setUserId: (userId): void => set({ userId }),
   clearUserId: (): void => set({ userId: '' }),
+}));
+
+type ForAllDelete = {
+  forAllDelete: boolean | null;
+  setForAllDelete: (q: boolean) => void;
+};
+export const useForAllDeleteStore = create<ForAllDelete>((set) => ({
+  forAllDelete: null,
+  setForAllDelete: (forAllDelete): void => set({ forAllDelete }),
 }));

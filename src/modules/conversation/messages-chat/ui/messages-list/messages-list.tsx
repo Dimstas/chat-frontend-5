@@ -47,7 +47,6 @@ export const MessagesList = ({
 
   const { results, messagesLength } = useMemo(() => {
     const messages = messagesByUser ?? [];
-    console.log(messages);
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 
@@ -76,7 +75,6 @@ export const MessagesList = ({
 
   // Эффект прокрутки к targetIndex (если есть)
   useEffect(() => {
-    console.log(targetIndex);
     if (targetIndex === -1) return;
     if (
       currentFirstUnreadIncoming !== -1 &&
@@ -187,7 +185,6 @@ export const MessagesList = ({
   // обработчик события onClick для компонента  <ScrollButton /> медленно скролит в низ до первого сообщения
   const onClickScrollButton = (): void => {
     if (targetIndex === lastIndex) {
-      console.log('targetIndex: ', targetIndex);
       const el = targetItemRef.current;
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -242,7 +239,7 @@ export const MessagesList = ({
                         sendDeleteMessage={sendDeleteMessage}
                       />
                     ) : (
-                      <OutgoingMessagesCard message={message} />
+                      <OutgoingMessagesCard message={message} sendDeleteMessage={sendDeleteMessage} />
                     )}
                   </div>
                 );
