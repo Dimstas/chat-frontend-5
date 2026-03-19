@@ -255,7 +255,7 @@ export const MessagesList = ({
             bottom: `${pos.bottom}px`,
           }}
           onClick={onClickScrollButton}
-          aria-label="Scroll to top"
+          aria-label="Скролл вниз"
         >
           <ScrollButton quantity={currentFirstUnreadIncoming !== -1 ? lastIndex - currentFirstUnreadIncoming + 1 : 0} />
         </button>
