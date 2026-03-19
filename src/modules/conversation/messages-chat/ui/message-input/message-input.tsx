@@ -2,6 +2,7 @@
 import { JSX, useRef, useState } from 'react';
 import { ImageUI } from 'shared/ui/image';
 import { addRecentEmodji } from '../../utils/recent-emodji-array';
+import { AutosizeTextarea } from '../autosize-textarea/autosize-textarea';
 import { EmodjiBlock } from '../emodji-block/emodji-block';
 import SmailIcon from './icon/smail.svg';
 import VioletSmailIcon from './icon/violet-smail.svg';
@@ -44,15 +45,13 @@ export const MessageInput = ({
   return (
     <div className={styles.inputWrapper}>
       <div className={styles.form}>
-        <input
+        <AutosizeTextarea
           id="text"
           name="text"
-          value={textInput}
           placeholder="Текст сообщения"
-          onChange={(event: React.ChangeEvent<HTMLInputElement>): void => {
-            setTextInput(event.target.value);
-          }}
-          className={styles.input}
+          value={textInput}
+          onChange={(e) => setTextInput(e.target.value)}
+          maxHeight={472}
         />
         {selectedEmoji && (
           <span className={styles.emodji}>

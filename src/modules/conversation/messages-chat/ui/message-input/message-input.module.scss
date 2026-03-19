@@ -1,9 +1,10 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .inputWrapper {
-  @include mixins.flex-box($gap: 0.8rem);
+  @include mixins.flex-box($align: flex-end, $gap: 0.8rem);
   width: 100%;
-  height: 3.6rem;
+  max-height: 44.8rem;
+  height: auto;
   border-radius: 2rem;
   padding: 0.75rem 1.2rem;
   background-color: var(--text-inverse);
@@ -13,24 +14,7 @@
 .form {
   @include mixins.flex-box();
   width: 100%;
-  height: 2.1rem;
-}
-
-.input {
-  @include mixins.flex-box();
-  width: 100%;
-  font-weight: 400;
-  font-size: 1.6rem;
-  line-height: 1.3;
-  letter-spacing: 0.01rem;
-
-  &::placeholder {
-    font-weight: 400;
-    font-size: 1.6rem;
-    line-height: 1.3;
-    letter-spacing: 0.01rem;
-    color: var(--text-secondary);
-  }
+  height: auto;
 }
 .icon {
   @include mixins.flex-box($justify: end);

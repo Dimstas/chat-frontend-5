@@ -61,7 +61,7 @@ export function smoothScrollTo(container: HTMLElement, targetScrollTop: number, 
 
 /**
  * Плавно прокручивает контейнер так, чтобы элемент `el` оказался выровнен по верху видимой области (block: 'start').
- * duration в миллисекундах (по умолчанию 500).
+ * duration в миллисекундах (по умолчанию 100).
  */
 export const smoothScrollElementIntoView = (
   container: HTMLDivElement | null,
