@@ -1,4 +1,4 @@
-import { useChatsStore } from 'modules/conversation/chats/model/search';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX, useEffect } from 'react';
 import styles from './notification-modal.module.scss';
 
@@ -10,7 +10,7 @@ export const NotificationModal = (): JSX.Element | null => {
     setNotificationIcon,
     setNotificationTitle,
     closeNotificationModal,
-  } = useChatsStore();
+  } = useNotificationStore();
 
   useEffect(() => {
     const timerId = setTimeout(() => {

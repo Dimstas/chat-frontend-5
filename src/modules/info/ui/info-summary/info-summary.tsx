@@ -1,13 +1,13 @@
 import clsx from 'clsx';
-import { useChatsStore } from 'modules/conversation/chats/model/search';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
-import CopiedIcon from '../../../conversation/messages-chat/ui/notification-modal/icons/copied.svg';
+import CopiedIcon from '../../../notification/ui/notification-modal/icons/copied.svg';
 import CopyIcon from './icons/copy.svg';
 import styles from './info-summary.module.scss';
 import { InfoSummaryProps } from './info-summary.props';
 
 export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSummaryProps): JSX.Element => {
-  const { openNotificationModal, setNotificationIcon, setNotificationTitle } = useChatsStore();
+  const { openNotificationModal, setNotificationIcon, setNotificationTitle } = useNotificationStore();
 
   const handleCopyNickname = (): void => {
     navigator.clipboard.writeText(nickname);

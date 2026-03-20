@@ -2,8 +2,9 @@ import { ChatCardModal } from 'modules/conversation/chats/entity/ui/chat-card-mo
 import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { SearchInput } from 'modules/conversation/shared/ui';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
-import ForwardedIcon from '../../../modules/conversation/messages-chat/ui/notification-modal/icons/forwarded.svg';
+import ForwardedIcon from '../../../modules/notification/ui/notification-modal/icons/forwarded.svg';
 import ModalCloseIcon from './icons/modal-close.svg';
 import styles from './select-chat-modal.module.scss';
 
@@ -19,7 +20,8 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
   onSelect,
 }: SelectChatModalProps): JSX.Element => {
   const { modalChats, modalSearch, setModalSearch } = useChatsScreen();
-  const { clearSelected, setNotificationIcon, setNotificationTitle, openNotificationModal } = useChatsStore();
+  const { setNotificationIcon, setNotificationTitle, openNotificationModal } = useNotificationStore();
+  const { clearSelected } = useChatsStore();
 
   const handleBackdropClick = (e: React.MouseEvent): void => {
     if (e.target === e.currentTarget) {
