@@ -1,9 +1,10 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .wrapper {
-  @include mixins.flex-box($align: end);
+  @include mixins.flex-box($direction: column);
   width: 3.5rem;
-  height: 3.5rem;
+  height: auto;
+  position: relative;
 }
 
 .circle {
@@ -15,4 +16,16 @@
   background-color: var(--surface-base);
   border-color: #0000004d;
   color: rgba(0, 0, 0, 0.3);
+}
+.counter {
+  @include mixins.flex-box();
+  width: auto;
+  height: 1.7rem;
+  border-radius: 50%;
+  padding: 0.6rem;
+  background-color: var(--brand-primary);
+  color: var(--text-inverse);
+  position: absolute;
+  z-index: 10;
+  bottom: 2.5rem;
 }
