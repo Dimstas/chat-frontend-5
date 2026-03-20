@@ -3,6 +3,7 @@ import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { SearchInput } from 'modules/conversation/shared/ui';
 import { JSX } from 'react';
+import ForwardedIcon from '../../../modules/conversation/messages-chat/ui/notification-modal/icons/forwarded.svg';
 import ModalCloseIcon from './icons/modal-close.svg';
 import styles from './select-chat-modal.module.scss';
 
@@ -18,7 +19,7 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
   onSelect,
 }: SelectChatModalProps): JSX.Element => {
   const { modalChats, modalSearch, setModalSearch } = useChatsScreen();
-  const { clearSelected } = useChatsStore();
+  const { clearSelected, setNotificationIcon, setNotificationTitle, openNotificationModal } = useChatsStore();
 
   const handleBackdropClick = (e: React.MouseEvent): void => {
     if (e.target === e.currentTarget) {
@@ -26,10 +27,13 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
     }
   };
 
-  const handleSelectClick = (toUid: string): void => {
+  const handleSelectClick = (toUid: string, fullName: string): void => {
     onSelect(toUid);
     clearSelected();
     onClose();
+    setNotificationIcon(<ForwardedIcon />);
+    setNotificationTitle(`Отправлено ${fullName}`);
+    openNotificationModal();
   };
 
   return (
@@ -48,7 +52,11 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
           <>
             <ul>
               {modalChats.map((c) => (
-                <ChatCardModal key={c.peer.uid} chat={c} onSelectHandler={() => handleSelectClick(c.peer.uid)} />
+                <ChatCardModal
+                  key={c.peer.uid}
+                  chat={c}
+                  onSelectHandler={() => handleSelectClick(c.peer.uid, `${c.peer.firstName} ${c.peer.lastName}`)}
+                />
               ))}
             </ul>
           </>
