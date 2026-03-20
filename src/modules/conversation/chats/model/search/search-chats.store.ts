@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { create } from 'zustand';
 
 type ChatsState = {
@@ -25,6 +26,13 @@ type ChatsState = {
   isAddModalOpen: boolean;
   openAddModal: () => void;
   closeAddModal: () => void;
+  notificationIcon: ReactNode | undefined;
+  setNotificationIcon: (icon: ReactNode) => void;
+  notificationTitle: string;
+  setNotificationTitle: (title: string) => void;
+  isNotificationModalOpen: boolean;
+  openNotificationModal: () => void;
+  closeNotificationModal: () => void;
 };
 
 export const useChatsStore = create<ChatsState>((set) => ({
@@ -52,4 +60,11 @@ export const useChatsStore = create<ChatsState>((set) => ({
   isAddModalOpen: false,
   openAddModal: (): void => set({ isAddModalOpen: true }),
   closeAddModal: (): void => set({ isAddModalOpen: false }),
+  isNotificationModalOpen: false,
+  openNotificationModal: (): void => set({ isNotificationModalOpen: true }),
+  closeNotificationModal: (): void => set({ isNotificationModalOpen: false }),
+  notificationIcon: undefined,
+  setNotificationIcon: (icon): void => set({ notificationIcon: icon }),
+  notificationTitle: '',
+  setNotificationTitle: (title): void => set({ notificationTitle: title }),
 }));

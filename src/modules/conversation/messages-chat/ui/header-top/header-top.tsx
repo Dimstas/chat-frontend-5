@@ -5,6 +5,7 @@ import { JSX } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';
+import { NotificationModal } from '../notification-modal';
 import styles from './header-top.module.scss';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
@@ -43,6 +44,7 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
         </div>
       </div>
       <HeaderTopButtonsBlock />
+      <NotificationModal />
     </div>
   );
 };
