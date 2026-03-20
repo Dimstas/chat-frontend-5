@@ -1,10 +1,30 @@
 import clsx from 'clsx';
+import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { JSX } from 'react';
+import CopiedIcon from '../../../conversation/messages-chat/ui/notification-modal/icons/copied.svg';
 import CopyIcon from './icons/copy.svg';
 import styles from './info-summary.module.scss';
 import { InfoSummaryProps } from './info-summary.props';
 
 export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSummaryProps): JSX.Element => {
+  const { openNotificationModal, setNotificationIcon, setNotificationTitle } = useChatsStore();
+
+  const handleCopyNickname = (): void => {
+    navigator.clipboard.writeText(nickname);
+    setNotificationIcon(<CopiedIcon />);
+    setNotificationTitle('Никнейм скопирован');
+    openNotificationModal();
+  };
+
+  const handleCopyPhone = (): void => {
+    if (phoneNumber) {
+      navigator.clipboard.writeText(phoneNumber);
+      setNotificationIcon(<CopiedIcon />);
+      setNotificationTitle('Телефон скопирован');
+      openNotificationModal();
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.item}>
@@ -12,7 +32,7 @@ export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSumm
           <div className={styles.label}>Никнейм</div>
           <div className={styles.link}>{nickname}</div>
         </div>
-        <button>
+        <button onClick={handleCopyNickname}>
           <CopyIcon />
         </button>
       </div>
@@ -22,7 +42,7 @@ export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSumm
             <div className={styles.label}>Номер телефона</div>
             <div className={styles.link}>{phoneNumber}</div>
           </div>
-          <button>
+          <button onClick={handleCopyPhone}>
             <CopyIcon />
           </button>
         </div>
