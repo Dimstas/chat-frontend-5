@@ -30,6 +30,18 @@ const AlertContext = createContext<AlertContextValue | null>(null);
 let idCounter = 1;
 const genId = (): string => `alert_${idCounter++}`;
 
+let defaultPortalRoot: HTMLElement | null = null;
+if (typeof document !== 'undefined') {
+  let r = document.getElementById('alert-portal-root');
+  if (!r) {
+    r = document.createElement('div');
+    r.id = 'alert-portal-root';
+    r.className = 'alert-portal-root';
+    document.body.appendChild(r);
+  }
+  defaultPortalRoot = r;
+}
+
 export const AlertProvider = ({
   children,
   blurTargetSelector = null,
@@ -41,19 +53,7 @@ export const AlertProvider = ({
   const resolversRef = useRef(new Map<string | number, (v: boolean) => void>());
 
   // portal root  — создаём единожды на клиенте
-  const [portalRoot, setPortalRoot] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    let root = document.getElementById('alert-portal-root') as HTMLElement | null;
-    if (!root) {
-      root = document.createElement('div');
-      root.id = 'alert-portal-root';
-      root.className = 'alert-portal-root';
-      document.body.appendChild(root);
-    }
-    setPortalRoot(root);
-  }, []);
+  const [portalRoot] = useState<HTMLElement | null>(defaultPortalRoot);
 
   const show = useCallback((opts: AlertOptions = {}) => {
     const id = opts.id ?? genId();
