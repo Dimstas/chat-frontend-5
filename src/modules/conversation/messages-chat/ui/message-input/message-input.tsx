@@ -68,7 +68,7 @@ export const MessageInput = ({ textInput, setTextInput }: MessageInputProps): JS
         <AutosizeTextarea
           id="text"
           name="text"
-          placeholder="Текст сообщения"
+          placeholder="Cообщение"
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
           maxHeight={472}
