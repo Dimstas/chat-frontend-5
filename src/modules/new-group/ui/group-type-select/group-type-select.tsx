@@ -28,13 +28,13 @@ const GroupTypeSelect: React.FC<GroupTypeSelectProps> = ({ initial, onChange }) 
   const toggleOpen = (): void => setIsOpen((prev) => !prev);
 
   const handleChange = (type: GroupType): void => {
-    if (type === 'closed') selectClosed();
+    if (type === 'private-group') selectClosed();
     else selectOpen();
     onChange?.(type);
     setIsOpen(false);
   };
 
-  const selectedLabel: string = selected === 'closed' ? 'Закрытая' : 'Открытая';
+  const selectedLabel: string = selected === 'private-group' ? 'Закрытая' : 'Открытая';
 
   return (
     <div className={styles.wrapper} ref={containerRef}>
@@ -52,13 +52,13 @@ const GroupTypeSelect: React.FC<GroupTypeSelectProps> = ({ initial, onChange }) 
       </div>
       {isOpen && (
         <div className={styles.dropdown}>
-          <label className={`${styles.option} ${selected === 'closed' ? styles.selected : ''}`}>
+          <label className={`${styles.option} ${selected === 'private-group' ? styles.selected : ''}`}>
             <input
               type="radio"
               name="groupType"
-              value="closed"
-              checked={selected === 'closed'}
-              onChange={() => handleChange('closed')}
+              value="private-group"
+              checked={selected === 'private-group'}
+              onChange={() => handleChange('private-group')}
               className={styles.radio}
             />
             <span className={styles.radioCustom}></span>
@@ -70,13 +70,13 @@ const GroupTypeSelect: React.FC<GroupTypeSelectProps> = ({ initial, onChange }) 
             </div>
           </label>
 
-          <label className={`${styles.option} ${selected === 'open' ? styles.selected : ''}`}>
+          <label className={`${styles.option} ${selected === 'public-group' ? styles.selected : ''}`}>
             <input
               type="radio"
               name="groupType"
-              value="open"
-              checked={selected === 'open'}
-              onChange={() => handleChange('open')}
+              value="public-group"
+              checked={selected === 'public-group'}
+              onChange={() => handleChange('public-group')}
               className={styles.radio}
             />
             <span className={styles.radioCustom}></span>
