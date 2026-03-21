@@ -1,10 +1,30 @@
 import clsx from 'clsx';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
+import CopiedIcon from '../../../notification/ui/notification-modal/icons/copied.svg';
 import CopyIcon from './icons/copy.svg';
 import styles from './info-summary.module.scss';
 import { InfoSummaryProps } from './info-summary.props';
 
 export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSummaryProps): JSX.Element => {
+  const { openPopup, setIcon, setTitle } = useNotificationStore();
+
+  const handleCopyNickname = (): void => {
+    navigator.clipboard.writeText(nickname);
+    setIcon(<CopiedIcon />);
+    setTitle('Никнейм скопирован');
+    openPopup();
+  };
+
+  const handleCopyPhone = (): void => {
+    if (phoneNumber) {
+      navigator.clipboard.writeText(phoneNumber);
+      setIcon(<CopiedIcon />);
+      setTitle('Телефон скопирован');
+      openPopup();
+    }
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.item}>
@@ -12,7 +32,7 @@ export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSumm
           <div className={styles.label}>Никнейм</div>
           <div className={styles.link}>{nickname}</div>
         </div>
-        <button>
+        <button onClick={handleCopyNickname}>
           <CopyIcon />
         </button>
       </div>
@@ -22,7 +42,7 @@ export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSumm
             <div className={styles.label}>Номер телефона</div>
             <div className={styles.link}>{phoneNumber}</div>
           </div>
-          <button>
+          <button onClick={handleCopyPhone}>
             <CopyIcon />
           </button>
         </div>

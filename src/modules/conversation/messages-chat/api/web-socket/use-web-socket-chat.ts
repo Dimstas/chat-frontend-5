@@ -16,6 +16,7 @@ import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustan
 
 type UseWebSocketChat = {
   sendMessage: (content: string) => void;
+  sendProfile: (payload: CreateTextMessageAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
@@ -241,6 +242,17 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     [addMessageForUser, updateMessageByUidForUser, userIdRef],
   );
 
+  // Пересылка профиля из страницы инфо
+  const sendProfile = (payload: CreateTextMessageAPI): void => {
+    const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send of server profile: ', payload);
+    }
+  };
+
   // Функция отправки сообщения на изменение статуса прочитки входящего сообщения
   const sendChangeStatusReadMessage = useCallback(
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
@@ -315,6 +327,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   return {
     sendMessage,
+    sendProfile,
     sendChangeStatusReadMessage,
     sendDeleteMessage,
   };
