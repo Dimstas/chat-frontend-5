@@ -20,7 +20,7 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
   onSelect,
 }: SelectChatModalProps): JSX.Element => {
   const { modalChats, modalSearch, setModalSearch } = useChatsScreen();
-  const { setNotificationIcon, setNotificationTitle, openNotificationModal } = useNotificationStore();
+  const { setIcon, setTitle, openPopup } = useNotificationStore();
   const { clearSelected } = useChatsStore();
 
   const handleBackdropClick = (e: React.MouseEvent): void => {
@@ -33,9 +33,9 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
     onSelect(toUid);
     clearSelected();
     onClose();
-    setNotificationIcon(<ForwardedIcon />);
-    setNotificationTitle(`Отправлено ${fullName}`);
-    openNotificationModal();
+    setIcon(<ForwardedIcon />);
+    setTitle(`Отправлено ${fullName}`);
+    openPopup();
   };
 
   return (

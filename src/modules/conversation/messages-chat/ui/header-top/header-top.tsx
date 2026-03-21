@@ -1,6 +1,7 @@
 'use client';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useInfoStore } from 'modules/info/model/info.store';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
@@ -14,6 +15,7 @@ const URL_DEFAULT_Avatar = '/images/messages-chats/default-avatar.svg';
 export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   const { chats } = useChatsScreen();
   const { toggleInfoOpen } = useInfoStore();
+  const { isModalOpen } = useNotificationStore();
   const chat = chats.find((c) => c.peer.uid === user_uid);
   const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
@@ -44,7 +46,7 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
         </div>
       </div>
       <HeaderTopButtonsBlock />
-      <NotificationModal />
+      {isModalOpen && <NotificationModal />}
     </div>
   );
 };

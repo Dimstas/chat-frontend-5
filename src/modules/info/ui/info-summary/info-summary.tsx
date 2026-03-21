@@ -7,21 +7,21 @@ import styles from './info-summary.module.scss';
 import { InfoSummaryProps } from './info-summary.props';
 
 export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSummaryProps): JSX.Element => {
-  const { openNotificationModal, setNotificationIcon, setNotificationTitle } = useNotificationStore();
+  const { openPopup, setIcon, setTitle } = useNotificationStore();
 
   const handleCopyNickname = (): void => {
     navigator.clipboard.writeText(nickname);
-    setNotificationIcon(<CopiedIcon />);
-    setNotificationTitle('Никнейм скопирован');
-    openNotificationModal();
+    setIcon(<CopiedIcon />);
+    setTitle('Никнейм скопирован');
+    openPopup();
   };
 
   const handleCopyPhone = (): void => {
     if (phoneNumber) {
       navigator.clipboard.writeText(phoneNumber);
-      setNotificationIcon(<CopiedIcon />);
-      setNotificationTitle('Телефон скопирован');
-      openNotificationModal();
+      setIcon(<CopiedIcon />);
+      setTitle('Телефон скопирован');
+      openPopup();
     }
   };
 
