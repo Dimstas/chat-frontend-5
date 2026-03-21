@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type GroupType = 'closed' | 'open';
+export type GroupType = 'private-group' | 'public-group' | 'public-channel' | 'private-channel';
 
 type UseGroupTypeSelectProps = {
   initial?: GroupType;
@@ -13,11 +13,13 @@ type UseGroupTypeSelectReturn = {
   setSelected: (value: GroupType) => void;
 };
 
-export const useGroupTypeSelect = ({ initial = 'closed' }: UseGroupTypeSelectProps = {}): UseGroupTypeSelectReturn => {
+export const useGroupTypeSelect = ({
+  initial = 'private-group',
+}: UseGroupTypeSelectProps = {}): UseGroupTypeSelectReturn => {
   const [selected, setSelected] = useState<GroupType>(initial);
 
-  const selectClosed = (): void => setSelected('closed');
-  const selectOpen = (): void => setSelected('open');
+  const selectClosed = (): void => setSelected('private-group');
+  const selectOpen = (): void => setSelected('public-group');
 
   return {
     selected,
