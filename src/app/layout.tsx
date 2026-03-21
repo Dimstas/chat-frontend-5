@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { AlertProvider } from 'modules/conversation/messages-chat/hooks/use-alert';
 import type { Metadata } from 'next';
 import { Roboto } from 'next/font/google';
 import localFont from 'next/font/local';
@@ -31,7 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={clsx(roboto.variable, sfPro.variable)}>
-        <QueryProvider> {children}</QueryProvider>
+        <QueryProvider>
+          <AlertProvider>{children}</AlertProvider>
+        </QueryProvider>
       </body>
     </html>
   );

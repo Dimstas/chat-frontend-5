@@ -1,17 +1,23 @@
 'use client';
+import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
-import { JSX, MouseEvent, useState } from 'react';
+import { useForAllDeleteStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
 import CheckOneIcon from '../icons/check-one.svg';
 import CheckTwoIcon from '../icons/check-two.svg';
 import WatchIcon from '../icons/watch.svg';
 import styles from './outgoing-message-card.module.scss';
-
 export const OutgoingMessagesCard = ({
   message,
+  sendDeleteMessage,
 }: {
   message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
+  sendDeleteMessage: (
+    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
+    selected?: boolean,
+  ) => void;
 }): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -34,9 +40,34 @@ export const OutgoingMessagesCard = ({
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
+
+  const { confirm } = useAlert();
+  const forAllDeleteStore = useForAllDeleteStore((s) => s.forAllDelete);
+  const forAllDeleteRef = useRef<boolean>(forAllDeleteStore);
+  useEffect(() => {
+    forAllDeleteRef.current = forAllDeleteStore;
+  }, [forAllDeleteRef, forAllDeleteStore]);
+
+  const handleDeleteClick = async (): Promise<void> => {
+    const ok = await confirm({
+      title: 'Удалить сообщение',
+      message: 'Вы действительно хотите удалить сообщение?',
+      showCheckBox: true,
+      labelCheckBox: `Удалить у меня и у ${message.to_user.first_name}`,
+    });
+    if (ok && forAllDeleteRef.current !== null) {
+      sendDeleteMessage(message, forAllDeleteRef.current);
+    }
+  };
+
   return (
     <div className={styles.wrapper} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu position={contextMenuPos} visible={contextMenuVisible} onClose={handleCloseMenu} />
+      <ContextMenu
+        position={contextMenuPos}
+        visible={contextMenuVisible}
+        onClose={handleCloseMenu}
+        handleDeleteClick={handleDeleteClick}
+      />
       <div className={styles.item}>
         <div className={styles.message}>
           <span className={styles.messageText}> {message.content} </span>

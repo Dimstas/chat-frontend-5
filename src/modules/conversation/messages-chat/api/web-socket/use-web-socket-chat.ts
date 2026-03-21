@@ -1,16 +1,26 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import type { ChangeStatusReadMessageAPI, CreateTextMessageAPI, RestMessageApi } from '../../model/messages-list';
+import type {
+  ChangeStatusReadMessageAPI,
+  CreateTextMessageAPI,
+  DeleteMessageApi,
+  RestMessageApi,
+} from '../../model/messages-list';
 import {
   serializerRequestChangeStatusReadMessageApiSchema,
   serializerRequestCreatingMessageApiSchema,
+  serializerRequestDeleteMessageApiSchema,
 } from '../../model/messages-list';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 
 type UseWebSocketChat = {
   sendMessage: (content: string) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
+  sendDeleteMessage: (
+    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
+    selected?: boolean,
+  ) => void;
 };
 
 export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSocketChat {
@@ -29,7 +39,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const addMessageForUser = useMessagesChatStore.getState().addMessageForUser;
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
   const upsertMessageForUser = useMessagesChatStore.getState().upsertMessageForUser;
-
+  const deleteMessageByUidForUser = useMessagesChatStore.getState().deleteMessageByUidForUser;
   //Функция для переподключения ws-coeдинения
   const connectWSRef = useRef<() => void>(() => {});
   // maccив интервалов [{requestUid:timeout_id},...] на каждое отправленное сообщение с помошью ws
@@ -61,7 +71,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
     socket.onmessage = (event: MessageEvent): void => {
       const data = JSON.parse(event.data);
-
+      //console.log(data);
       //Cобытия:
       // 1.Подтверждает отправленние созданного исходящего сообщения по request_uid
       if (
@@ -119,6 +129,21 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         data.object.to_user.uid === currentUserIdRef.current
       ) {
         //console.log('Входящее сообщение об изменение read-status первоначального входящего сообщения :', data);
+        pendingTimeouts.current.delete(data.request_uid);
+      }
+      //6.входящее ws-сообщение delete_message oб удалении входящего сообщения
+      if (
+        data.action === 'delete_message' &&
+        data.status === 'OK'
+        //data.object.to_user.uid === currentUserIdRef.current
+      ) {
+        console.log('Cообщение сервера об удалении входящего либо исходящего сообщения :', data);
+        // локально удаляем сообщение из store и сразу его отсутствие показываем в DOM
+        if (data.object.from_user.uid === currentUserIdRef.current) {
+          deleteMessageByUidForUser(data.object.to_user.uid, data.object.uid);
+        } else {
+          deleteMessageByUidForUser(data.object.from_user.uid, data.object.uid);
+        }
         pendingTimeouts.current.delete(data.request_uid);
       }
     };
@@ -251,8 +276,46 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     [wsRef, updateMessageByUidForUser],
   );
 
+  // Функция удаления сообщения
+  const sendDeleteMessage = useCallback(
+    (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }, for_all?: boolean | null): void => {
+      //console.log('Start: ', for_all);
+      if (!message.uid) return;
+      const requestUid = crypto.randomUUID();
+      // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
+      const payloadMessage: DeleteMessageApi = {
+        action: 'delete_message',
+        request_uid: requestUid,
+        object: {
+          uid: message.uid,
+          for_all: for_all ?? false,
+          //chat_key: '',
+        },
+      };
+      //валидация c помощью zod
+      const resultZod = serializerRequestDeleteMessageApiSchema.safeParse(payloadMessage);
+      // локально удаляем сообщение из store и сразу его отсутствие показываем в DOM
+      deleteMessageByUidForUser(userIdRef.current, message.uid);
+      const socket = wsRef.current;
+      if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+        //отправляем запрос
+        socket.send(JSON.stringify(payloadMessage));
+        console.log('Send of server delete-message: ', payloadMessage);
+        const to = setTimeout(() => {
+          // Если за 5 cек не пришло сообщение-подтверждение от ws,
+          //  направляем повторно send ws-сообщение
+          socket.send(JSON.stringify(payloadMessage));
+          pendingTimeouts.current.delete(requestUid);
+        }, 5000);
+        pendingTimeouts.current.set(requestUid, to);
+      }
+    },
+    [wsRef, userIdRef, deleteMessageByUidForUser],
+  );
+
   return {
     sendMessage,
     sendChangeStatusReadMessage,
+    sendDeleteMessage,
   };
 }

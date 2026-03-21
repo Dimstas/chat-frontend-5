@@ -8,6 +8,7 @@
   padding-right: 1.6rem;
   overflow: hidden;
   margin-bottom: 1.2rem;
+  container-type: inline-size;
 }
 .wrapper:hover {
   background-color: var(--surface-disabled);
@@ -22,6 +23,12 @@
   border-bottom-right-radius: 0.4rem;
   border-bottom-left-radius: 1.6rem;
   background-color: var(--surfase-message-card);
+  overflow: hidden;
+  @container (max-width: 360px) {
+    .item {
+      max-width: 26rem;
+    }
+  }
 }
 
 .message {

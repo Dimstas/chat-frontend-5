@@ -2,9 +2,10 @@
 import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult } from '@tanstack/react-query';
 import { JSX, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
-import { useIntersectionRead } from '../../hooks/use-intersection-read';
+import { READING_TIME, useIntersectionRead } from '../../hooks/use-intersection-read';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
 import type { MessagesListApiResponse, RestMessageApi } from '../../model/messages-list';
+import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
@@ -32,6 +33,7 @@ export const MessagesList = ({
 }): JSX.Element => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const targetItemRef = useRef<HTMLDivElement | null>(null);
+  const lastItemRef = useRef<HTMLDivElement | null>(null);
   const userIdStore = useUserIdStore((s) => s.userId);
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]);
   const setMessagesForUser = useMessagesChatStore((s) => s.setMessagesForUser);
@@ -45,7 +47,6 @@ export const MessagesList = ({
 
   const { results, messagesLength } = useMemo(() => {
     const messages = messagesByUser ?? [];
-    //console.log(messages);
     return { results: handlerMessagesList(messages), messagesLength: messages.length };
   }, [messagesByUser]);
 
@@ -63,20 +64,30 @@ export const MessagesList = ({
       .forEach((m) => flatList.push({ date, message: m }));
   });
   //вычисляем targetIndex: первого непрочитанного входящего, иначе последний элемент
-  const { targetIndex, setTargetIndex, lastIndex } = useFixedTargetIndex(results, currentUserId);
+  const { targetIndex, setTargetIndex, lastIndex, currentFirstUnreadIncoming } = useFixedTargetIndex(
+    results,
+    currentUserId,
+  );
 
   // хук ws + hook для определения прочтения видимости
-  const { sendChangeStatusReadMessage } = useWebSocketChat(wsUrl, currentUserId);
+  const { sendChangeStatusReadMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
 
   // Эффект прокрутки к targetIndex (если есть)
   useEffect(() => {
     if (targetIndex === -1) return;
+    if (
+      currentFirstUnreadIncoming !== -1 &&
+      targetIndex !== null &&
+      currentFirstUnreadIncoming - 1 > targetIndex &&
+      currentFirstUnreadIncoming - 1 < lastIndex
+    )
+      return;
     const el = targetItemRef.current;
     if (!el) return;
     el.scrollIntoView({ behavior: 'auto', block: 'start' });
     //размонтируем targetIndex
-    if (targetIndex === lastIndex || targetIndex === -1) setTargetIndex(null);
+    if (targetIndex === lastIndex) setTargetIndex(null);
   }, [results, messagesLength, targetIndex]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
@@ -128,7 +139,7 @@ export const MessagesList = ({
       if (!entry) return;
       if (entry.isIntersecting) {
         // Если sentinel пересёкся — вызовем безопасный fetchOlder
-        fetchOlder();
+        if (currentFirstUnreadIncoming === -1) fetchOlder();
       }
     };
 
@@ -143,7 +154,7 @@ export const MessagesList = ({
     return () => {
       observer.disconnect();
     };
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, messagesLength]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, results, messagesLength]);
 
   // подгружаем когда пользователь приблизится к 1 элементу от вверха
   const triggerIndex = 1;
@@ -173,10 +184,17 @@ export const MessagesList = ({
   }, []);
   // обработчик события onClick для компонента  <ScrollButton /> медленно скролит в низ до первого сообщения
   const onClickScrollButton = (): void => {
-    if (targetIndex === -1) return;
-    const el = targetItemRef.current;
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (targetIndex === lastIndex) {
+      const el = targetItemRef.current;
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.log('lastIndex: ', lastIndex);
+      const el = lastItemRef.current;
+      const container = wrapperRef.current;
+      if (!el || !container || !targetIndex) return;
+      smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME);
+    }
   };
 
   return (
@@ -203,20 +221,25 @@ export const MessagesList = ({
 
                 const isTarget = globalIndex === targetIndex;
                 const isSentinel = globalIndex === triggerIndex;
+                const isLast = globalIndex === lastIndex;
 
                 return (
                   <div
                     key={globalIndex}
                     tabIndex={-1}
-                    ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : undefined}
+                    ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : isLast ? lastItemRef : undefined}
                   >
-                    {isTarget && lastIndex - targetIndex > 14 && (
+                    {targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === userIdStore ? (
-                      <IncomingMessagesCard message={message} register={register} />
+                      <IncomingMessagesCard
+                        message={message}
+                        register={register}
+                        sendDeleteMessage={sendDeleteMessage}
+                      />
                     ) : (
-                      <OutgoingMessagesCard message={message} />
+                      <OutgoingMessagesCard message={message} sendDeleteMessage={sendDeleteMessage} />
                     )}
                   </div>
                 );
@@ -232,9 +255,9 @@ export const MessagesList = ({
             bottom: `${pos.bottom}px`,
           }}
           onClick={onClickScrollButton}
-          aria-label="Scroll to top"
+          aria-label="Скролл вниз"
         >
-          <ScrollButton />
+          <ScrollButton quantity={currentFirstUnreadIncoming !== -1 ? lastIndex - currentFirstUnreadIncoming + 1 : 0} />
         </button>
       )}
     </div>
