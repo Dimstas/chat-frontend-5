@@ -1,10 +1,8 @@
 'use client';
-import type { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult } from '@tanstack/react-query';
 import { JSX, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { READING_TIME, useIntersectionRead } from '../../hooks/use-intersection-read';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
-import type { MessagesListApiResponse, RestMessageApi } from '../../model/messages-list';
+import type { RestMessageApi } from '../../model/messages-list';
 import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
@@ -12,25 +10,18 @@ import { IncomingMessagesCard } from '../message-card/incoming-message-card/inco
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
+import type { MessageListProps } from './message-list.props ';
 import { useFixedTargetIndex } from './use-fixed-target-index';
 
 export const MessagesList = ({
   messagesList,
-  wsUrl,
   currentUserId,
   hasNextPage,
   isFetchingNextPage,
   fetchNextPage,
-}: {
-  messagesList: RestMessageApi[];
-  wsUrl: string;
-  currentUserId: string;
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  fetchNextPage: (
-    options?: FetchNextPageOptions,
-  ) => Promise<InfiniteQueryObserverResult<InfiniteData<MessagesListApiResponse>, unknown>>;
-}): JSX.Element => {
+  sendChangeStatusReadMessage,
+  sendDeleteMessage,
+}: MessageListProps): JSX.Element => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const targetItemRef = useRef<HTMLDivElement | null>(null);
   const lastItemRef = useRef<HTMLDivElement | null>(null);
@@ -70,7 +61,7 @@ export const MessagesList = ({
   );
 
   // хук ws + hook для определения прочтения видимости
-  const { sendChangeStatusReadMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
+
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
 
   // Эффект прокрутки к targetIndex (если есть)

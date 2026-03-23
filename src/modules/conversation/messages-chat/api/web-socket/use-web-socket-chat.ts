@@ -36,6 +36,18 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const wsRef = useRef<WebSocket | null>(null);
   //ссылка на uid текущего пользователя мессенджера
   const currentUserIdRef = useRef<string>(currentUserId);
+
+  // блок, чтобы не было гонок
+  const reconnectTimerRef = useRef<number | null>(null);
+  const isUnmountedRef = useRef(false);
+
+  // чтобы игнорировать события от "старого" сокета
+  const socketInstanceIdRef = useRef(0);
+
+  // backoff
+  const reconnectAttemptRef = useRef(0);
+  const maxReconnectDelayMs = 30000;
+
   // установим начальныe значения сообщений из чатов, если пришёл user_uid с сервера
   const addMessageForUser = useMessagesChatStore.getState().addMessageForUser;
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
@@ -49,28 +61,63 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const pendingTimeouts = useRef<Map<string, number | NodeJS.Timeout>>(new Map()); //
   // Функция для подключаемся к ws-соединению и регистрации ws-обработчиков
 
-  const connectWS = useCallback(() => {
-    // Закрываем старое ws подключение, если он есть
-    if (wsRef.current?.readyState === WebSocket.OPEN || wsRef.current?.readyState === WebSocket.CONNECTING) {
-      return;
+  const clearReconnectTimer = (): void => {
+    if (reconnectTimerRef.current) {
+      clearTimeout(reconnectTimerRef.current);
+      reconnectTimerRef.current = null;
     }
+  };
+
+  const scheduleReconnect = useCallback(() => {
+    if (isUnmountedRef.current) return;
+    if (!navigator.onLine) return; // нет интернета — не спамим
+    if (reconnectTimerRef.current) return; // уже запланировано
+
+    // backoff
+    reconnectAttemptRef.current += 1;
+    const delay = Math.min(1000 * Math.pow(2, reconnectAttemptRef.current - 1), maxReconnectDelayMs);
+
+    reconnectTimerRef.current = setTimeout(() => {
+      reconnectTimerRef.current = null;
+      connectWS();
+    }, delay);
+  }, [wsUrl]); // connectWS объявим ниже (через function declaration или useCallback)
+
+  const connectWS = useCallback(() => {
+    if (!navigator.onLine) return;
+    if (wsRef.current) {
+      const st = wsRef.current.readyState;
+      if (st === WebSocket.OPEN || st === WebSocket.CONNECTING) return;
+    }
+    clearReconnectTimer();
+
+    // увеличиваем id инстанса
+    const myId = ++socketInstanceIdRef.current;
     //подключение к ws-соединению
     const socket = new WebSocket(wsUrl);
     wsRef.current = socket;
+
     socket.onopen = (): void => {
+      if (socketInstanceIdRef.current !== myId) return; // устаревший
       console.log('WebSocket open');
+      reconnectAttemptRef.current = 0; // сброс backoff
     };
-    socket.onclose = (): void => {
-      console.log('WebSocket close');
-      // переподключение через 2 сек
-      setTimeout(() => connectWSRef.current(), 2000);
+
+    socket.onclose = (e): void => {
+      if (socketInstanceIdRef.current !== myId) return; // устаревший
+      console.log('WebSocket close', e.code, e.reason);
+      // Ошибки 1006 часто при обрыве сети/таймауте
+      // Планируем reconnect
+      scheduleReconnect();
     };
-    socket.onerror = (error: Event): void => {
-      console.log('WebSocket Error: ', error);
-      socket.close();
+
+    socket.onerror = (): void => {
+      // ВАЖНО: не закрываем вручную, пусть onclose сам решит
+      console.log('WebSocket Error', err);
     };
 
     socket.onmessage = (event: MessageEvent): void => {
+      if (socketInstanceIdRef.current !== myId) return;
       const data = JSON.parse(event.data);
       //console.log(data);
       //Cобытия:
@@ -148,17 +195,35 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         pendingTimeouts.current.delete(data.request_uid);
       }
     };
-  }, [wsUrl, updateMessageByUidForUser, upsertMessageForUser]);
+  }, [wsUrl, addMessageForUser, updateMessageByUidForUser, upsertMessageForUser, deleteMessageByUidForUser]);
 
-  // устанавливаем ws-соединение
+  // чтобы scheduleReconnect мог вызывать connectWS
   useEffect(() => {
-    connectWSRef.current = connectWS;
+    // подписки на offline/online
+    const onOnline = (): void => {
+      // при появлении сети — попытка подключения
+      reconnectAttemptRef.current = 0;
+      clearReconnectTimer();
+      connectWS();
+    };
+
+    const onOffline = (): void => {
+      // при offline — закрыть и не спамить reconnect-ом
+      clearReconnectTimer();
+      wsRef.current?.close();
+    };
+
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    // старт
     connectWS();
     return (): void => {
-      // при следующем эффекте (когда изменется функция connectWS())
-      // закрываем ws-соединение и очищаем все созданные таймауты
+      isUnmountedRef.current = true;
+      clearReconnectTimer();
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
       wsRef.current?.close();
-      pendingTimeouts.current.forEach((id) => clearTimeout(id));
+      pendingTimeouts.current.forEach((id: string) => clearTimeout(id));
       pendingTimeouts.current.clear();
     };
   }, [connectWS]);
