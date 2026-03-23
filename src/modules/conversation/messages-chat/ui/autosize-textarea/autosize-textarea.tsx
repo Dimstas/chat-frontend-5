@@ -32,6 +32,20 @@ export const AutosizeTextarea = ({ maxHeight = 472, style, onInput, ...props }: 
     resize();
   }, [props.value, resize]);
 
+  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
+    if (e.key !== 'Enter') return;
+
+    // Shift+Enter => обычный перенос строки в textarea
+    if (e.shiftKey) return;
+
+    // Обычный Enter => submit
+    e.preventDefault();
+
+    // вызвать submit через ближайшую форму
+    const form = e.currentTarget.form;
+    form?.requestSubmit?.(); // modern
+    if (!form?.requestSubmit) form?.submit(); // fallback
+  };
   return (
     <textarea
       className={styles.textarea}
@@ -39,6 +53,7 @@ export const AutosizeTextarea = ({ maxHeight = 472, style, onInput, ...props }: 
       rows={1}
       style={{ resize: 'none', ...style }}
       onInput={handleInput}
+      onKeyDown={handleKeyDown}
       {...props}
     />
   );
