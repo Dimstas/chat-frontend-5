@@ -8,7 +8,7 @@ import VioletSmailIcon from './icon/violet-smail.svg';
 import styles from './message-input.module.scss';
 import type { ButtonSmailProps, MessageInputProps } from './message-input.props';
 
-export const MessageInput = ({ textInput, setTextInput }: MessageInputProps): JSX.Element => {
+export const MessageInput = ({ textInput, setTextInput, inputRef }: MessageInputProps): JSX.Element => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [recentEmoji, setRecentEmoji] = useState<string[]>([]);
@@ -72,6 +72,7 @@ export const MessageInput = ({ textInput, setTextInput }: MessageInputProps): JS
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
           maxHeight={472}
+          inputRef={inputRef}
         />
         {/* {selectedEmoji && (
           <span className={styles.emodji}>

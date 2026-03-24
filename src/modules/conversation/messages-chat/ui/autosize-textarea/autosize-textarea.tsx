@@ -1,11 +1,17 @@
-import React, { JSX, useCallback, useEffect, useRef } from 'react';
+import React, { JSX, useCallback, useEffect } from 'react';
 import styles from './autosize-textarea.module.scss';
 import type { AutosizeTextareaProps } from './autosize-textarea.props';
 
-export const AutosizeTextarea = ({ maxHeight = 472, style, onInput, ...props }: AutosizeTextareaProps): JSX.Element => {
-  const ref = useRef<HTMLTextAreaElement | null>(null);
+export const AutosizeTextarea = ({
+  maxHeight = 472,
+  style,
+  onInput,
+  inputRef,
+  ...props
+}: AutosizeTextareaProps): JSX.Element => {
+  //const ref = useRef<HTMLTextAreaElement | null>(null);
   const resize = useCallback(() => {
-    const el = ref.current;
+    const el = inputRef.current;
     if (!el) return;
     // сброс высоты чтобы правильно вычислить scrollHeight
     el.style.height = 'auto';
@@ -14,7 +20,7 @@ export const AutosizeTextarea = ({ maxHeight = 472, style, onInput, ...props }: 
     el.style.height = `${newHeight}px`;
     // при достижении maxHeight включаем вертикальную прокрутку, иначе скрываем полосу
     el.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-  }, [maxHeight]);
+  }, [maxHeight, inputRef]);
 
   useEffect(() => {
     resize(); // подгонка при монтировании/значениях по умолчанию
@@ -34,13 +40,10 @@ export const AutosizeTextarea = ({ maxHeight = 472, style, onInput, ...props }: 
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
     if (e.key !== 'Enter') return;
-
     // Shift+Enter => обычный перенос строки в textarea
     if (e.shiftKey) return;
-
     // Обычный Enter => submit
     e.preventDefault();
-
     // вызвать submit через ближайшую форму
     const form = e.currentTarget.form;
     form?.requestSubmit?.(); // modern
@@ -49,7 +52,7 @@ export const AutosizeTextarea = ({ maxHeight = 472, style, onInput, ...props }: 
   return (
     <textarea
       className={styles.textarea}
-      ref={ref}
+      ref={inputRef}
       rows={1}
       style={{ resize: 'none', ...style }}
       onInput={handleInput}

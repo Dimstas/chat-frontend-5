@@ -38,7 +38,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const currentUserIdRef = useRef<string>(currentUserId);
 
   // блок, чтобы не было гонок
-  const reconnectTimerRef = useRef<number | null>(null);
+  const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isUnmountedRef = useRef(false);
 
   // чтобы игнорировать события от "старого" сокета
@@ -53,8 +53,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
   const upsertMessageForUser = useMessagesChatStore.getState().upsertMessageForUser;
   const deleteMessageByUidForUser = useMessagesChatStore.getState().deleteMessageByUidForUser;
-  //Функция для переподключения ws-coeдинения
-  const connectWSRef = useRef<() => void>(() => {});
   // maccив интервалов [{requestUid:timeout_id},...] на каждое отправленное сообщение с помошью ws
   // нужно отследить через какое время на отправленное клиентом сообщение, ws пришлет ответ-подтверждение,
   // либо его вообще не пришлет
@@ -111,7 +109,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       scheduleReconnect();
     };
 
-    socket.onerror = (): void => {
+    socket.onerror = (err): void => {
       // ВАЖНО: не закрываем вручную, пусть onclose сам решит
       console.log('WebSocket Error', err);
     };
@@ -223,7 +221,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
       wsRef.current?.close();
-      pendingTimeouts.current.forEach((id: string) => clearTimeout(id));
+      pendingTimeouts.current.forEach((id) => clearTimeout(id));
       pendingTimeouts.current.clear();
     };
   }, [connectWS]);

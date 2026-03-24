@@ -1,3 +1,6 @@
+import { FetchNextPageOptions, InfiniteData, InfiniteQueryObserverResult } from '@tanstack/react-query';
+import type { MessagesListApiResponse, RestMessageApi } from '../../model/messages-list';
+
 export type MessageListProps = {
   messagesList: RestMessageApi[];
   currentUserId: string;

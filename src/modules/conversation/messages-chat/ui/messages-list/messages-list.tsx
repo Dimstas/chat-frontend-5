@@ -10,7 +10,7 @@ import { IncomingMessagesCard } from '../message-card/incoming-message-card/inco
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
-import type { MessageListProps } from './message-list.props ';
+import type { MessageListProps } from './message-list.props';
 import { useFixedTargetIndex } from './use-fixed-target-index';
 
 export const MessagesList = ({

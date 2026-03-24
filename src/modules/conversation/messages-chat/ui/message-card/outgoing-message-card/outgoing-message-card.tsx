@@ -67,6 +67,7 @@ export const OutgoingMessagesCard = ({
         visible={contextMenuVisible}
         onClose={handleCloseMenu}
         handleDeleteClick={handleDeleteClick}
+        message={message}
       />
       <div className={styles.item}>
         <div className={styles.message}>

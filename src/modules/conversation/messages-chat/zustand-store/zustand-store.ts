@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
 
-type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
+export type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 
 type MessagesChatState = {
   messagesByUser: Record<string, Msg[]>;
@@ -118,4 +118,16 @@ type ForAllDelete = {
 export const useForAllDeleteStore = create<ForAllDelete>((set) => ({
   forAllDelete: null,
   setForAllDelete: (forAllDelete): void => set({ forAllDelete }),
+}));
+
+type SelectedMessageState = {
+  selectedMessage: Msg | null;
+  setSelectedMessage: (msg: Msg) => void;
+  clearSelectedMessage: () => void;
+};
+
+export const useSelectedMessageStore = create<SelectedMessageState>((set) => ({
+  selectedMessage: null,
+  setSelectedMessage: (selectedMessage: Msg): void => set({ selectedMessage }),
+  clearSelectedMessage: (): void => set({ selectedMessage: null }),
 }));
