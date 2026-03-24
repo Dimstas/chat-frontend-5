@@ -1,7 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { JSX } from 'react';
-import { useSelectedMessageStore } from '../../zustand-store/zustand-store';
+import { useRepliedMessageStore } from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
@@ -17,10 +17,10 @@ export const ContextMenu = ({
   handleDeleteClick,
   message,
 }: ContextMenuProps): JSX.Element | null => {
-  const setSelectedMessageStore = useSelectedMessageStore((s) => s.setSelectedMessage);
+  const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
 
   const handleAnswerClick = (): void => {
-    setSelectedMessageStore(message);
+    setRepliedMessageStore(message);
   };
 
   if (!visible) return null;

@@ -120,14 +120,14 @@ export const useForAllDeleteStore = create<ForAllDelete>((set) => ({
   setForAllDelete: (forAllDelete): void => set({ forAllDelete }),
 }));
 
-type SelectedMessageState = {
-  selectedMessage: Msg | null;
-  setSelectedMessage: (msg: Msg) => void;
-  clearSelectedMessage: () => void;
+type RepliedMessageState = {
+  repliedMessage: RestMessageApi | null;
+  setRepliedMessage: (msg: RestMessageApi) => void;
+  clearRepliedMessage: () => void;
 };
 
-export const useSelectedMessageStore = create<SelectedMessageState>((set) => ({
-  selectedMessage: null,
-  setSelectedMessage: (selectedMessage: Msg): void => set({ selectedMessage }),
-  clearSelectedMessage: (): void => set({ selectedMessage: null }),
+export const useRepliedMessageStore = create<RepliedMessageState>((set) => ({
+  repliedMessage: null,
+  setRepliedMessage: (repliedMessage: RestMessageApi): void => set({ repliedMessage }),
+  clearRepliedMessage: (): void => set({ repliedMessage: null }),
 }));

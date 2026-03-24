@@ -15,7 +15,7 @@ import {
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 
 type UseWebSocketChat = {
-  sendMessage: (content: string) => void;
+  sendMessage: (content: string, repliedMessageStore: RestMessageApi) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
@@ -228,7 +228,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция отправки сообщения
   const sendMessage = useCallback(
-    (content: string): void => {
+    (content: string, repliedMessageStore: RestMessageApi): void => {
       if (!content.trim()) return;
       const requestUid = crypto.randomUUID();
       //создаем в DOM временное сообщение-заглушку для помещения в список сообщений
@@ -268,6 +268,20 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         },
         status: 'pending',
       };
+      if (repliedMessageStore) {
+        tempMessage.replied_messages = [
+          {
+            id: repliedMessageStore.id,
+            uid: repliedMessageStore.uid,
+            is_deleted: false,
+            from_user: repliedMessageStore.from_user.uid,
+            first_name: repliedMessageStore.from_user.first_name ?? '',
+            last_name: repliedMessageStore.from_user.last_name ?? '',
+            content: repliedMessageStore.content,
+            files_list: [],
+          },
+        ];
+      }
       // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
       addMessageForUser(userIdRef.current, tempMessage);
 
@@ -279,6 +293,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           to_user_uid: userIdRef.current,
           content,
           status: 'publish',
+          replied_messages: [repliedMessageStore.uid],
         },
       };
       //валидация c помощью zod

@@ -3,6 +3,7 @@ import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import { JSX, MouseEvent, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { ReplyToMessageCard } from '../reply-to-message-card/reply-to-message-card';
 import styles from './incoming-message-card.module.scss';
 import type { IncomingMessageCardProps } from './incoming-message.props';
 
@@ -67,6 +68,13 @@ export const IncomingMessagesCard = ({
         message={message}
       />
       <div className={styles.item}>
+        {message.replied_messages.length > 0 && (
+          <ReplyToMessageCard
+            first_name={message.replied_messages[0].first_name}
+            last_name={message.replied_messages[0].last_name}
+            content={message.replied_messages[0].content ?? ''}
+          />
+        )}
         <div className={styles.message}>
           <span className={styles.messageText}> {message.content} </span>
           <div className={styles.messageSentTime}>
