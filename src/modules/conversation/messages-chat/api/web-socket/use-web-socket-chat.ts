@@ -15,7 +15,7 @@ import {
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 
 type UseWebSocketChat = {
-  sendMessage: (content: string, repliedMessageStore: RestMessageApi) => void;
+  sendMessage: (content: string, repliedMessageStore: RestMessageApi | null) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
@@ -228,7 +228,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция отправки сообщения
   const sendMessage = useCallback(
-    (content: string, repliedMessageStore: RestMessageApi): void => {
+    (content: string, repliedMessageStore: RestMessageApi | null): void => {
       if (!content.trim()) return;
       const requestUid = crypto.randomUUID();
       //создаем в DOM временное сообщение-заглушку для помещения в список сообщений
@@ -293,9 +293,12 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           to_user_uid: userIdRef.current,
           content,
           status: 'publish',
-          replied_messages: [repliedMessageStore.uid],
+          replied_messages: [],
         },
       };
+      if (repliedMessageStore) {
+        payloadMessage.object.replied_messages = [repliedMessageStore.uid];
+      }
       //валидация c помощью zod
       const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);
 

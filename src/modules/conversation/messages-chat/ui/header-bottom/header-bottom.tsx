@@ -12,10 +12,7 @@ import Submit from './icon/submit.svg';
 export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentUserId: string }): JSX.Element => {
   const [textInput, setTextInput] = useState<string>('');
   const repliedMessageStore = useRepliedMessageStore((s) => s.repliedMessage);
-
-  const { content, from_user } = repliedMessageStore ?? {};
-  const { first_name, last_name } = from_user ?? {};
-
+  const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { sendMessage } = useWebSocketChat(wsUrl, currentUserId);
@@ -28,16 +25,18 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentU
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
-    if (repliedMessageStore) {
-      sendMessage(textInput, repliedMessageStore);
-      setTextInput('');
-    }
+    sendMessage(textInput, repliedMessageStore);
+    setTextInput('');
+    clearRepliedMessageStore();
   };
 
   return (
     <>
       {repliedMessageStore && (
-        <ReplyToMessageCard first_name={first_name ?? ''} last_name={last_name ?? ''} content={content ?? ''} />
+        <ReplyToMessageCard
+          repliedMessageStore={repliedMessageStore}
+          clearRepliedMessageStore={clearRepliedMessageStore}
+        />
       )}
       <form className={styles.wrapper} onSubmit={handleSubmitForm}>
         <span className={styles.clipIcon}>
