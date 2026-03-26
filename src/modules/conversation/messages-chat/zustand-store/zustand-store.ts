@@ -131,3 +131,15 @@ export const useRepliedMessageStore = create<RepliedMessageState>((set) => ({
   setRepliedMessage: (repliedMessage: RestMessageApi): void => set({ repliedMessage }),
   clearRepliedMessage: (): void => set({ repliedMessage: null }),
 }));
+
+type RecentEmojiState = {
+  recentEmojis: string[];
+  setRecentEmojis: (recentEmoji: string[]) => void;
+  clearRecentEmojis: () => void;
+};
+
+export const useRecentEmojiStore = create<RecentEmojiState>((set) => ({
+  recentEmojis: [],
+  setRecentEmojis: (recentEmojis: string[]): void => set({ recentEmojis }),
+  clearRecentEmojis: (): void => set({ recentEmojis: [] }),
+}));
