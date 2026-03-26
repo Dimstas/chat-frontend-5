@@ -1,5 +1,4 @@
 import { string, z } from 'zod';
-
 //RequestCreatingMessageApi
 const serializerFileMessageApiSchema = z.object({
   filename: z.string().default('document.pdf'),

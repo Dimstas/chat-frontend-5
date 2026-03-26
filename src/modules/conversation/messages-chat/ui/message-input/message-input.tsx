@@ -1,6 +1,7 @@
 'use client';
 import { JSX, useLayoutEffect, useRef, useState } from 'react';
 import { addRecentEmodji } from '../../utils/recent-emodji-array';
+import { useRecentEmojiStore } from '../../zustand-store/zustand-store';
 import { AutosizeTextarea } from '../autosize-textarea/autosize-textarea';
 import { EmodjiBlock } from '../emodji-block/emodji-block';
 import SmailIcon from './icon/smail.svg';
@@ -8,17 +9,18 @@ import VioletSmailIcon from './icon/violet-smail.svg';
 import styles from './message-input.module.scss';
 import type { ButtonSmailProps, MessageInputProps } from './message-input.props';
 
-export const MessageInput = ({ textInput, setTextInput }: MessageInputProps): JSX.Element => {
+export const MessageInput = ({ textInput, setTextInput, inputRef }: MessageInputProps): JSX.Element => {
   const [showEmojiPicker, setShowEmojiPicker] = useState<boolean>(false);
-  const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
-  const [recentEmoji, setRecentEmoji] = useState<string[]>([]);
   const [pickerPos, setPickerPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement | null>(null);
+  const recentEmojisStore = useRecentEmojiStore((s) => s.recentEmojis);
+  const setRecentEmojisStore = useRecentEmojiStore((s) => s.setRecentEmojis);
 
   const handleEmojiSelect = (emoji: string): void => {
-    setSelectedEmoji(emoji);
     setShowEmojiPicker(false);
-    setRecentEmoji(addRecentEmodji(emoji));
+    setRecentEmojisStore(addRecentEmodji(emoji));
+    setTextInput(textInput + emoji);
+    inputRef.current?.focus();
   };
   const openEmojiPicker = (): void => {
     if (buttonRef.current) {
@@ -72,18 +74,8 @@ export const MessageInput = ({ textInput, setTextInput }: MessageInputProps): JS
           value={textInput}
           onChange={(e) => setTextInput(e.target.value)}
           maxHeight={472}
+          inputRef={inputRef}
         />
-        {/* {selectedEmoji && (
-          <span className={styles.emodji}>
-            <ImageUI
-              src={`/images/messages-chats/smileysIcons/${selectedEmoji}.svg`}
-              alt="смаил"
-              loading="eager"
-              width={32}
-              height={32}
-            />
-          </span>
-        )} */}
       </div>
       <ButtonSmail
         buttonRef={buttonRef}
@@ -94,7 +86,11 @@ export const MessageInput = ({ textInput, setTextInput }: MessageInputProps): JS
       />
       <div onMouseLeave={closeEmojiPicker}>
         {showEmojiPicker && (
-          <EmodjiBlock handleEmojiSelect={handleEmojiSelect} recentEmoji={recentEmoji} position={pickerPos} />
+          <EmodjiBlock
+            handleEmojiSelect={handleEmojiSelect}
+            recentEmojisStore={recentEmojisStore}
+            position={pickerPos}
+          />
         )}
       </div>
     </div>

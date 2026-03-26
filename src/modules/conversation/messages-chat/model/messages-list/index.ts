@@ -8,4 +8,5 @@ export type {
   CreateTextMessageAPI,
   DeleteMessageApi,
 } from './create-text-message.api.schema';
+export { restFlatMessageApiSchema } from './user-messages.api.schema';
 export type { MessagesListApiResponse, MessagesListQuery, RestMessageApi } from './user-messages.api.schema';

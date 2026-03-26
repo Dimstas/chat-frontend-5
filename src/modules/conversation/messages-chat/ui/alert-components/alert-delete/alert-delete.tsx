@@ -1,10 +1,10 @@
 'use client';
 import clsx from 'clsx';
+import { useForAllDeleteStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { JSX, useEffect, useState } from 'react';
-import { useForAllDeleteStore } from '../../zustand-store/zustand-store';
-import styles from './alert-layout.module.scss';
-import type { AlertLayoutProps, CheckBoxProps } from './alert-layout.props';
-export const AlertLayout = ({
+import styles from './alert-delete.module.scss';
+import type { AlertDeleteProps, CheckBoxProps } from './alert-delete.props';
+export const AlertDelete = ({
   id,
   title,
   message,
@@ -14,7 +14,7 @@ export const AlertLayout = ({
   labelCheckBox,
   onOk,
   onCancel,
-}: AlertLayoutProps): JSX.Element => {
+}: AlertDeleteProps): JSX.Element => {
   return (
     <div
       id={`${id}`}

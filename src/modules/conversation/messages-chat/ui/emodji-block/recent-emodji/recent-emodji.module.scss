@@ -27,3 +27,9 @@
   height: 3.2rem;
   padding: 0 1.6rem;
 }
+.emodji {
+  @include mixins.flex-box();
+  width: 3.2rem;
+  height: 3.2rem;
+  font-size: 3.2rem;
+}

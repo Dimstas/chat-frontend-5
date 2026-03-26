@@ -1,7 +1,7 @@
 'use client';
 import React, { JSX, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AlertLayout } from '../ui/alert-layout/alert-layout';
+import { AlertDelete } from '../ui/alert-components/alert-delete/alert-delete';
 
 export type AlertOptions = {
   id?: string | number;
@@ -171,7 +171,7 @@ export const AlertProvider = ({
                   }
                 }}
               >
-                <AlertLayout
+                <AlertDelete
                   id={a.id}
                   title={a.title}
                   message={a.message}

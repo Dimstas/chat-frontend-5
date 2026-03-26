@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
 
-type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
+export type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 
 type MessagesChatState = {
   messagesByUser: Record<string, Msg[]>;
@@ -118,4 +118,28 @@ type ForAllDelete = {
 export const useForAllDeleteStore = create<ForAllDelete>((set) => ({
   forAllDelete: null,
   setForAllDelete: (forAllDelete): void => set({ forAllDelete }),
+}));
+
+type RepliedMessageState = {
+  repliedMessage: RestMessageApi | null;
+  setRepliedMessage: (msg: RestMessageApi) => void;
+  clearRepliedMessage: () => void;
+};
+
+export const useRepliedMessageStore = create<RepliedMessageState>((set) => ({
+  repliedMessage: null,
+  setRepliedMessage: (repliedMessage: RestMessageApi): void => set({ repliedMessage }),
+  clearRepliedMessage: (): void => set({ repliedMessage: null }),
+}));
+
+type RecentEmojiState = {
+  recentEmojis: string[];
+  setRecentEmojis: (recentEmoji: string[]) => void;
+  clearRecentEmojis: () => void;
+};
+
+export const useRecentEmojiStore = create<RecentEmojiState>((set) => ({
+  recentEmojis: [],
+  setRecentEmojis: (recentEmojis: string[]): void => set({ recentEmojis }),
+  clearRecentEmojis: (): void => set({ recentEmojis: [] }),
 }));

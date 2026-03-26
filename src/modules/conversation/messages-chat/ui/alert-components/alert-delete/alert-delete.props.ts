@@ -1,4 +1,4 @@
-export type AlertLayoutProps = {
+export type AlertDeleteProps = {
   id: string | number;
   title?: string;
   message?: string;
