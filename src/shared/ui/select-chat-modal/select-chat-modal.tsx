@@ -2,14 +2,16 @@ import { ChatCardModal } from 'modules/conversation/chats/entity/ui/chat-card-mo
 import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { SearchInput } from 'modules/conversation/shared/ui';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
+import ForwardedIcon from '../../../modules/notification/ui/notification-modal/icons/forwarded.svg';
 import ModalCloseIcon from './icons/modal-close.svg';
 import styles from './select-chat-modal.module.scss';
 
 type SelectChatModalProps = {
   title: string;
   onClose: () => void;
-  onSelect: () => void;
+  onSelect: (toUid: string) => void;
 };
 
 export const SelectChatModal: React.FC<SelectChatModalProps> = ({
@@ -18,6 +20,7 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
   onSelect,
 }: SelectChatModalProps): JSX.Element => {
   const { modalChats, modalSearch, setModalSearch } = useChatsScreen();
+  const { setIcon, setTitle, openPopup } = useNotificationStore();
   const { clearSelected } = useChatsStore();
 
   const handleBackdropClick = (e: React.MouseEvent): void => {
@@ -26,10 +29,13 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
     }
   };
 
-  const handleSelectClick = (): void => {
-    onSelect();
+  const handleSelectClick = (toUid: string, fullName: string): void => {
+    onSelect(toUid);
     clearSelected();
     onClose();
+    setIcon(<ForwardedIcon />);
+    setTitle(`Отправлено ${fullName}`);
+    openPopup();
   };
 
   return (
@@ -48,7 +54,11 @@ export const SelectChatModal: React.FC<SelectChatModalProps> = ({
           <>
             <ul>
               {modalChats.map((c) => (
-                <ChatCardModal key={c.peer.uid} chat={c} onSelectHandler={handleSelectClick} />
+                <ChatCardModal
+                  key={c.peer.uid}
+                  chat={c}
+                  onSelectHandler={() => handleSelectClick(c.peer.uid, `${c.peer.firstName} ${c.peer.lastName}`)}
+                />
               ))}
             </ul>
           </>

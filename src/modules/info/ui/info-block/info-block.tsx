@@ -20,7 +20,7 @@ import { UnblockContactModal } from '../unblock-contact-modal';
 import AddIcon from './icons/add.svg';
 import { InfoBlockProps } from './info-block.props';
 
-export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
+export const InfoBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Element | null => {
   const { isInfoOpen, openUnblockModal, setUid, setChatId } = useInfoStore();
   const { contacts } = useContactsScreen();
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
@@ -84,7 +84,7 @@ export const InfoBlock = ({ uid }: InfoBlockProps): JSX.Element | null => {
           <BlockContactModal />
           <UnblockContactModal />
           <ClearChatModal />
-          <FrowardProfileModal />
+          <FrowardProfileModal wsUrl={wsUrl} currentUid={currentUid} nickname={nickname ?? ''} />
         </>
       )}
     </>

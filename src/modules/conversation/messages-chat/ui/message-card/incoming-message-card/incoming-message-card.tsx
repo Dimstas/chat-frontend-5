@@ -2,22 +2,16 @@
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import { JSX, MouseEvent, useState } from 'react';
-import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { ReplyCard } from '../reply-card/reply-card';
 import styles from './incoming-message-card.module.scss';
+import type { IncomingMessageCardProps } from './incoming-message.props';
 
 export const IncomingMessagesCard = ({
   message,
   register,
   sendDeleteMessage,
-}: {
-  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
-  register: (el: Element | null, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
-  sendDeleteMessage: (
-    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
-    selected?: boolean,
-  ) => void;
-}): JSX.Element => {
+}: IncomingMessageCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
 
@@ -71,8 +65,10 @@ export const IncomingMessagesCard = ({
         visible={contextMenuVisible}
         onClose={handleCloseMenu}
         handleDeleteClick={handleDeleteClick}
+        message={message}
       />
       <div className={styles.item}>
+        {message.replied_messages.length > 0 && <ReplyCard repliedMessageStore={message} isIncomingMessage={true} />}
         <div className={styles.message}>
           <span className={styles.messageText}> {message.content} </span>
           <div className={styles.messageSentTime}>

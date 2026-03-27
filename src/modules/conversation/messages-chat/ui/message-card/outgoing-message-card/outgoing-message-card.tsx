@@ -1,4 +1,5 @@
 'use client';
+
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import { useForAllDeleteStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
@@ -8,7 +9,9 @@ import { ContextMenu } from '../../context-menu/context-menu';
 import CheckOneIcon from '../icons/check-one.svg';
 import CheckTwoIcon from '../icons/check-two.svg';
 import WatchIcon from '../icons/watch.svg';
+import { ReplyCard } from '../reply-card/reply-card';
 import styles from './outgoing-message-card.module.scss';
+
 export const OutgoingMessagesCard = ({
   message,
   sendDeleteMessage,
@@ -67,8 +70,10 @@ export const OutgoingMessagesCard = ({
         visible={contextMenuVisible}
         onClose={handleCloseMenu}
         handleDeleteClick={handleDeleteClick}
+        message={message}
       />
       <div className={styles.item}>
+        {message.replied_messages.length > 0 && <ReplyCard repliedMessageStore={message} isIncomingMessage={false} />}
         <div className={styles.message}>
           <span className={styles.messageText}> {message.content} </span>
           <div className={styles.messageSentTime}>

@@ -1,12 +1,14 @@
 import { useClearChatMutation } from 'modules/conversation/chats/api/chat.query';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useInfoStore } from 'modules/info/model/info.store';
+import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
 import { Modal } from 'shared/ui';
 
 export const ClearChatModal = (): JSX.Element | null => {
   const { contacts, globals } = useContactsScreen();
   const { uid, chatId, isClearModalOpen, closeClearModal } = useInfoStore();
+  const { openPopup, setCallback, setTitle, setTimer } = useNotificationStore();
 
   const { mutate: clearChat } = useClearChatMutation();
 
@@ -15,7 +17,10 @@ export const ClearChatModal = (): JSX.Element | null => {
 
   const handleClear = (): void => {
     if (chatId) {
-      clearChat(chatId);
+      setCallback(() => clearChat(chatId));
+      setTitle('История чата удалена');
+      setTimer(5000);
+      openPopup();
     }
     closeClearModal();
   };

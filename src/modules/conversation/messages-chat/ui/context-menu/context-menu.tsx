@@ -1,6 +1,9 @@
+'use client';
 import clsx from 'clsx';
 import { JSX } from 'react';
+import { useRepliedMessageStore } from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
+import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
 import Check from './icons/check.svg';
 import Copy from './icons/copy.svg';
@@ -12,16 +15,18 @@ export const ContextMenu = ({
   visible,
   onClose,
   handleDeleteClick,
-}: {
-  position: { x: number; y: number };
-  visible: boolean;
-  onClose: () => void;
-  handleDeleteClick: () => Promise<void>;
-}): JSX.Element | null => {
+  message,
+}: ContextMenuProps): JSX.Element | null => {
+  const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
+
+  const handleAnswerClick = (): void => {
+    setRepliedMessageStore(message);
+  };
+
   if (!visible) return null;
   return (
     <div className={styles.wrapper} onMouseLeave={onClose} style={{ top: position.y, left: position.x }}>
-      <button className={clsx(styles.cell, styles.cellTop)} onClick={onClose}>
+      <button className={clsx(styles.cell, styles.cellTop)} onClick={handleAnswerClick}>
         <div className={styles.text}>Ответить</div>
         <div className={styles.icon}>
           <Answer />

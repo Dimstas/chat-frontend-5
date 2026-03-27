@@ -26,13 +26,14 @@ export const restMessageFileApiSchema = z.object({
   file_url: z.string(),
   file_webp_url: z.string(),
   file_type: z.string().max(128).optional(),
-  created_at: z.number(),
-  updated_at: z.number(),
+  created_at: z.string(),
+  updated_at: z.string(),
 });
 
 export const restFlatMessageApiSchema = z.object({
   id: z.number(),
   uid: z.string(),
+  is_deleted: z.boolean(),
   from_user: z.string(),
   first_name: z.string(),
   last_name: z.string(),
