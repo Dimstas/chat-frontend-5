@@ -18,10 +18,10 @@ import { InfoNotification } from '../info-notification';
 import { InfoSummary } from '../info-summary';
 import { UnblockContactModal } from '../unblock-contact-modal';
 import AddIcon from './icons/add.svg';
-import { InfoBlockProps } from './info-block.props';
+import { InfoBlockProps } from './info-contact-block.props';
 
-export const InfoBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Element | null => {
-  const { isInfoOpen, openUnblockModal, setUid, setChatId } = useInfoStore();
+export const InfoContactBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Element => {
+  const { openUnblockModal, setUid } = useInfoStore();
   const { contacts } = useContactsScreen();
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
   const { mutate: addToContact } = useAddContactQuery();
@@ -38,8 +38,7 @@ export const InfoBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Eleme
 
   useEffect(() => {
     setUid(uid);
-    if (chatId) setChatId(chatId);
-  }, [uid, chatId, setUid, setChatId]);
+  }, [uid, setUid]);
 
   const handleAddContact = (): void => {
     if (!!user) {
@@ -51,8 +50,6 @@ export const InfoBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Eleme
   const handleUnblockContact = (): void => {
     openUnblockModal();
   };
-
-  if (!isInfoOpen) return null;
 
   return (
     <>
