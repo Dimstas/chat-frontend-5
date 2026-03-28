@@ -2,9 +2,17 @@ import { useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResul
 import { searchUsers } from 'modules/conversation/contacts/api';
 import { GlobalContactApi, UserContactApiResponse } from 'modules/conversation/contacts/model/contact';
 import { blockUser, getProfileInfoById, mapInfoProfileFromApi } from '.';
-import { ProfileInfo } from '../entity/info.entity';
-import { BlockProfileApiResponse, ChatPost, ChatPostApiResponse, NewContact } from '../model/info.api.schema';
-import { addToContact, editChat, unblockUser } from './info.api';
+import { GroupInfo, ProfileInfo } from '../entity/info.entity';
+import {
+  BlockProfileApiResponse,
+  ChatPost,
+  ChatPostApiResponse,
+  InviteLinkApiResponse,
+  InviteSettingsPost,
+  NewContact,
+} from '../model/info.api.schema';
+import { addToContact, editChat, generateInvite, getGroupOrChannel, unblockUser } from './info.api';
+import { mapInfoGroupFromApi } from './info.group.mapper';
 
 export const useInfoProfileQuery = (id: string): UseQueryResult<ProfileInfo> => {
   return useQuery({
@@ -16,6 +24,21 @@ export const useInfoProfileQuery = (id: string): UseQueryResult<ProfileInfo> => 
     select: (data) => mapInfoProfileFromApi(data),
 
     enabled: !!id,
+    placeholderData: (previousData) => previousData,
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useGroupOrChanelQuery = (chatKey: string): UseQueryResult<GroupInfo> => {
+  return useQuery({
+    queryKey: ['info', 'group', chatKey],
+    queryFn: async ({ signal }) => {
+      return await getGroupOrChannel(chatKey, { signal });
+    },
+
+    select: (data) => mapInfoGroupFromApi(data),
+
+    enabled: !!chatKey,
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60 * 1000,
   });
@@ -143,6 +166,34 @@ export const useEditChatQuery = (chatId: number): UseMutationResult<ChatPostApiR
     onSettled: () => {
       void queryClient.invalidateQueries({
         queryKey: ['chats', 'chat-list'],
+      });
+    },
+  });
+};
+
+export const useGenerateInviteLinkQuery = (
+  chatKey: string,
+): UseMutationResult<InviteLinkApiResponse, Error, InviteSettingsPost> => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['generate', 'invite', chatKey],
+
+    mutationFn: async (inviteSetting): Promise<InviteLinkApiResponse> => {
+      return await generateInvite(inviteSetting, chatKey);
+    },
+
+    onSuccess: () => {
+      console.log('Ссылка сгенерирована');
+    },
+
+    onError: (error: Error) => {
+      console.error('Ошибка POST‑запроса:', error);
+    },
+
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['generate', 'invite'],
       });
     },
   });

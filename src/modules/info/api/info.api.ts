@@ -4,7 +4,10 @@ import {
   BlockProfileApiResponse,
   ChatPost,
   ChatPostApiResponse,
+  GroupOrChanelApiResponse,
   InfoProfileApiResponse,
+  InviteLinkApiResponse,
+  InviteSettingsPost,
   NewContact,
 } from '../model/info.api.schema';
 
@@ -13,6 +16,16 @@ export const getProfileInfoById = (
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<InfoProfileApiResponse> => {
   return apiFetch<InfoProfileApiResponse>(`/api/proxy/api/v1/contact/${id}`, {
+    method: 'GET',
+    signal,
+  });
+};
+
+export const getGroupOrChannel = (
+  chatKey: string,
+  { signal }: { signal?: AbortSignal } = {},
+): Promise<GroupOrChanelApiResponse> => {
+  return apiFetch<GroupOrChanelApiResponse>(`/api/proxy/api/v1/chat/list/groups_or_channels/${chatKey}/`, {
     method: 'GET',
     signal,
   });
@@ -51,6 +64,21 @@ export const editChat = async (
   return apiFetch<ChatPostApiResponse>(`/api/proxy/api/v1/chat/list/${chatId}/`, {
     method: 'POST',
     body: JSON.stringify(chatPost),
+    signal,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+};
+
+export const generateInvite = async (
+  inviteSettings: InviteSettingsPost,
+  chatKey: string,
+  { signal }: { signal?: AbortSignal } = {},
+): Promise<InviteLinkApiResponse> => {
+  return apiFetch<InviteLinkApiResponse>(`/api/proxy/api/v1/chat/list/generate-invite/${chatKey}/`, {
+    method: 'POST',
+    body: JSON.stringify(inviteSettings),
     signal,
     headers: {
       'Content-Type': 'application/json',
