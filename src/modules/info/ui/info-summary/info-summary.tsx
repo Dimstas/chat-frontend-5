@@ -6,14 +6,26 @@ import CopyIcon from './icons/copy.svg';
 import styles from './info-summary.module.scss';
 import { InfoSummaryProps } from './info-summary.props';
 
-export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSummaryProps): JSX.Element => {
+export const InfoSummary = ({
+  nickname,
+  phoneNumber,
+  birthDay,
+  about,
+  description,
+  inviteLink,
+  chatKey,
+}: InfoSummaryProps): JSX.Element => {
   const { openPopup, setIcon, setTitle } = useNotificationStore();
 
+  const chatKeys = chatKey?.split('-') ?? '';
+
   const handleCopyNickname = (): void => {
-    navigator.clipboard.writeText(nickname);
-    setIcon(<CopiedIcon />);
-    setTitle('Никнейм скопирован');
-    openPopup();
+    if (nickname) {
+      navigator.clipboard.writeText(nickname);
+      setIcon(<CopiedIcon />);
+      setTitle('Никнейм скопирован');
+      openPopup();
+    }
   };
 
   const handleCopyPhone = (): void => {
@@ -25,17 +37,28 @@ export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSumm
     }
   };
 
+  const handleCopyInvitedLink = (): void => {
+    if (inviteLink) {
+      navigator.clipboard.writeText(inviteLink);
+      setIcon(<CopiedIcon />);
+      setTitle('Ссылка-приглашение скопирована');
+      openPopup();
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <div className={styles.item}>
-        <div className={styles.content}>
-          <div className={styles.label}>Никнейм</div>
-          <div className={styles.link}>{nickname}</div>
+      {nickname && (
+        <div className={styles.item}>
+          <div className={styles.content}>
+            <div className={styles.label}>Никнейм</div>
+            <div className={styles.link}>{nickname}</div>
+          </div>
+          <button onClick={handleCopyNickname}>
+            <CopyIcon />
+          </button>
         </div>
-        <button onClick={handleCopyNickname}>
-          <CopyIcon />
-        </button>
-      </div>
+      )}
       {phoneNumber && (
         <div className={clsx(styles.item, styles.itemBorder)}>
           <div className={styles.content}>
@@ -61,6 +84,29 @@ export const InfoSummary = ({ nickname, phoneNumber, birthDay, about }: InfoSumm
             <div className={styles.label}>О себе</div>
             <div className={styles.text}>{about}</div>
           </div>
+        </div>
+      )}
+      {description && (
+        <div className={clsx(styles.item)}>
+          <div className={styles.content}>
+            <div className={styles.label}>Описание</div>
+            <div className={styles.text}>{description}</div>
+          </div>
+        </div>
+      )}
+      {inviteLink && (
+        <div className={clsx(styles.item)}>
+          <div className={styles.content}>
+            <div className={styles.label}>Ссылка на приглашение в группу</div>
+            <div className={styles.link}>
+              <a href={inviteLink}>
+                {window.location.origin}/{chatKeys[chatKeys.length - 1]}
+              </a>
+            </div>
+          </div>
+          <button onClick={handleCopyInvitedLink}>
+            <CopyIcon />
+          </button>
         </div>
       )}
     </div>

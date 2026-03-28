@@ -7,6 +7,10 @@ import { useAddContactQuery, useInfoProfileQuery, useSearchUserByNicknameQuery }
 import { useInfoStore } from 'modules/info/model/info.store';
 import { formatTimestamp } from 'modules/info/shared/utils/date-time';
 import { JSX, useEffect } from 'react';
+import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
+import BlockIcon from '../../shared/icons/block.svg';
+import ClearIcon from '../../shared/icons/clear.svg';
+import ForwardIcon from '../../shared/icons/forward.svg';
 import { ActionButton } from '../action-button';
 import { BlockContactModal } from '../block-contact-modal';
 import { ClearChatModal } from '../clear-chat-modal';
@@ -21,7 +25,7 @@ import AddIcon from './icons/add.svg';
 import { InfoBlockProps } from './info-contact-block.props';
 
 export const InfoContactBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Element => {
-  const { openUnblockModal, setUid } = useInfoStore();
+  const { openUnblockModal, setUid, openBlockModal, openClearModal, openForwardModal } = useInfoStore();
   const { contacts } = useContactsScreen();
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
   const { mutate: addToContact } = useAddContactQuery();
@@ -35,6 +39,28 @@ export const InfoContactBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JS
 
   const { data: users } = useSearchUserByNicknameQuery(nickname ?? '');
   const user = users ? users[0] : undefined;
+
+  const menuItems: DropdownItem[] = [
+    {
+      label: 'Поделиться профилем',
+      icon: <ForwardIcon />,
+      onClick: openForwardModal,
+    },
+    {
+      label: 'Очистить чат',
+      icon: <ClearIcon />,
+      onClick: openClearModal,
+    },
+  ];
+
+  if (!isBlocked) {
+    menuItems.push({
+      label: 'Заблокировать',
+      icon: <BlockIcon />,
+      variant: 'alert',
+      onClick: openBlockModal,
+    });
+  }
 
   useEffect(() => {
     setUid(uid);
@@ -57,12 +83,11 @@ export const InfoContactBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JS
         <div>Загрузка...</div>
       ) : (
         <>
-          <InfoLayout header={<InfoHeader isBlocked={isBlocked ?? false} />}>
+          <InfoLayout header={<InfoHeader menuItems={menuItems} />}>
             <InfoAvatar
               avatarHref={avatarUrl ?? '/images/profile/default.png'}
-              firstName={firstName ?? ''}
-              lastName={lastName ?? ''}
-              isOnline={isOnline ?? false}
+              label={`${firstName} ${lastName}`}
+              status={isOnline ? 'в сети' : 'не в сети'}
             />
             <InfoNotification chatId={chatId} />
             <InfoSummary

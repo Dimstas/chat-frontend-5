@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { JSX } from 'react';
 import { useInfoStore } from '../model/info.store';
 import { InfoContactBlock } from '../ui';
+import { InfoGroupBlock } from '../ui/info-group-block';
 import { InfoScreenProps } from './info-screen.props';
 
 export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Element | null => {
@@ -17,5 +18,13 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
 
   if (!isInfoOpen) return null;
 
-  return <>{isContact ? <InfoContactBlock uid={uid} wsUrl={wsUrl} currentUid={currentUid} /> : <div>test</div>}</>;
+  return (
+    <>
+      {isContact ? (
+        <InfoContactBlock uid={uid} wsUrl={wsUrl} currentUid={currentUid} />
+      ) : (
+        <InfoGroupBlock uid={uid} wsUrl={wsUrl} currentUid={currentUid} chatKey={chat?.chat.chatKey ?? ''} />
+      )}
+    </>
+  );
 };

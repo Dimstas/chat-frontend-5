@@ -1,3 +1,6 @@
+import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
+
 export type InfoHeaderProps = {
-  isBlocked: boolean;
+  title?: string;
+  menuItems: DropdownItem[];
 };

@@ -1,46 +1,22 @@
 import { useInfoStore } from 'modules/info/model/info.store';
 import { JSX } from 'react';
 import { Dropdown } from 'shared/ui/dropdown';
-import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
-import BlockIcon from './icons/block.svg';
-import ClearIcon from './icons/clear.svg';
-import CloseIcon from './icons/close.svg';
-import DropdownIcon from './icons/dropdown.svg';
-import ForwardIcon from './icons/forward.svg';
+
+import CloseIcon from '../../shared/icons/close.svg';
+import DropdownIcon from '../../shared/icons/dropdown.svg';
+
 import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
-export const InfoHeader = ({ isBlocked }: InfoHeaderProps): JSX.Element => {
-  const { toggleInfoOpen, openBlockModal, openClearModal, openForwardModal } = useInfoStore();
-
-  const menuItems: DropdownItem[] = [
-    {
-      label: 'Поделиться профилем',
-      icon: <ForwardIcon />,
-      onClick: openForwardModal,
-    },
-    {
-      label: 'Очистить чат',
-      icon: <ClearIcon />,
-      onClick: openClearModal,
-    },
-  ];
-
-  if (!isBlocked) {
-    menuItems.push({
-      label: 'Заблокировать',
-      icon: <BlockIcon />,
-      variant: 'alert',
-      onClick: openBlockModal,
-    });
-  }
+export const InfoHeader = ({ menuItems, title }: InfoHeaderProps): JSX.Element => {
+  const { toggleInfoOpen } = useInfoStore();
 
   return (
     <div className={styles.header}>
       <button className={styles.delete} onClick={toggleInfoOpen}>
         <CloseIcon />
       </button>
-      <span className={styles.label}>Информация</span>
+      <span className={styles.label}>{title ?? 'Информация'}</span>
       <Dropdown trigger={<DropdownIcon />} items={menuItems} />
     </div>
   );
