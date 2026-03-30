@@ -15,6 +15,7 @@ export const ContextMenu = ({
   visible,
   onClose,
   handleDeleteClick,
+  handleForwardClick,
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
@@ -32,7 +33,7 @@ export const ContextMenu = ({
           <Answer />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
+      <button className={styles.cell} onClick={handleForwardClick}>
         <div className={styles.text}>Переслать</div>
         <div className={styles.icon}>
           <Forward />

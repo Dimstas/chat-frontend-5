@@ -63,6 +63,15 @@ export const OutgoingMessagesCard = ({
     }
   };
 
+  const handleForwardClick = async (): Promise<void> => {
+    const ok = await confirm({
+      isMessageForwarding: true,
+    });
+    if (ok) {
+      //sendDeleteMessage(message, forAllDeleteRef.current);
+    }
+  };
+
   return (
     <div className={styles.wrapper} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
       <ContextMenu
@@ -70,6 +79,7 @@ export const OutgoingMessagesCard = ({
         visible={contextMenuVisible}
         onClose={handleCloseMenu}
         handleDeleteClick={handleDeleteClick}
+        handleForwardClick={handleForwardClick}
         message={message}
       />
       <div className={styles.item}>
