@@ -11,6 +11,8 @@ import { InfoHeader } from '../info-header';
 import { InfoLayout } from '../info-layout';
 import { InfoNotification } from '../info-notification';
 import { InfoSummary } from '../info-summary';
+import { InfoUploads } from '../info-uploads';
+import { GROUP_TABS } from '../info-uploads/info-uploads.constants';
 import { InfoGroupBlockProps } from './info-group-block.props';
 
 export const InfoGroupBlock = ({ uid, wsUrl, currentUid, chatKey }: InfoGroupBlockProps): JSX.Element => {
@@ -56,6 +58,7 @@ export const InfoGroupBlock = ({ uid, wsUrl, currentUid, chatKey }: InfoGroupBlo
             <InfoNotification chatId={profile?.id} />
             <InfoSummary description={profile?.description} />
             <InfoSummary inviteLink={data?.invite_link} chatKey={chatKey} />
+            <InfoUploads uid={uid} tabs={GROUP_TABS} />
           </InfoLayout>
           <ClearChatModal />
         </>
