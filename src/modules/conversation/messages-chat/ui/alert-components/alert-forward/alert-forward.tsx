@@ -1,11 +1,11 @@
 'use client';
-import { Chat } from 'modules/conversation/chats/entity';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useSelectedUidUserForForwardMessageStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import Image from 'next/image';
 import { JSX, useEffect, useRef } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import styles from './alert-forward.module.scss';
+import type { AlertForwardChatCardProps } from './alert-forward.props';
 import { AlertForwardProps } from './alert-forward.props';
 import Close from './icons/close.svg';
 import DefauitBox from './icons/default-box.svg';
@@ -68,14 +68,14 @@ export const AlertForward = ({ onOk, onCancel }: AlertForwardProps): JSX.Element
       </div>
       {!!chats.length &&
         chats.map((chat) => {
-          return <AlertForwardChatCard key={chat.chat.id} chat={chat} onOk={onOk} />;
+          return <AlertForwardChatCard key={chat.chat.id} chat={chat} onOk={onOk} clearSearch={clearSearch} />;
         })}
       {search && !chats.length && <DefauitBox />}
     </div>
   );
 };
 
-const AlertForwardChatCard = ({ chat, onOk }: { chat: Chat; onOk: () => void }): JSX.Element => {
+const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardProps): JSX.Element => {
   const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
   const setSelectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
@@ -83,6 +83,7 @@ const AlertForwardChatCard = ({ chat, onOk }: { chat: Chat; onOk: () => void }):
   );
   const handlerOnClick = (): void => {
     setSelectedUidUserForForwardMessageStore(chat.peer.uid);
+    clearSearch?.();
     onOk();
   };
   return (
