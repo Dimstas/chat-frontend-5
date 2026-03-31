@@ -132,6 +132,18 @@ export const useRepliedMessageStore = create<RepliedMessageState>((set) => ({
   clearRepliedMessage: (): void => set({ repliedMessage: null }),
 }));
 
+type ForwardMessageState = {
+  forwardMessage: RestMessageApi | null;
+  setForwardMessage: (msg: RestMessageApi) => void;
+  clearForwardMessage: () => void;
+};
+
+export const useForwardMessageStore = create<ForwardMessageState>((set) => ({
+  forwardMessage: null,
+  setForwardMessage: (forwardMessage: RestMessageApi): void => set({ forwardMessage }),
+  clearForwardMessage: (): void => set({ forwardMessage: null }),
+}));
+
 type RecentEmojiState = {
   recentEmojis: string[];
   setRecentEmojis: (recentEmoji: string[]) => void;
@@ -142,4 +154,16 @@ export const useRecentEmojiStore = create<RecentEmojiState>((set) => ({
   recentEmojis: [],
   setRecentEmojis: (recentEmojis: string[]): void => set({ recentEmojis }),
   clearRecentEmojis: (): void => set({ recentEmojis: [] }),
+}));
+
+type SelectedUidUserForForwardMessageState = {
+  selectedUidUserForForwardMessage: string;
+  setSelectedUidUserForForwardMessage: (uid: string) => void;
+  clearSelectedUidUserForForwardMessage: () => void;
+};
+
+export const useSelectedUidUserForForwardMessageStore = create<SelectedUidUserForForwardMessageState>((set) => ({
+  selectedUidUserForForwardMessage: '',
+  setSelectedUidUserForForwardMessage: (uid: string): void => set({ selectedUidUserForForwardMessage: uid }),
+  clearSelectedUidUserForForwardMessage: (): void => set({ selectedUidUserForForwardMessage: '' }),
 }));

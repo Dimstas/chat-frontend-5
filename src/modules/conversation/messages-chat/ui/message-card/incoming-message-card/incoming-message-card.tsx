@@ -1,8 +1,14 @@
 'use client';
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
-import { JSX, MouseEvent, useState } from 'react';
+import {
+  useForwardMessageStore,
+  useSelectedUidUserForForwardMessageStore,
+} from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import { useRouter } from 'next/navigation';
+import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { ForvardCard } from '../forward-card/forward-card';
 import { ReplyCard } from '../reply-card/reply-card';
 import styles from './incoming-message-card.module.scss';
 import type { IncomingMessageCardProps } from './incoming-message.props';
@@ -35,6 +41,14 @@ export const IncomingMessagesCard = ({
   };
 
   const { confirm } = useAlert();
+  const selectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
+    (s) => s.selectedUidUserForForwardMessage,
+  );
+  const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
+
+  useEffect(() => {
+    selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
+  }, [selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
 
   const handleDeleteClick = async (): Promise<void> => {
     const ok = await confirm({
@@ -50,12 +64,15 @@ export const IncomingMessagesCard = ({
       // отмена — ничего не делаем
     }
   };
+  const setForwardMessageStore = useForwardMessageStore((s) => s.setForwardMessage);
+  const router = useRouter();
   const handleForwardClick = async (): Promise<void> => {
     const ok = await confirm({
       isMessageForwarding: true,
     });
-    if (ok) {
-      //sendDeleteMessage(message, forAllDeleteRef.current);
+    if (ok && selectedUidUserForForwardMessageRef.current) {
+      setForwardMessageStore(message);
+      router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
 
@@ -77,7 +94,8 @@ export const IncomingMessagesCard = ({
         message={message}
       />
       <div className={styles.item}>
-        {message.replied_messages.length > 0 && <ReplyCard repliedMessageStore={message} isIncomingMessage={true} />}
+        {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
+        {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
         <div className={styles.message}>
           <span className={styles.messageText}> {message.content} </span>
           <div className={styles.messageSentTime}>

@@ -15,7 +15,11 @@ import {
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 
 type UseWebSocketChat = {
-  sendMessage: (content: string, repliedMessageStore: RestMessageApi | null) => void;
+  sendMessage: (
+    content: string,
+    repliedMessageStore: RestMessageApi | null,
+    forwardMessageStore: RestMessageApi | null,
+  ) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
@@ -228,7 +232,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция отправки сообщения
   const sendMessage = useCallback(
-    (content: string, repliedMessageStore: RestMessageApi | null): void => {
+    (content: string, repliedMessageStore: RestMessageApi | null, forwardMessageStore: RestMessageApi | null): void => {
       if (!content.trim()) return;
       const requestUid = crypto.randomUUID();
       //создаем в DOM временное сообщение-заглушку для помещения в список сообщений
@@ -282,6 +286,21 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           },
         ];
       }
+      if (forwardMessageStore) {
+        tempMessage.forwarded_messages = [
+          {
+            id: forwardMessageStore.id,
+            uid: forwardMessageStore.uid,
+            is_deleted: false,
+            from_user: forwardMessageStore.from_user.uid,
+            first_name: forwardMessageStore.from_user.first_name ?? '',
+            last_name: forwardMessageStore.from_user.last_name ?? '',
+            content: forwardMessageStore.content,
+            files_list: [],
+            avatar_webp_url: forwardMessageStore.from_user.avatar_webp_url,
+          },
+        ];
+      }
       // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
       addMessageForUser(userIdRef.current, tempMessage);
 
@@ -294,10 +313,14 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           content,
           status: 'publish',
           replied_messages: [],
+          forwarded_messages: [],
         },
       };
       if (repliedMessageStore) {
         payloadMessage.object.replied_messages = [repliedMessageStore.uid];
+      }
+      if (forwardMessageStore) {
+        payloadMessage.object.forwarded_messages = [forwardMessageStore.uid];
       }
       //валидация c помощью zod
       const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);

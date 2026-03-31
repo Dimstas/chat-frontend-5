@@ -1,7 +1,12 @@
 'use client';
 import { JSX, useEffect, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
-import { useRepliedMessageStore } from '../../zustand-store/zustand-store';
+import {
+  useForwardMessageStore,
+  useRepliedMessageStore,
+  useSelectedUidUserForForwardMessageStore,
+} from '../../zustand-store/zustand-store';
+import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
 import { ReplyToMessageCard } from '../message-card/reply-to-message-card/reply-to-message-card';
 import { MessageInput } from '../message-input/message-input';
 import styles from './header-bottom.module.scss';
@@ -13,29 +18,43 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentU
   const [textInput, setTextInput] = useState<string>('');
   const repliedMessageStore = useRepliedMessageStore((s) => s.repliedMessage);
   const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
+  const forwardMessageStore = useForwardMessageStore((s) => s.forwardMessage);
+  const clearForwardMessageStore = useForwardMessageStore((s) => s.clearForwardMessage);
+  const clearSelectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
+    (s) => s.clearSelectedUidUserForForwardMessage,
+  );
+
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { sendMessage } = useWebSocketChat(wsUrl, currentUserId);
 
   useEffect(() => {
-    if (repliedMessageStore) {
+    if (repliedMessageStore || forwardMessageStore) {
       inputRef.current?.focus();
     }
-  }, [repliedMessageStore]);
+  }, [repliedMessageStore, forwardMessageStore]);
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
-    sendMessage(textInput, repliedMessageStore);
+    sendMessage(textInput, repliedMessageStore, forwardMessageStore);
     setTextInput('');
     clearRepliedMessageStore();
+    clearForwardMessageStore();
+    clearSelectedUidUserForForwardMessageStore();
   };
 
   return (
-    <>
+    <div className={styles.block}>
       {repliedMessageStore && (
         <ReplyToMessageCard
           repliedMessageStore={repliedMessageStore}
           clearRepliedMessageStore={clearRepliedMessageStore}
+        />
+      )}
+      {forwardMessageStore && (
+        <ForwardMessageCard
+          forwardMessageStore={forwardMessageStore}
+          clearForwardMessageStore={clearForwardMessageStore}
         />
       )}
       <form className={styles.wrapper} onSubmit={handleSubmitForm}>
@@ -53,6 +72,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentU
           )}
         </span>
       </form>
-    </>
+    </div>
   );
 };
