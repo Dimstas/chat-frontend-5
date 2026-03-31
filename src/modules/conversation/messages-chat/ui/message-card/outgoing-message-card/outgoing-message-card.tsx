@@ -5,6 +5,7 @@ import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-messa
 import {
   useForAllDeleteStore,
   useForwardMessageStore,
+  useRepliedMessageStore,
   useSelectedUidUserForForwardMessageStore,
 } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { useRouter } from 'next/navigation';
@@ -74,13 +75,16 @@ export const OutgoingMessagesCard = ({
     }
   };
   const setForwardMessageStore = useForwardMessageStore((s) => s.setForwardMessage);
+  const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
   const router = useRouter();
+
   const handleForwardClick = async (): Promise<void> => {
     const ok = await confirm({
       isMessageForwarding: true,
     });
     if (ok && selectedUidUserForForwardMessageRef.current) {
       setForwardMessageStore(message);
+      clearRepliedMessageStore();
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };

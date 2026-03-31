@@ -17,8 +17,8 @@ import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustan
 type UseWebSocketChat = {
   sendMessage: (
     content: string,
-    repliedMessageStore: RestMessageApi | null,
-    forwardMessageStore: RestMessageApi | null,
+    repliedMessageStore?: RestMessageApi | null | undefined,
+    forwardMessageStore?: RestMessageApi | null | undefined,
   ) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
@@ -232,7 +232,11 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция отправки сообщения
   const sendMessage = useCallback(
-    (content: string, repliedMessageStore: RestMessageApi | null, forwardMessageStore: RestMessageApi | null): void => {
+    (
+      content: string,
+      repliedMessageStore?: RestMessageApi | null | undefined,
+      forwardMessageStore?: RestMessageApi | null | undefined,
+    ): void => {
       if (!content.trim()) return;
       const requestUid = crypto.randomUUID();
       //создаем в DOM временное сообщение-заглушку для помещения в список сообщений

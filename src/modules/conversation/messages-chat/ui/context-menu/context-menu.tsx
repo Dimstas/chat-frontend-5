@@ -1,7 +1,7 @@
 'use client';
 import clsx from 'clsx';
 import { JSX } from 'react';
-import { useRepliedMessageStore } from '../../zustand-store/zustand-store';
+import { useForwardMessageStore, useRepliedMessageStore } from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
@@ -19,9 +19,12 @@ export const ContextMenu = ({
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
+  const clearForwardMessageStore = useForwardMessageStore((s) => s.clearForwardMessage);
 
   const handleAnswerClick = (): void => {
     setRepliedMessageStore(message);
+    clearForwardMessageStore();
+    onClose();
   };
 
   if (!visible) return null;

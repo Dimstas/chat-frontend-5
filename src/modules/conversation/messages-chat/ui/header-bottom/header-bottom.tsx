@@ -10,11 +10,12 @@ import { ForwardMessageCard } from '../message-card/forward-message-card/forward
 import { ReplyToMessageCard } from '../message-card/reply-to-message-card/reply-to-message-card';
 import { MessageInput } from '../message-input/message-input';
 import styles from './header-bottom.module.scss';
+import type { HeaderBottomProps } from './header-bottom.props';
 import ClipIcon from './icon/clip.svg';
 import MicIcon from './icon/mic.svg';
 import Submit from './icon/submit.svg';
 
-export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentUserId: string }): JSX.Element => {
+export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.Element => {
   const [textInput, setTextInput] = useState<string>('');
   const repliedMessageStore = useRepliedMessageStore((s) => s.repliedMessage);
   const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
@@ -36,11 +37,14 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: { wsUrl: string; currentU
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
-    sendMessage(textInput, repliedMessageStore, forwardMessageStore);
-    setTextInput('');
-    clearRepliedMessageStore();
+    sendMessage(textInput, repliedMessageStore);
+    if (forwardMessageStore) {
+      sendMessage(forwardMessageStore?.content ?? '', repliedMessageStore, forwardMessageStore);
+    }
     clearForwardMessageStore();
     clearSelectedUidUserForForwardMessageStore();
+    setTextInput('');
+    clearRepliedMessageStore();
   };
 
   return (
