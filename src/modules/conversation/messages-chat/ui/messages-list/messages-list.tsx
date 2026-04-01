@@ -7,6 +7,7 @@ import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
+import { NotificationCopyCard } from '../message-card/notification-copy-card/notification-copy-card';
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
@@ -150,16 +151,21 @@ export const MessagesList = ({
   // подгружаем когда пользователь приблизится к 1 элементу от вверха
   const triggerIndex = 1;
 
-  //эффект для расчета позиции <ScrollButton /> внутри <MessagesList> в зависимости от размера экрана
+  //эффект для расчета позиции <ScrollButton /> <NotificationCopyCard /> внутри <MessagesList> в зависимости от размера экрана
   const [pos, setPos] = useState({ right: 0, bottom: 0 });
+  const [posCopy, setPosCopy] = useState({ left: 0, top: 0 });
+
   useLayoutEffect(() => {
     const updatePos = (): void => {
       const rect = wrapperRef.current?.getBoundingClientRect();
       if (!rect) return;
       // расстояние от правого края контейнера до правого края окна
       const gapRight = Math.max(12, window.innerWidth - (rect.left + rect.width) + 5);
-      const gapBottom = Math.max(12, Math.max(12, window.innerHeight - (rect.top + rect.height) + 1));
+      const gapBottom = Math.max(12, window.innerHeight - (rect.top + rect.height) + 1);
       setPos({ right: gapRight, bottom: gapBottom });
+      const gapLeftCopy = rect.left + (rect.width - 360) / 2;
+      const gapTopCopy = rect.top + 20;
+      setPosCopy({ left: gapLeftCopy, top: gapTopCopy });
     };
 
     updatePos();
@@ -180,14 +186,14 @@ export const MessagesList = ({
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
-      console.log('lastIndex: ', lastIndex);
       const el = lastItemRef.current;
       const container = wrapperRef.current;
       if (!el || !container || !targetIndex) return;
       smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME);
     }
   };
-
+  // эффект показывать <NotificationCopyCard/> в DOM либо нет
+  const [toastVisible, setToastVisible] = useState(false);
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       {/* Если список пуст, всё равно рендерим sentinel чтобы observer был стабилен */}
@@ -228,9 +234,14 @@ export const MessagesList = ({
                         message={message}
                         register={register}
                         sendDeleteMessage={sendDeleteMessage}
+                        setToastVisible={setToastVisible}
                       />
                     ) : (
-                      <OutgoingMessagesCard message={message} sendDeleteMessage={sendDeleteMessage} />
+                      <OutgoingMessagesCard
+                        message={message}
+                        sendDeleteMessage={sendDeleteMessage}
+                        setToastVisible={setToastVisible}
+                      />
                     )}
                   </div>
                 );
@@ -251,6 +262,7 @@ export const MessagesList = ({
           <ScrollButton quantity={currentFirstUnreadIncoming !== -1 ? lastIndex - currentFirstUnreadIncoming + 1 : 0} />
         </button>
       )}
+      {toastVisible && <NotificationCopyCard posCopy={{ top: posCopy.top, left: posCopy.left }} />}
     </div>
   );
 };

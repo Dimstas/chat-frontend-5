@@ -10,7 +10,6 @@ import {
 } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
-import type { RestMessageApi } from '../../../model/messages-list';
 import { ContextMenu } from '../../context-menu/context-menu';
 import { ForvardCard } from '../forward-card/forward-card';
 import CheckOneIcon from '../icons/check-one.svg';
@@ -18,17 +17,13 @@ import CheckTwoIcon from '../icons/check-two.svg';
 import WatchIcon from '../icons/watch.svg';
 import { ReplyCard } from '../reply-card/reply-card';
 import styles from './outgoing-message-card.module.scss';
+import { OutgoingMessagesCardProps } from './outgoing-message-card.props';
 
 export const OutgoingMessagesCard = ({
   message,
   sendDeleteMessage,
-}: {
-  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
-  sendDeleteMessage: (
-    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
-    selected?: boolean,
-  ) => void;
-}): JSX.Element => {
+  setToastVisible,
+}: OutgoingMessagesCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
   const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
@@ -97,6 +92,7 @@ export const OutgoingMessagesCard = ({
         onClose={handleCloseMenu}
         handleDeleteClick={handleDeleteClick}
         handleForwardClick={handleForwardClick}
+        setToastVisible={setToastVisible}
         message={message}
       />
       <div className={styles.item}>

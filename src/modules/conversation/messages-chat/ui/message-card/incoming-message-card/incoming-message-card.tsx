@@ -18,6 +18,7 @@ export const IncomingMessagesCard = ({
   message,
   register,
   sendDeleteMessage,
+  setToastVisible,
 }: IncomingMessageCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -95,6 +96,7 @@ export const IncomingMessagesCard = ({
         onClose={handleCloseMenu}
         handleDeleteClick={handleDeleteClick}
         handleForwardClick={handleForwardClick}
+        setToastVisible={setToastVisible}
         message={message}
       />
       <div className={styles.item}>
