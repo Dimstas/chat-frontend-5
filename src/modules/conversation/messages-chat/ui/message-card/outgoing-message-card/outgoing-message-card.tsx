@@ -91,7 +91,6 @@ export const OutgoingMessagesCard = ({
   const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
   const [selected, setSelected] = useState<boolean | undefined>(undefined);
   const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
-  console.log(selectedMessagesStore);
   useEffect(() => {
     if (selected) {
       addSelectedMessagesStore(message);

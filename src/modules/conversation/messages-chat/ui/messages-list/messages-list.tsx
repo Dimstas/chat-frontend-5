@@ -226,7 +226,7 @@ export const MessagesList = ({
                     tabIndex={-1}
                     ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : isLast ? lastItemRef : undefined}
                   >
-                    {targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
+                    {!!targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === userIdStore ? (
