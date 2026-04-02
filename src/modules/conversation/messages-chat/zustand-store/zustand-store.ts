@@ -144,6 +144,39 @@ export const useForwardMessageStore = create<ForwardMessageState>((set) => ({
   clearForwardMessage: (): void => set({ forwardMessage: null }),
 }));
 
+type SelectedMessagesState = {
+  selectedMessages: RestMessageApi[] | null;
+  addSelectedMessages: (msg: RestMessageApi) => void;
+  deleteSelectedMessages: (msg: RestMessageApi) => void;
+  clearSelectedMessages: () => void;
+};
+
+export const useSelectedMessagesStore = create<SelectedMessagesState>((set) => ({
+  selectedMessages: null,
+  addSelectedMessages: (msg: RestMessageApi): void =>
+    set((s) => {
+      const prev = s.selectedMessages ?? [];
+      const exists = prev.find((m) => m.uid === msg.uid);
+      if (!exists) {
+        return { selectedMessages: [...prev, msg] };
+      }
+      return { selectedMessages: [...prev] };
+    }),
+  deleteSelectedMessages: (msg: RestMessageApi): void =>
+    set((s) => {
+      const prev = s.selectedMessages ?? [];
+      const exists = prev.find((m) => m.uid === msg.uid);
+      if (exists) {
+        return {
+          selectedMessages: prev.filter((m) => m.uid !== msg.uid),
+        };
+      }
+      return { selectedMessages: [...prev] };
+    }),
+
+  clearSelectedMessages: (): void => set({ selectedMessages: null }),
+}));
+
 type RecentEmojiState = {
   recentEmojis: string[];
   setRecentEmojis: (recentEmoji: string[]) => void;

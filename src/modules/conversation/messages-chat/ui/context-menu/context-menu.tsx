@@ -2,7 +2,11 @@
 import clsx from 'clsx';
 import { JSX } from 'react';
 import { copyMessageToClipboard } from '../../utils/copy-message-to-clipboard';
-import { useForwardMessageStore, useRepliedMessageStore } from '../../zustand-store/zustand-store';
+import {
+  useForwardMessageStore,
+  useRepliedMessageStore,
+  useSelectedMessagesStore,
+} from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
@@ -18,6 +22,7 @@ export const ContextMenu = ({
   handleDeleteClick,
   handleForwardClick,
   setToastVisible,
+  setCheckBoxsVisible,
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
@@ -31,6 +36,14 @@ export const ContextMenu = ({
   //обработчика для контекстного меню 'Cкопировать'
   const handleCopyClick = (msgText: string): void => {
     copyMessageToClipboard(msgText, setToastVisible);
+    onClose();
+  };
+  const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
+  const handleSelectedClick = (): void => {
+    setCheckBoxsVisible(true);
+    clearSelectedMessagesStore();
+    addSelectedMessagesStore(message);
     onClose();
   };
 
@@ -55,7 +68,7 @@ export const ContextMenu = ({
           <Copy />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
+      <button className={styles.cell} onClick={handleSelectedClick}>
         <div className={styles.text}>Выбрать</div>
         <div className={styles.icon}>
           <Check />

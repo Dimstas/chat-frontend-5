@@ -6,6 +6,7 @@ import {
   useForAllDeleteStore,
   useForwardMessageStore,
   useRepliedMessageStore,
+  useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
 } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { useRouter } from 'next/navigation';
@@ -15,6 +16,7 @@ import { ForvardCard } from '../forward-card/forward-card';
 import CheckOneIcon from '../icons/check-one.svg';
 import CheckTwoIcon from '../icons/check-two.svg';
 import WatchIcon from '../icons/watch.svg';
+import { MessageCheckBox } from '../message-checkbox/message-checkbox';
 import { ReplyCard } from '../reply-card/reply-card';
 import styles from './outgoing-message-card.module.scss';
 import { OutgoingMessagesCardProps } from './outgoing-message-card.props';
@@ -23,6 +25,8 @@ export const OutgoingMessagesCard = ({
   message,
   sendDeleteMessage,
   setToastVisible,
+  checkBoxsVisible,
+  setCheckBoxsVisible,
 }: OutgoingMessagesCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -83,29 +87,57 @@ export const OutgoingMessagesCard = ({
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
+  // выясняем имеется ли "message" в массиве выбранных сообщений ("selectedMessagesStore")
+  const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
+  const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
+  const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
+  const [selected, setSelected] = useState<boolean | undefined>(undefined);
+  const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
+  console.log(selectedMessagesStore);
+  useEffect(() => {
+    if (selected) {
+      addSelectedMessagesStore(message);
+    } else {
+      deleteSelectedMessagesStore(message);
+    }
+  }, [selected, addSelectedMessagesStore, deleteSelectedMessagesStore, message]);
 
+  const handleCheckBoxClick = (): void => {
+    setSelected(!selected);
+  };
   return (
-    <div className={styles.wrapper} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
-      <ContextMenu
-        position={contextMenuPos}
-        visible={contextMenuVisible}
-        onClose={handleCloseMenu}
-        handleDeleteClick={handleDeleteClick}
-        handleForwardClick={handleForwardClick}
-        setToastVisible={setToastVisible}
-        message={message}
-      />
-      <div className={styles.item}>
-        {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={false} />}
-        {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
-        <div className={styles.message}>
-          <span className={styles.messageText}> {message.content} </span>
-          <div className={styles.messageSentTime}>
-            <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
-            <div className={styles.messageChatIcons}>
-              {message.status === 'sent' && message.new === true && <CheckOneIcon />}
-              {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
-              {message.new === false && <CheckTwoIcon />}
+    <div className={checkBoxsVisible && has ? styles.blockSelected : styles.block}>
+      {checkBoxsVisible && (
+        <MessageCheckBox message={message} selected={has} handleCheckBoxClick={handleCheckBoxClick} />
+      )}
+      <div
+        className={styles.wrapper}
+        onContextMenu={!checkBoxsVisible ? handleContextMenu : (): void => {}}
+        onMouseLeave={handleCloseMenu}
+        onClick={handleCheckBoxClick}
+      >
+        <ContextMenu
+          position={contextMenuPos}
+          visible={contextMenuVisible}
+          onClose={handleCloseMenu}
+          handleDeleteClick={handleDeleteClick}
+          handleForwardClick={handleForwardClick}
+          setToastVisible={setToastVisible}
+          setCheckBoxsVisible={setCheckBoxsVisible}
+          message={message}
+        />
+        <div className={styles.item}>
+          {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={false} />}
+          {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
+          <div className={styles.message}>
+            <span className={styles.messageText}> {message.content} </span>
+            <div className={styles.messageSentTime}>
+              <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
+              <div className={styles.messageChatIcons}>
+                {message.status === 'sent' && message.new === true && <CheckOneIcon />}
+                {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
+                {message.new === false && <CheckTwoIcon />}
+              </div>
             </div>
           </div>
         </div>

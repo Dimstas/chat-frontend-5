@@ -192,8 +192,11 @@ export const MessagesList = ({
       smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME);
     }
   };
-  // эффект показывать <NotificationCopyCard/> в DOM либо нет
+  // показывать <NotificationCopyCard/> в DOM либо нет
   const [toastVisible, setToastVisible] = useState(false);
+
+  // показывать компоненты <MessageCheckBox/> в DOM либо нет
+  const [checkBoxsVisible, setCheckBoxsVisible] = useState(false);
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       {/* Если список пуст, всё равно рендерим sentinel чтобы observer был стабилен */}
@@ -235,12 +238,16 @@ export const MessagesList = ({
                         register={register}
                         sendDeleteMessage={sendDeleteMessage}
                         setToastVisible={setToastVisible}
+                        checkBoxsVisible={checkBoxsVisible}
+                        setCheckBoxsVisible={setCheckBoxsVisible}
                       />
                     ) : (
                       <OutgoingMessagesCard
                         message={message}
                         sendDeleteMessage={sendDeleteMessage}
                         setToastVisible={setToastVisible}
+                        checkBoxsVisible={checkBoxsVisible}
+                        setCheckBoxsVisible={setCheckBoxsVisible}
                       />
                     )}
                   </div>

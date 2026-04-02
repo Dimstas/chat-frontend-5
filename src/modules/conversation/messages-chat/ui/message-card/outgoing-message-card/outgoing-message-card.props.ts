@@ -7,4 +7,6 @@ export type OutgoingMessagesCardProps = {
     selected?: boolean,
   ) => void;
   setToastVisible: (v: boolean) => void;
+  checkBoxsVisible: boolean;
+  setCheckBoxsVisible: (v: boolean) => void;
 };
