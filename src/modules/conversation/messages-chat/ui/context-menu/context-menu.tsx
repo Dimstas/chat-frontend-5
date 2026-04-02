@@ -22,7 +22,6 @@ export const ContextMenu = ({
   handleDeleteClick,
   handleForwardClick,
   setToastVisible,
-  setCheckBoxsVisible,
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
@@ -40,8 +39,11 @@ export const ContextMenu = ({
   };
   const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
   const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
+  // показывать компоненты <MessageCheckBox/> в DOM либо нет
+  const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
+
   const handleSelectedClick = (): void => {
-    setCheckBoxsVisible(true);
+    setCheckBoxsVisibleStore(true);
     clearSelectedMessagesStore();
     addSelectedMessagesStore(message);
     onClose();

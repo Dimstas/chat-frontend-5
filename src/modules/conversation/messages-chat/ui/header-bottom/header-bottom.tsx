@@ -4,8 +4,10 @@ import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import {
   useForwardMessageStore,
   useRepliedMessageStore,
+  useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
 } from '../../zustand-store/zustand-store';
+import { ChooseMessagesCard } from '../message-card/choose-messages-card/choose-messages-card';
 import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
 import { ReplyToMessageCard } from '../message-card/reply-to-message-card/reply-to-message-card';
 import { MessageInput } from '../message-input/message-input';
@@ -46,36 +48,44 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     setTextInput('');
     clearRepliedMessageStore();
   };
+  const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
+  const setcheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
 
   return (
     <div className={styles.block}>
-      {repliedMessageStore && (
-        <ReplyToMessageCard
-          repliedMessageStore={repliedMessageStore}
-          clearRepliedMessageStore={clearRepliedMessageStore}
-        />
-      )}
-      {forwardMessageStore && (
-        <ForwardMessageCard
-          forwardMessageStore={forwardMessageStore}
-          clearForwardMessageStore={clearForwardMessageStore}
-        />
-      )}
-      <form className={styles.wrapper} onSubmit={handleSubmitForm}>
-        <span className={styles.clipIcon}>
-          <ClipIcon />
-        </span>
-        <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
-        <span className={styles.micIcon}>
-          {textInput ? (
-            <button type="submit" style={{ width: '5rem', height: '5rem' }}>
-              <Submit />
-            </button>
-          ) : (
-            <MicIcon />
+      {checkBoxsVisibleStore ? (
+        <ChooseMessagesCard setcheckBoxsVisibleStore={setcheckBoxsVisibleStore} />
+      ) : (
+        <>
+          {repliedMessageStore && (
+            <ReplyToMessageCard
+              repliedMessageStore={repliedMessageStore}
+              clearRepliedMessageStore={clearRepliedMessageStore}
+            />
           )}
-        </span>
-      </form>
+          {forwardMessageStore && (
+            <ForwardMessageCard
+              forwardMessageStore={forwardMessageStore}
+              clearForwardMessageStore={clearForwardMessageStore}
+            />
+          )}
+          <form className={styles.wrapper} onSubmit={handleSubmitForm}>
+            <span className={styles.clipIcon}>
+              <ClipIcon />
+            </span>
+            <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
+            <span className={styles.micIcon}>
+              {textInput ? (
+                <button type="submit" style={{ width: '5rem', height: '5rem' }}>
+                  <Submit />
+                </button>
+              ) : (
+                <MicIcon />
+              )}
+            </span>
+          </form>
+        </>
+      )}
     </div>
   );
 };

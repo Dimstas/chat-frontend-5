@@ -13,7 +13,6 @@ import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
 import type { MessageListProps } from './message-list.props';
 import { useFixedTargetIndex } from './use-fixed-target-index';
-
 export const MessagesList = ({
   messagesList,
   currentUserId,
@@ -195,8 +194,6 @@ export const MessagesList = ({
   // показывать <NotificationCopyCard/> в DOM либо нет
   const [toastVisible, setToastVisible] = useState(false);
 
-  // показывать компоненты <MessageCheckBox/> в DOM либо нет
-  const [checkBoxsVisible, setCheckBoxsVisible] = useState(false);
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       {/* Если список пуст, всё равно рендерим sentinel чтобы observer был стабилен */}
@@ -238,16 +235,12 @@ export const MessagesList = ({
                         register={register}
                         sendDeleteMessage={sendDeleteMessage}
                         setToastVisible={setToastVisible}
-                        checkBoxsVisible={checkBoxsVisible}
-                        setCheckBoxsVisible={setCheckBoxsVisible}
                       />
                     ) : (
                       <OutgoingMessagesCard
                         message={message}
                         sendDeleteMessage={sendDeleteMessage}
                         setToastVisible={setToastVisible}
-                        checkBoxsVisible={checkBoxsVisible}
-                        setCheckBoxsVisible={setCheckBoxsVisible}
                       />
                     )}
                   </div>

@@ -7,6 +7,5 @@ export type ContextMenuProps = {
   handleDeleteClick: () => Promise<void>;
   handleForwardClick: () => Promise<void>;
   setToastVisible: (v: boolean) => void;
-  setCheckBoxsVisible: (v: boolean) => void;
   message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 };

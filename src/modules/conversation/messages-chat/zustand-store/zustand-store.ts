@@ -146,13 +146,17 @@ export const useForwardMessageStore = create<ForwardMessageState>((set) => ({
 
 type SelectedMessagesState = {
   selectedMessages: RestMessageApi[] | null;
+  checkBoxsVisible: boolean | null;
   addSelectedMessages: (msg: RestMessageApi) => void;
   deleteSelectedMessages: (msg: RestMessageApi) => void;
   clearSelectedMessages: () => void;
+  setCheckBoxsVisible: (v: boolean) => void;
 };
 
 export const useSelectedMessagesStore = create<SelectedMessagesState>((set) => ({
   selectedMessages: null,
+  checkBoxsVisible: null,
+  setCheckBoxsVisible: (checkBoxsVisible: boolean): void => set({ checkBoxsVisible }),
   addSelectedMessages: (msg: RestMessageApi): void =>
     set((s) => {
       const prev = s.selectedMessages ?? [];

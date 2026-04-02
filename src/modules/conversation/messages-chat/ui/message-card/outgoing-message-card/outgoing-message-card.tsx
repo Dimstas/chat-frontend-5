@@ -25,8 +25,6 @@ export const OutgoingMessagesCard = ({
   message,
   sendDeleteMessage,
   setToastVisible,
-  checkBoxsVisible,
-  setCheckBoxsVisible,
 }: OutgoingMessagesCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -105,14 +103,17 @@ export const OutgoingMessagesCard = ({
   const handleCheckBoxClick = (): void => {
     setSelected(!selected);
   };
+  // показывать компоненты <MessageCheckBox/> в DOM либо нет
+  const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
+
   return (
-    <div className={checkBoxsVisible && has ? styles.blockSelected : styles.block}>
-      {checkBoxsVisible && (
+    <div className={checkBoxsVisibleStore && has ? styles.blockSelected : styles.block}>
+      {checkBoxsVisibleStore && (
         <MessageCheckBox message={message} selected={has} handleCheckBoxClick={handleCheckBoxClick} />
       )}
       <div
         className={styles.wrapper}
-        onContextMenu={!checkBoxsVisible ? handleContextMenu : (): void => {}}
+        onContextMenu={!checkBoxsVisibleStore ? handleContextMenu : (): void => {}}
         onMouseLeave={handleCloseMenu}
         onClick={handleCheckBoxClick}
       >
@@ -123,7 +124,6 @@ export const OutgoingMessagesCard = ({
           handleDeleteClick={handleDeleteClick}
           handleForwardClick={handleForwardClick}
           setToastVisible={setToastVisible}
-          setCheckBoxsVisible={setCheckBoxsVisible}
           message={message}
         />
         <div className={styles.item}>
