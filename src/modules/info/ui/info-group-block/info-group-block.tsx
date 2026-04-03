@@ -58,7 +58,7 @@ export const InfoGroupBlock = ({ uid, wsUrl, currentUid, chatKey }: InfoGroupBlo
             <InfoNotification chatId={profile?.id} />
             <InfoSummary description={profile?.description} />
             <InfoSummary inviteLink={data?.invite_link} chatKey={chatKey} />
-            <InfoUploads uid={uid} tabs={GROUP_TABS} />
+            <InfoUploads uid={uid} tabs={GROUP_TABS} chatKey={chatKey} currentUid={currentUid} />
           </InfoLayout>
           <ClearChatModal />
         </>

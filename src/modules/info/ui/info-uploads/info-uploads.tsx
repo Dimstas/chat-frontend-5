@@ -6,9 +6,10 @@ import styles from './info-uploads.module.scss';
 import { InfoUploadsProps } from './info-uploads.props';
 import { LinksTab } from './links-tab';
 import { MediaTab } from './media-tab';
+import { ParticipantsTab } from './participants-tab';
 import { VoicesTab } from './voices-tab';
 
-export const InfoUploads = ({ uid, tabs }: InfoUploadsProps): JSX.Element => {
+export const InfoUploads = ({ uid, tabs, chatKey, currentUid }: InfoUploadsProps): JSX.Element => {
   void uid;
 
   const [activeTab, setActiveTab] = useState(0);
@@ -25,6 +26,8 @@ export const InfoUploads = ({ uid, tabs }: InfoUploadsProps): JSX.Element => {
         return <VoicesTab items={VOICES} />;
       case 'links':
         return <LinksTab items={LINKS} />;
+      case 'members':
+        return <ParticipantsTab currentUid={currentUid} chatKey={chatKey || ''} />;
       default:
         return null;
     }

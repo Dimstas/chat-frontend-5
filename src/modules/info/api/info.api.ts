@@ -9,6 +9,8 @@ import {
   InviteLinkApiResponse,
   InviteSettingsPost,
   NewContact,
+  ParticipantApiResponse,
+  ParticipantQuery,
 } from '../model/info.api.schema';
 
 export const getProfileInfoById = (
@@ -84,4 +86,19 @@ export const generateInvite = async (
       'Content-Type': 'application/json',
     },
   });
+};
+
+export const getParticipantList = (params: ParticipantQuery, chatKey: string): Promise<ParticipantApiResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.page_size) searchParams.set('page_size', String(params.page_size));
+  if (params.search) searchParams.set('search', params.search);
+
+  return apiFetch<ParticipantApiResponse>(
+    `/api/proxy/api/v1/chat/list/groups_or_channels/${chatKey}/participants/?${searchParams.toString()}`,
+    {
+      method: 'GET',
+    },
+  );
 };

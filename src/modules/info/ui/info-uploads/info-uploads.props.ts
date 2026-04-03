@@ -1,5 +1,7 @@
 export type InfoUploadsProps = {
   uid: string;
+  currentUid: string;
+  chatKey?: string;
   tabs: Tab[];
 };
 

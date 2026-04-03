@@ -1,4 +1,13 @@
-import { useMutation, UseMutationResult, useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import {
+  InfiniteData,
+  useInfiniteQuery,
+  UseInfiniteQueryResult,
+  useMutation,
+  UseMutationResult,
+  useQuery,
+  useQueryClient,
+  UseQueryResult,
+} from '@tanstack/react-query';
 import { searchUsers } from 'modules/conversation/contacts/api';
 import { GlobalContactApi, UserContactApiResponse } from 'modules/conversation/contacts/model/contact';
 import { blockUser, getProfileInfoById, mapInfoProfileFromApi } from '.';
@@ -10,8 +19,9 @@ import {
   InviteLinkApiResponse,
   InviteSettingsPost,
   NewContact,
+  ParticipantApiResponse,
 } from '../model/info.api.schema';
-import { addToContact, editChat, generateInvite, getGroupOrChannel, unblockUser } from './info.api';
+import { addToContact, editChat, generateInvite, getGroupOrChannel, getParticipantList, unblockUser } from './info.api';
 import { mapInfoGroupFromApi } from './info.group.mapper';
 
 export const useInfoProfileQuery = (id: string): UseQueryResult<ProfileInfo> => {
@@ -195,6 +205,38 @@ export const useGenerateInviteLinkQuery = (
       void queryClient.invalidateQueries({
         queryKey: ['generate', 'invite'],
       });
+    },
+  });
+};
+
+export const useParticipantsQuery = (
+  query: string,
+  chatKey: string,
+): UseInfiniteQueryResult<InfiniteData<ParticipantApiResponse>, unknown> => {
+  return useInfiniteQuery<
+    ParticipantApiResponse,
+    unknown,
+    InfiniteData<ParticipantApiResponse>,
+    ['participants', 'participants-list'],
+    number
+  >({
+    queryKey: ['participants', 'participants-list'],
+    initialPageParam: 1,
+
+    queryFn: ({ pageParam }) =>
+      getParticipantList(
+        {
+          page: pageParam,
+          page_size: 15,
+          search: query,
+        },
+        chatKey,
+      ),
+
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.next) return undefined;
+      const url = new URL(lastPage.next, 'http://localhost');
+      return Number(url.searchParams.get('page'));
     },
   });
 };
