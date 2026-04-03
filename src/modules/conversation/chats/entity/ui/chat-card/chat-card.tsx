@@ -30,7 +30,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   } = messages || {};
 
   const pathname = usePathname();
-  const isSelected = pathname === `/chats/${peer.uid}`;
+  const isSelected = pathname === `/chats/${chat.chatType === 'chat' ? peer.uid : `group_${peer.uid}`}`;
   const hasNewMessages = lastMessageUid !== uid && lastSeenMessage?.id !== lastMessageId;
 
   const handleClick = (): void => {
@@ -46,7 +46,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
       notifications={notifications}
       isInContacts={peer.isInContacts}
       isFavorite={chat.is_favorite}
-      href={`/chats/${uid}`}
+      href={`/chats/${chat.chatType === 'chat' ? peer.uid : `group_${peer.uid}`}`}
       hasContextMenu={true}
       imageOptions={{
         src: peer.avatarUrl,

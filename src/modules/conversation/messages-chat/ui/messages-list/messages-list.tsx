@@ -7,12 +7,12 @@ import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
+import { NotificationCopyCard } from '../message-card/notification-copy-card/notification-copy-card';
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
 import type { MessageListProps } from './message-list.props';
 import { useFixedTargetIndex } from './use-fixed-target-index';
-
 export const MessagesList = ({
   messagesList,
   currentUserId,
@@ -59,7 +59,6 @@ export const MessagesList = ({
     results,
     currentUserId,
   );
-
   // хук ws + hook для определения прочтения видимости
 
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
@@ -79,7 +78,7 @@ export const MessagesList = ({
     el.scrollIntoView({ behavior: 'auto', block: 'start' });
     //размонтируем targetIndex
     if (targetIndex === lastIndex) setTargetIndex(null);
-  }, [results, messagesLength, targetIndex]);
+  }, [results, messagesLength, targetIndex, lastIndex, currentFirstUnreadIncoming, targetItemRef, setTargetIndex]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
   const fetchingRef = useRef(false);
@@ -150,16 +149,21 @@ export const MessagesList = ({
   // подгружаем когда пользователь приблизится к 1 элементу от вверха
   const triggerIndex = 1;
 
-  //эффект для расчета позиции <ScrollButton /> внутри <MessagesList> в зависимости от размера экрана
+  //эффект для расчета позиции <ScrollButton /> <NotificationCopyCard /> внутри <MessagesList> в зависимости от размера экрана
   const [pos, setPos] = useState({ right: 0, bottom: 0 });
+  const [posCopy, setPosCopy] = useState({ left: 0, top: 0 });
+
   useLayoutEffect(() => {
     const updatePos = (): void => {
       const rect = wrapperRef.current?.getBoundingClientRect();
       if (!rect) return;
       // расстояние от правого края контейнера до правого края окна
       const gapRight = Math.max(12, window.innerWidth - (rect.left + rect.width) + 5);
-      const gapBottom = Math.max(12, Math.max(12, window.innerHeight - (rect.top + rect.height) + 1));
+      const gapBottom = Math.max(12, window.innerHeight - (rect.top + rect.height) + 1);
       setPos({ right: gapRight, bottom: gapBottom });
+      const gapLeftCopy = rect.left + (rect.width - 360) / 2;
+      const gapTopCopy = rect.top + 20;
+      setPosCopy({ left: gapLeftCopy, top: gapTopCopy });
     };
 
     updatePos();
@@ -180,13 +184,14 @@ export const MessagesList = ({
       if (!el) return;
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
-      console.log('lastIndex: ', lastIndex);
       const el = lastItemRef.current;
       const container = wrapperRef.current;
       if (!el || !container || !targetIndex) return;
       smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME);
     }
   };
+  // показывать <NotificationCopyCard/> в DOM либо нет
+  const [toastVisible, setToastVisible] = useState(false);
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -220,17 +225,22 @@ export const MessagesList = ({
                     tabIndex={-1}
                     ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : isLast ? lastItemRef : undefined}
                   >
-                    {targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
+                    {!!targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
-                    {message.from_user.uid === userIdStore ? (
+                    {message.from_user.uid === currentUserId || message.from_user.uid === '' ? (
+                      <OutgoingMessagesCard
+                        message={message}
+                        sendDeleteMessage={sendDeleteMessage}
+                        setToastVisible={setToastVisible}
+                      />
+                    ) : (
                       <IncomingMessagesCard
                         message={message}
                         register={register}
                         sendDeleteMessage={sendDeleteMessage}
+                        setToastVisible={setToastVisible}
                       />
-                    ) : (
-                      <OutgoingMessagesCard message={message} sendDeleteMessage={sendDeleteMessage} />
                     )}
                   </div>
                 );
@@ -251,6 +261,7 @@ export const MessagesList = ({
           <ScrollButton quantity={currentFirstUnreadIncoming !== -1 ? lastIndex - currentFirstUnreadIncoming + 1 : 0} />
         </button>
       )}
+      {toastVisible && <NotificationCopyCard posCopy={{ top: posCopy.top, left: posCopy.left }} />}
     </div>
   );
 };

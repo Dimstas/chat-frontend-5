@@ -1,12 +1,24 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .wrapper {
-  @include mixins.flex-box($direction: column);
+  @include mixins.flex-box($direction: column, $justify: start);
   width: 36rem;
   height: 52rem;
   border-radius: 0.8rem;
   background-color: var(--surface-base);
+  overflow-y: auto;
 }
+
+.wrapper::-webkit-scrollbar {
+  width: 0.6rem;
+  height: 12rem;
+}
+
+.wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--surface-scroll);
+  border-radius: 0.4rem;
+}
+
 .headerTop {
   @include mixins.flex-box($gap: 0.4rem);
   width: 100%;
@@ -70,6 +82,14 @@
   padding: 0rem 1.6rem;
   border-radius: 0.8rem;
 }
+.cardWrapper:hover {
+  background-color: var(--surface-section-header);
+}
+
+.cardWrapper:active {
+  background-color: var(--brand-dark-60);
+}
+
 .avatar {
   @include mixins.flex-box();
   width: 4rem;
@@ -104,7 +124,4 @@
   letter-spacing: 0.01;
   color: var(--text-secondary);
   overflow: hidden;
-}
-.statusViolet {
-  color: var(--brand-primary);
 }
