@@ -121,15 +121,15 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     socket.onmessage = (event: MessageEvent): void => {
       if (socketInstanceIdRef.current !== myId) return;
       const data = JSON.parse(event.data);
-      //console.log(data);
+      console.log(data);
       //Cобытия:
-      // 1.Подтверждает отправленние созданного исходящего сообщения по request_uid
+      // 1.Подтверждает отправленние созданного исходящего сообщения в обычный чат по request_uid
       if (
         data.action === 'create_text_message' &&
         data.status === 'OK' &&
-        data.object.to_user.uid === userIdRef.current
+        data.object.to_user?.uid === userIdRef.current
       ) {
-        console.log('Подтверждение сервера об отправке исходящего сообщения) :', data);
+        console.log('Подтверждение сервера об отправке исходящего сообщения в обычный чат) :', data);
         // Если сервер пришлёт подтверждение с request_uid,
         // заменим заклушку стоящую в DOM на присланное сервером сообщение и его статус отметим как sent
         if (data.request_uid) {
@@ -138,6 +138,24 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           pendingTimeouts.current.delete(data.request_uid);
         }
       }
+
+      // Подтверждает отправленние созданного исходящего сообщения в группу по request_uid
+      if (
+        data.action === 'create_text_message' &&
+        data.status === 'OK' &&
+        data.object.from_user.uid === currentUserIdRef.current &&
+        data.object.chat_key === userIdRef.current
+      ) {
+        console.log('Подтверждение сервера об отправке исходящего сообщения в группу) :', data);
+        // Если сервер пришлёт подтверждение с request_uid,
+        // заменим заклушку стоящую в DOM на присланное сервером сообщение и его статус отметим как sent
+        if (data.request_uid) {
+          updateMessageByUidForUser(userIdRef.current, data.request_uid, { status: 'sent', ...data.object });
+          // Очистим таймаут подтверждения
+          pendingTimeouts.current.delete(data.request_uid);
+        }
+      }
+
       // 2. Не подтверждает отправленние созданного исходящего сообщения по request_uid
       if (data.action === 'create_text_message' && data.status === 'error') {
         updateMessageByUidForUser(userIdRef.current, data.request_uid, { status: 'failed' });
@@ -146,41 +164,76 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         console.error('Ошибка, исходящее сообщение не прошло):', data.error);
       }
 
-      //  3. Поступило входящее сообщение
+      //  3. Поступило входящее c обычного чата сообщение
       if (
         data.action === 'create_text_message' &&
         data.status === 'OK' &&
-        data.object.to_user.uid === currentUserIdRef.current
+        data.object.to_user?.uid === currentUserIdRef.current
       ) {
-        console.log('Получили входящее сообщение) :', data);
+        console.log('Получили входящее сообщение c обычного чата) :', data);
         // добавляем входящее сообщение в {store} в массив с ключом userId===data.object.from_user.uid
         // (это id лица отправивщего входящее сообщение)
         const fromUserUid = data.object.from_user.uid;
         const serverMessage = { ...data.object, status: 'sent' };
         upsertMessageForUser(fromUserUid, serverMessage);
-        // частный случай входящего сообщения, когда пользователь мессенджера находится
-        // на странице чата от которого пришло входящее сообщение
+      }
+      //  Поступило входящее сообщение c группы
+      if (
+        data.action === 'create_text_message' &&
+        data.status === 'OK' &&
+        data.object.from_user?.uid !== currentUserIdRef.current
+      ) {
+        console.log('Получили входящее сообщение с группы) :', data);
+        // добавляем входящее сообщение в {store} в массив с ключом userId===data.object.from_user.uid
+        // (это id группы отправившей входящее сообщение)
+        const fromUserUid = data.object.chat_key;
+        const serverMessage = { ...data.object, status: 'sent' };
+        upsertMessageForUser(fromUserUid, serverMessage);
       }
 
-      //4. входящее ws-сообщение read-status поступило отправителю первоначального исходящего текстового сообщения
+      //4. входящее ws-сообщение read-status поступило отправителю первоначального исходящего текстового сообщения в обычном чате
       if (
         data.action === 'change_status_read_message' &&
         data.status === 'OK' &&
         data.object.from_user.uid === currentUserIdRef.current
       ) {
-        console.log('Входящее сообщение об изменение read-status первоначального исходящего сообщения :', data);
+        console.log('Подтверждение об изменения read-status исходящего сообщения обычного чата :', data);
         // в store находим нужное первоначальное исходящее {текстовое сообщение} в котором свойство new меняем на false
         updateMessageByUidForUser(data.object.to_user.uid, data.object.uid, { status: 'read', new: false });
       }
-      //5. входящее ws-сообщение read-status поступило получателю первоначального входящего текстового сообщения
+      //Входящее ws-сообщение read-status поступило отправителю первоначального исходящего текстового сообщения в группе
+      if (
+        data.action === 'change_status_read_message' &&
+        data.status === 'OK' &&
+        data.object.from_user.uid === currentUserIdRef.current &&
+        data.object.chat_data.chat_key === userIdRef.current
+      ) {
+        console.log('Подтверждение об изменения read-status исходящего сообщения группы :', data);
+        // в store находим нужное первоначальное исходящее {текстовое сообщение} в котором свойство new меняем на false
+        updateMessageByUidForUser(data.object.chat_data.chat_key, data.object.uid, { status: 'read', new: false });
+      }
+
+      //5. Bходящее ws-сообщение read-status поступило получателю первоначального входящего текстового сообщения в обычтом счате
       if (
         data.action === 'change_status_read_message' &&
         data.status === 'OK' &&
         data.object.to_user.uid === currentUserIdRef.current
       ) {
-        //console.log('Входящее сообщение об изменение read-status первоначального входящего сообщения :', data);
+        console.log('Подтверждение об изменении read-status входящего сообщения обычного чата :', data);
+        updateMessageByUidForUser(data.object.from_user.uid, data.object.uid, { status: 'read', new: false });
         pendingTimeouts.current.delete(data.request_uid);
       }
+      // Входящее ws-сообщение read-status поступило получателю первоначального входящего текстового сообщения в группе
+      if (
+        data.action === 'change_status_read_message' &&
+        data.status === 'OK' &&
+        data.object.to_user.uid === userIdRef.current.replace('group_', '')
+      ) {
+        console.log('Подтверждение об изменении read-status входящего сообщения группы:', data);
+        updateMessageByUidForUser(data.object.chat_data.chat_key, data.object.uid, { status: 'read', new: false });
+        pendingTimeouts.current.delete(data.request_uid);
+      }
+
       //6.входящее ws-сообщение delete_message oб удалении входящего сообщения
       if (
         data.action === 'delete_message' &&
@@ -239,6 +292,9 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     ): void => {
       if (!content.trim()) return;
       const requestUid = crypto.randomUUID();
+
+      // выясняем это простой чат либо группа (если true то группа)
+      const has = userIdRef.current.includes('group_');
       //создаем в DOM временное сообщение-заглушку для помещения в список сообщений
       const tempMessage: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' } = {
         id: 0,
@@ -251,7 +307,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           avatar_webp_url: '',
         },
         to_user: {
-          uid: userIdRef.current,
+          uid: has ? '' : userIdRef.current,
           username: '',
           nickname: '',
           avatar_url: '',
@@ -265,7 +321,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         created_at: Date.now() / 1000,
         updated_at: 0,
         chat_id: 0,
-        chat_key: '',
+        chat_key: has ? userIdRef.current : '',
         chat_type: '',
         message_rtc: {
           uid: '',
@@ -314,19 +370,25 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         action: 'create_text_message',
         request_uid: requestUid,
         object: {
-          to_user_uid: userIdRef.current,
           content,
           status: 'publish',
           replied_messages: [],
           forwarded_messages: [],
         },
       };
+
       if (repliedMessageStore) {
         payloadMessage.object.replied_messages = [repliedMessageStore.uid];
       }
       if (forwardMessageStore) {
         payloadMessage.object.forwarded_messages = [forwardMessageStore.uid];
       }
+      if (has) {
+        payloadMessage.object.chat_key = userIdRef.current;
+      } else {
+        payloadMessage.object.to_user_uid = userIdRef.current;
+      }
+
       //валидация c помощью zod
       const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);
 
@@ -367,6 +429,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
       if (!message.uid || message.new === false) return;
       const requestUid = crypto.randomUUID();
+      // выясняем это простой чат либо группа (если true то группа)
+      const has = userIdRef.current.includes('group_');
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: ChangeStatusReadMessageAPI = {
         action: 'change_status_read_message',
@@ -377,6 +441,9 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           new_read_status: false,
         },
       };
+      if (has) {
+        payloadMessage.object.chat_key = userIdRef.current;
+      }
       //валидация c помощью zod
       const resultZod = serializerRequestChangeStatusReadMessageApiSchema.safeParse(payloadMessage);
       updateMessageByUidForUser(message.from_user.uid, message.uid, { status: 'read', new: false });

@@ -15,9 +15,11 @@ export const MessagesListScreen = ({ user_uid, wsUrl, currentUserId }: MessagesL
     setUserIdStore(user_uid);
   }, [user_uid, setUserIdStore]);
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]) ?? [];
-  const { messagesList, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessagesListScreen(userIdStore);
+  const { messagesList, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessagesListScreen(
+    userIdStore.replace('group_', ''),
+  );
   const { sendChangeStatusReadMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
-  if (status === 'success' && messagesByUser.length > 0) {
+  if ((status === 'success' && messagesByUser.length > 0) || (status === 'success' && messagesList.length > 0)) {
     return (
       <MessagesList
         messagesList={messagesList}

@@ -59,7 +59,6 @@ export const MessagesList = ({
     results,
     currentUserId,
   );
-
   // хук ws + hook для определения прочтения видимости
 
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
@@ -79,7 +78,7 @@ export const MessagesList = ({
     el.scrollIntoView({ behavior: 'auto', block: 'start' });
     //размонтируем targetIndex
     if (targetIndex === lastIndex) setTargetIndex(null);
-  }, [results, messagesLength, targetIndex]);
+  }, [results, messagesLength, targetIndex, lastIndex, currentFirstUnreadIncoming, targetItemRef, setTargetIndex]);
 
   // локальная блокировка, чтобы избежать параллельных вызовов fetchNextPage
   const fetchingRef = useRef(false);
@@ -229,16 +228,16 @@ export const MessagesList = ({
                     {!!targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
-                    {message.from_user.uid === userIdStore ? (
-                      <IncomingMessagesCard
+                    {message.from_user.uid === currentUserId || message.from_user.uid === '' ? (
+                      <OutgoingMessagesCard
                         message={message}
-                        register={register}
                         sendDeleteMessage={sendDeleteMessage}
                         setToastVisible={setToastVisible}
                       />
                     ) : (
-                      <OutgoingMessagesCard
+                      <IncomingMessagesCard
                         message={message}
+                        register={register}
                         sendDeleteMessage={sendDeleteMessage}
                         setToastVisible={setToastVisible}
                       />

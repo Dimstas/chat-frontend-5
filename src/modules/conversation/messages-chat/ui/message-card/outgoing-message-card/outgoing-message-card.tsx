@@ -65,7 +65,7 @@ export const OutgoingMessagesCard = ({
       title: 'Удалить сообщение',
       message: 'Вы действительно хотите удалить сообщение?',
       showCheckBox: true,
-      labelCheckBox: `Удалить у меня и у ${message.to_user.first_name}`,
+      labelCheckBox: `Удалить у меня и у ${message.to_user.first_name ?? ''}`,
     });
     if (ok && forAllDeleteRef.current !== null) {
       sendDeleteMessage(message, forAllDeleteRef.current);
