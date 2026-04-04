@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { JSX } from 'react';
 import { ButtonUI } from 'shared/ui/button';
 import { Modal } from 'shared/ui/modal';
-import { usePhoneStep } from '../../lib/steps/use-phone-step';
+import { usePhoneStepPlusofon } from '../../lib/steps/use-phone-step-plusofon';
 import { PhoneNumberInput } from '../../ui/phone-number-input';
 import styles from './phone-step.module.scss';
 
@@ -17,13 +17,29 @@ export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirm
     phoneValue,
     isButtonEnabled,
     isModalOpen,
+    isCallModalOpen,
+    isLoading,
+    callNumber,
+    statusMessage,
     error,
     handleValidationChange,
     handlePhoneChange,
     handleNextClick,
     handleConfirmPhone,
+    handleConfirmCall,
     handleCloseModal,
-  } = usePhoneStep({ next, onPhoneConfirmed });
+    handleCloseCallModal,
+  } = usePhoneStepPlusofon({ next, onPhoneConfirmed });
+
+  console.log('[PhoneStep] Render state:', {
+    isButtonEnabled,
+    isModalOpen,
+    isCallModalOpen,
+    isLoading,
+    callNumber,
+    statusMessage,
+    error,
+  });
 
   return (
     <>
@@ -42,16 +58,18 @@ export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirm
           <h1 className={styles.title}>Вход/регистрация</h1>
           <PhoneNumberInput onChange={handlePhoneChange} onValidationChange={handleValidationChange} />
           {error && <p className={styles.errorText}>{error}</p>}
+          {statusMessage && <p className={styles.statusText}>{statusMessage}</p>}
         </div>
         <ButtonUI
           variant="general"
           appearance={isButtonEnabled ? 'primary' : 'disabled'}
-          label={'Далее'}
+          label={isLoading ? 'Загрузка...' : 'Далее'}
           onClick={handleNextClick}
           disabled={!isButtonEnabled}
         />
       </div>
 
+      {/* Первая модалка: подтверждение номера телефона */}
       {isModalOpen && (
         <Modal
           title={phoneValue}
@@ -61,6 +79,19 @@ export const PhoneStep: React.FC<PhoneStepProps> = ({ next, prev, onPhoneConfirm
           onFirstButtonClick={handleConfirmPhone}
           onSecondButtonClick={handleCloseModal}
           onClose={handleCloseModal}
+        />
+      )}
+
+      {/* Вторая модалка: номер для звонка */}
+      {isCallModalOpen && callNumber && (
+        <Modal
+          title="Подтвердите номер телефона"
+          content={callNumber}
+          firstButtonText="Я позвонил(а)"
+          secondButtonText="Отмена"
+          onFirstButtonClick={handleConfirmCall}
+          onSecondButtonClick={handleCloseCallModal}
+          onClose={handleCloseCallModal}
         />
       )}
     </>
