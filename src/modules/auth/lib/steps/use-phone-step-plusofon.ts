@@ -25,17 +25,47 @@ type UsePhoneStepPlusofonReturn = {
   handleCloseCallModal: () => void;
 };
 
-// Тип для ошибки
-type ErrorWithData = {
-  data?: {
-    error?: string;
-    status?: number;
-  };
-  response?: {
-    status: number;
-    data?: unknown;
-  };
-  message?: string;
+// Функция для извлечения сообщения об ошибке из unknown
+const getErrorMessage = (err: unknown): string => {
+  if (err && typeof err === 'object') {
+    const errorObj = err as Record<string, unknown>;
+    if (errorObj.data && typeof errorObj.data === 'object') {
+      const data = errorObj.data as Record<string, unknown>;
+      if (data.error && typeof data.error === 'string') {
+        return data.error;
+      }
+    }
+    if (errorObj.message && typeof errorObj.message === 'string') {
+      return errorObj.message;
+    }
+    if (errorObj.response && typeof errorObj.response === 'object') {
+      const response = errorObj.response as Record<string, unknown>;
+      if (response.status === 409) {
+        return 'CONFLICT';
+      }
+    }
+  }
+  return 'Неизвестная ошибка';
+};
+
+// Функция для проверки конфликта (409)
+const isConflictError = (err: unknown): boolean => {
+  if (err && typeof err === 'object') {
+    const errorObj = err as Record<string, unknown>;
+    if (errorObj.response && typeof errorObj.response === 'object') {
+      const response = errorObj.response as Record<string, unknown>;
+      if (response.status === 409) {
+        return true;
+      }
+    }
+    if (errorObj.data && typeof errorObj.data === 'object') {
+      const data = errorObj.data as Record<string, unknown>;
+      if (data.status === 409) {
+        return true;
+      }
+    }
+  }
+  return false;
 };
 
 // Функция форматирования номера телефона
@@ -75,7 +105,7 @@ const formatPhoneNumber = (phone: string): string => {
 };
 
 export const usePhoneStepPlusofon = ({
-  next: _next, // Переименовываем с префиксом _ для ESLint
+  next: _next,
   onPhoneConfirmed,
 }: UsePhoneStepPlusofonProps): UsePhoneStepPlusofonReturn => {
   const router = useRouter();
@@ -197,16 +227,9 @@ export const usePhoneStepPlusofon = ({
             setIsCallModalOpen(true);
             setStatusMessage('');
           },
-          onError: (err: ErrorWithData) => {
+          onError: (err: unknown) => {
             console.error('[usePhoneStepPlusofon] Start session error:', err);
-            let errorMessage = 'Ошибка запуска сессии';
-
-            if (err?.data?.error) {
-              errorMessage = err.data.error;
-            } else if (err?.message) {
-              errorMessage = err.message;
-            }
-
+            const errorMessage = getErrorMessage(err);
             setError(errorMessage);
             setStatusMessage('');
             resetState();
@@ -273,12 +296,10 @@ export const usePhoneStepPlusofon = ({
                       onPhoneConfirmed(savedPhone);
                       redirectBasedOnFilled(tokenData.is_filled);
                     },
-                    onError: (err: ErrorWithData) => {
+                    onError: (err: unknown) => {
                       console.error('[usePhoneStepPlusofon] Get tokens error:', err);
 
-                      const isConflict = err?.response?.status === 409 || err?.data?.status === 409;
-
-                      if (isConflict) {
+                      if (isConflictError(err)) {
                         console.log('[usePhoneStepPlusofon] Session already consumed, assuming success');
                         tokensReceivedRef.current = true;
                         isAuthCompletedRef.current = true;
@@ -316,7 +337,7 @@ export const usePhoneStepPlusofon = ({
               resetState();
             }
           },
-          onError: (err: ErrorWithData) => {
+          onError: (err: unknown) => {
             console.error('[usePhoneStepPlusofon] Status check error:', err);
 
             if (attempts >= maxAttempts) {
