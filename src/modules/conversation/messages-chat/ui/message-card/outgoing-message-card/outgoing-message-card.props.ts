@@ -1,0 +1,10 @@
+import { RestMessageApi } from 'modules/conversation/messages-chat/model/messages-list';
+
+export type OutgoingMessagesCardProps = {
+  message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
+  sendDeleteMessage: (
+    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
+    selected?: boolean,
+  ) => void;
+  setToastVisible: (v: boolean) => void;
+};

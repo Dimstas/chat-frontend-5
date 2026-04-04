@@ -32,7 +32,7 @@ export const useFixedTargetIndex = (
   // текущий индекс первого непрочитанного входящего (в текущих данных)
   const currentFirstUnreadIncoming = useMemo((): number => {
     if (!ordered.length) return -1;
-    return ordered.findIndex((m) => m.to_user.uid === currentUserId && m.new === true);
+    return ordered.findIndex((m) => m.from_user?.uid !== currentUserId && m.from_user?.uid !== '' && m.new === true);
   }, [ordered, currentUserId]);
 
   // Обновление initialTargetIndex:

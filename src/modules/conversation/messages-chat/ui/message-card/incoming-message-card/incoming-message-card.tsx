@@ -1,8 +1,17 @@
 'use client';
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
-import { JSX, MouseEvent, useState } from 'react';
+import {
+  useForwardMessageStore,
+  useRepliedMessageStore,
+  useSelectedMessagesStore,
+  useSelectedUidUserForForwardMessageStore,
+} from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import { useRouter } from 'next/navigation';
+import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { ForvardCard } from '../forward-card/forward-card';
+import { MessageCheckBox } from '../message-checkbox/message-checkbox';
 import { ReplyCard } from '../reply-card/reply-card';
 import styles from './incoming-message-card.module.scss';
 import type { IncomingMessageCardProps } from './incoming-message.props';
@@ -11,6 +20,7 @@ export const IncomingMessagesCard = ({
   message,
   register,
   sendDeleteMessage,
+  setToastVisible,
 }: IncomingMessageCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -35,6 +45,14 @@ export const IncomingMessagesCard = ({
   };
 
   const { confirm } = useAlert();
+  const selectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
+    (s) => s.selectedUidUserForForwardMessage,
+  );
+  const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
+
+  useEffect(() => {
+    selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
+  }, [selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
 
   const handleDeleteClick = async (): Promise<void> => {
     const ok = await confirm({
@@ -50,29 +68,73 @@ export const IncomingMessagesCard = ({
       // отмена — ничего не делаем
     }
   };
+  const setForwardMessageStore = useForwardMessageStore((s) => s.setForwardMessage);
+  const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
+  const router = useRouter();
+
+  const handleForwardClick = async (): Promise<void> => {
+    const ok = await confirm({
+      isMessageForwarding: true,
+    });
+    if (ok && selectedUidUserForForwardMessageRef.current) {
+      setForwardMessageStore(message);
+      clearRepliedMessageStore();
+      router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
+    }
+  };
+  // выясняем является ли "message" в массиве выбранных сообщений ("selectedMessagesStore")
+  const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
+  const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
+  const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
+  const [selected, setSelected] = useState<boolean | undefined>(undefined);
+
+  const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
+
+  useEffect(() => {
+    if (selected) {
+      addSelectedMessagesStore(message);
+    } else {
+      deleteSelectedMessagesStore(message);
+    }
+  }, [selected, addSelectedMessagesStore, deleteSelectedMessagesStore, message]);
+
+  const handleCheckBoxClick = (): void => {
+    setSelected(!selected);
+  };
+  // показывать компоненты <MessageCheckBox/> в DOM либо нет
+  const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
 
   return (
-    <div
-      className={styles.wrapper}
-      onContextMenu={handleContextMenu}
-      onMouseLeave={handleCloseMenu}
-      ref={(el) => {
-        register(el, message);
-      }}
-    >
-      <ContextMenu
-        position={contextMenuPos}
-        visible={contextMenuVisible}
-        onClose={handleCloseMenu}
-        handleDeleteClick={handleDeleteClick}
-        message={message}
-      />
-      <div className={styles.item}>
-        {message.replied_messages.length > 0 && <ReplyCard repliedMessageStore={message} isIncomingMessage={true} />}
-        <div className={styles.message}>
-          <span className={styles.messageText}> {message.content} </span>
-          <div className={styles.messageSentTime}>
-            <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
+    <div className={checkBoxsVisibleStore && has ? styles.blockSelected : styles.block}>
+      {checkBoxsVisibleStore && (
+        <MessageCheckBox message={message} selected={has} handleCheckBoxClick={handleCheckBoxClick} />
+      )}
+      <div
+        className={styles.wrapper}
+        onContextMenu={!checkBoxsVisibleStore ? handleContextMenu : (): void => {}}
+        onMouseLeave={handleCloseMenu}
+        ref={(el) => {
+          register(el, message);
+        }}
+        onClick={handleCheckBoxClick}
+      >
+        <ContextMenu
+          position={contextMenuPos}
+          visible={contextMenuVisible}
+          onClose={handleCloseMenu}
+          handleDeleteClick={handleDeleteClick}
+          handleForwardClick={handleForwardClick}
+          setToastVisible={setToastVisible}
+          message={message}
+        />
+        <div className={styles.item}>
+          {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
+          {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
+          <div className={styles.message}>
+            <span className={styles.messageText}> {message.content} </span>
+            <div className={styles.messageSentTime}>
+              <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
+            </div>
           </div>
         </div>
       </div>

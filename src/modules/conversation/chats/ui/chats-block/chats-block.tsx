@@ -26,7 +26,6 @@ export const ChatsBlock = (): JSX.Element => {
     setIsFavorite,
     chats,
   } = useChatsScreen();
-
   return (
     <>
       <ConversationLayout

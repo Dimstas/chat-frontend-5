@@ -1,5 +1,10 @@
 @use 'shared/styles/03_mixins' as mixins;
 
+.block {
+  @include mixins.flex-box($direction: column);
+  width: 100%;
+  height: auto;
+}
 .wrapper {
   @include mixins.flex-box($align: flex-end, $gap: 0.8rem);
   width: 100%;
