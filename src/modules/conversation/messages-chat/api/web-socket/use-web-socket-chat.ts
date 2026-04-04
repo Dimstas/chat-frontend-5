@@ -257,7 +257,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         created_at: Date.now() / 1000,
         updated_at: 0,
         chat_id: 0,
-        chat_key: '',
+        chat_key: `group_${userIdRef.current}`,
         chat_type: '',
         message_rtc: {
           uid: '',
@@ -290,10 +290,11 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         action: 'create_text_message',
         request_uid: requestUid,
         object: {
-          to_user_uid: userIdRef.current,
+          to_user_uid: '', //userIdRef.current,
           content,
           status: 'publish',
           replied_messages: [],
+          chat_key: `group_${userIdRef.current}`,
         },
       };
       if (repliedMessageStore) {

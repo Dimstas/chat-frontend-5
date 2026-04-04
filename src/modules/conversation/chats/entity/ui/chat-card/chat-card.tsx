@@ -3,6 +3,7 @@
 import clsx from 'clsx';
 import { Chat } from 'modules/conversation/chats/entity';
 import { CardHeader, CardShell } from 'modules/conversation/shared/ui/card';
+import { useInfoStore } from 'modules/info/model/info.store';
 import { usePathname } from 'next/navigation';
 import { JSX } from 'react';
 import { CardHeaderMeta } from './card-header-meta';
@@ -12,8 +13,12 @@ import styles from './chat-card.module.scss';
 import { MutedIcon } from './icons';
 
 export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
-  const { notifications, is_favorite, newMessageCount } = chat;
-  const { firstName, lastName, uid,nickname } = peer;
+  const { setChatId } = useInfoStore();
+  const { id, notifications, is_favorite, newMessageCount } = chat;
+  const { firstName, lastName, uid, nickname } = peer;
+  console.log(chat, 'чат');
+  console.log(peer, 'peer');
+
   const {
     lastSeenMessage,
     lastMessage: {
@@ -31,6 +36,10 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   const isSelected = pathname === `/chats/${peer.uid}`;
   const hasNewMessages = lastMessageUid !== uid && lastSeenMessage?.id !== lastMessageId;
 
+  const handleClick = (): void => {
+    setChatId(id);
+  };
+
   return (
     <CardShell
       chatId={chat.id}
@@ -47,6 +56,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
         alt: chat.name,
         classNames: { root: styles.imageWrapper },
       }}
+      selectAction={handleClick}
     >
       <div className={styles.card}>
         <div className={styles.header}>
