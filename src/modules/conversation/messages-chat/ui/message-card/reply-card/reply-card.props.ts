@@ -1,6 +1,6 @@
 import type { RestMessageApi } from 'modules/conversation/messages-chat/model/messages-list';
 
 export type ReplyCardProps = {
-  repliedMessageStore: RestMessageApi | null;
+  message: RestMessageApi | null;
   isIncomingMessage: boolean;
 };

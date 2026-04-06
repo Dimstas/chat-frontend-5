@@ -1,7 +1,12 @@
 'use client';
 import clsx from 'clsx';
 import { JSX } from 'react';
-import { useRepliedMessageStore } from '../../zustand-store/zustand-store';
+import { copyMessageToClipboard } from '../../utils/copy-message-to-clipboard';
+import {
+  useForwardMessageStore,
+  useRepliedMessageStore,
+  useSelectedMessagesStore,
+} from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
@@ -15,12 +20,33 @@ export const ContextMenu = ({
   visible,
   onClose,
   handleDeleteClick,
+  handleForwardClick,
+  setToastVisible,
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
+  const clearForwardMessageStore = useForwardMessageStore((s) => s.clearForwardMessage);
 
   const handleAnswerClick = (): void => {
     setRepliedMessageStore(message);
+    clearForwardMessageStore();
+    onClose();
+  };
+  //обработчика для контекстного меню 'Cкопировать'
+  const handleCopyClick = (msgText: string): void => {
+    copyMessageToClipboard(msgText, setToastVisible);
+    onClose();
+  };
+  const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
+  // показывать компоненты <MessageCheckBox/> в DOM либо нет
+  const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
+
+  const handleSelectedClick = (): void => {
+    setCheckBoxsVisibleStore(true);
+    clearSelectedMessagesStore();
+    addSelectedMessagesStore(message);
+    onClose();
   };
 
   if (!visible) return null;
@@ -32,19 +58,19 @@ export const ContextMenu = ({
           <Answer />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
+      <button className={styles.cell} onClick={handleForwardClick}>
         <div className={styles.text}>Переслать</div>
         <div className={styles.icon}>
           <Forward />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
+      <button className={styles.cell} onClick={() => handleCopyClick(message.content ?? '')}>
         <div className={styles.text}>Скопировать</div>
         <div className={styles.icon}>
           <Copy />
         </div>
       </button>
-      <button className={styles.cell} onClick={onClose}>
+      <button className={styles.cell} onClick={handleSelectedClick}>
         <div className={styles.text}>Выбрать</div>
         <div className={styles.icon}>
           <Check />

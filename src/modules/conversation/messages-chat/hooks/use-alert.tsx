@@ -2,6 +2,7 @@
 import React, { JSX, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertDelete } from '../ui/alert-components/alert-delete/alert-delete';
+import { AlertForward } from '../ui/alert-components/alert-forward/alert-forward';
 
 export type AlertOptions = {
   id?: string | number;
@@ -16,6 +17,7 @@ export type AlertOptions = {
   blurAmount?: number;
   onOk?: () => void;
   onCancel?: () => void;
+  isMessageForwarding?: boolean;
 };
 
 type AlertContextValue = {
@@ -171,17 +173,21 @@ export const AlertProvider = ({
                   }
                 }}
               >
-                <AlertDelete
-                  id={a.id}
-                  title={a.title}
-                  message={a.message}
-                  okText={a.okText ?? 'Удалить'}
-                  cancelText={a.cancelText ?? 'Отмена'}
-                  showCheckBox={a.showCheckBox}
-                  labelCheckBox={a.labelCheckBox}
-                  onOk={() => handleOk(a.id)}
-                  onCancel={() => handleCancel(a.id)}
-                />
+                {a.isMessageForwarding ? (
+                  <AlertForward onOk={() => handleOk(a.id)} onCancel={() => handleCancel(a.id)} />
+                ) : (
+                  <AlertDelete
+                    id={a.id}
+                    title={a.title}
+                    message={a.message}
+                    okText={a.okText ?? 'Удалить'}
+                    cancelText={a.cancelText ?? 'Отмена'}
+                    showCheckBox={a.showCheckBox}
+                    labelCheckBox={a.labelCheckBox}
+                    onOk={() => handleOk(a.id)}
+                    onCancel={() => handleCancel(a.id)}
+                  />
+                )}
               </div>
             ))}
           </>,

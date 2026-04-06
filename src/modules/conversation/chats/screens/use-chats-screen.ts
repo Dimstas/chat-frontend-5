@@ -25,6 +25,7 @@ type UseChatsScreenReturn = {
   setIsFavorite: (q: boolean) => void;
   chats: Chat[];
   modalChats: Chat[];
+  status: string;
 };
 
 export const useChatsScreen = (): UseChatsScreenReturn => {
@@ -52,7 +53,7 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
   const debouncedOrdering = useDebouncedValue<string>(ordering, 300);
   const debouncedSearch = useDebouncedValue<string>(search, 300);
 
-  const { data: myChats } = useChatsQuery();
+  const { data: myChats, status } = useChatsQuery();
 
   const chats = useMemo(() => myChats?.pages.flatMap((page) => page.results.map(mapChatFromApi)) ?? [], [myChats]);
 
@@ -102,5 +103,6 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
     setIsFavorite,
     chats: sortedChats,
     modalChats: sortedModalChats,
+    status,
   };
 };

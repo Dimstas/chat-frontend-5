@@ -15,7 +15,10 @@ import { MutedIcon } from './icons';
 export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   const { setChatId } = useInfoStore();
   const { id, notifications, is_favorite, newMessageCount } = chat;
-  const { firstName, lastName, uid } = peer;
+  const { firstName, lastName, uid, nickname } = peer;
+  console.log(chat, 'чат');
+  console.log(peer, 'peer');
+
   const {
     lastSeenMessage,
     lastMessage: {
@@ -30,7 +33,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   } = messages || {};
 
   const pathname = usePathname();
-  const isSelected = pathname === `/chats/${peer.uid}`;
+  const isSelected = pathname === `/chats/${chat.chatType === 'chat' ? peer.uid : `group_${peer.uid}`}`;
   const hasNewMessages = lastMessageUid !== uid && lastSeenMessage?.id !== lastMessageId;
 
   const handleClick = (): void => {
@@ -42,11 +45,11 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
       chatId={chat.id}
       lastMessageId={lastMessageId}
       hasNewMessages={hasNewMessages}
-      nickname={peer.nickname}
+      nickname={nickname}
       notifications={notifications}
       isInContacts={peer.isInContacts}
       isFavorite={chat.is_favorite}
-      href={`/chats/${uid}`}
+      href={`/chats/${chat.chatType === 'chat' ? peer.uid : `group_${peer.uid}`}`}
       hasContextMenu={true}
       imageOptions={{
         src: peer.avatarUrl,
@@ -57,7 +60,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
     >
       <div className={styles.card}>
         <div className={styles.header}>
-          <CardHeader title={`${firstName} ${lastName}`} selected={isSelected}>
+          <CardHeader title={firstName ? `${firstName} ${lastName}` : `${nickname}`} selected={isSelected}>
             {!notifications && <MutedIcon className={styles.mutedIcon} />}
           </CardHeader>
 
