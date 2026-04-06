@@ -1,6 +1,5 @@
-export type InfoGroupBlockProps = {
+export type InfoContactScreenProps = {
   uid: string;
   wsUrl: string;
   currentUid: string;
-  chatKey: string;
 };

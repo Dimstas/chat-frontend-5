@@ -1,5 +1,5 @@
 import { parseJwtToken } from 'modules/conversation/messages-chat/utils/parse-jwt-token';
-import { InfoScreen } from 'modules/info/screens';
+import { InfoContactScreen } from 'modules/info/screens/contact';
 import { cookies } from 'next/headers';
 import { JSX, Suspense } from 'react';
 
@@ -18,7 +18,7 @@ export default async function InfoContactBlockPage({
 
   return (
     <Suspense>
-      <InfoScreen uid={user_uid} wsUrl={wsUrl} currentUid={payload.user_id} />
+      <InfoContactScreen uid={user_uid} wsUrl={wsUrl} currentUid={payload.user_id} />
     </Suspense>
   );
 }

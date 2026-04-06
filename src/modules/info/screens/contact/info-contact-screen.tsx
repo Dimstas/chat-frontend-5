@@ -3,28 +3,29 @@
 import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { AddContactModal } from 'modules/conversation/chats/ui/add-contact-modal';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
-import { useAddContactQuery, useInfoProfileQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
+import { useInfoProfileQuery } from 'modules/info/api';
+import { useAddContactQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { formatTimestamp } from 'modules/info/shared/utils/date-time';
+import { ActionButton } from 'modules/info/ui/action-button';
+import { BlockContactModal } from 'modules/info/ui/block-contact-modal';
+import { ClearChatModal } from 'modules/info/ui/clear-chat-modal';
+import { FrowardProfileModal } from 'modules/info/ui/forward-profile-modal';
+import { InfoAvatar } from 'modules/info/ui/info-avatar';
+import { InfoHeader } from 'modules/info/ui/info-header';
+import { InfoLayout } from 'modules/info/ui/info-layout';
+import { InfoNotification } from 'modules/info/ui/info-notification';
+import { InfoSummary } from 'modules/info/ui/info-summary';
+import { UnblockContactModal } from 'modules/info/ui/unblock-contact-modal';
 import { JSX, useEffect } from 'react';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
+import AddIcon from '../../shared/icons/add.svg';
 import BlockIcon from '../../shared/icons/block.svg';
 import ClearIcon from '../../shared/icons/clear.svg';
 import ForwardIcon from '../../shared/icons/forward.svg';
-import { ActionButton } from '../action-button';
-import { BlockContactModal } from '../block-contact-modal';
-import { ClearChatModal } from '../clear-chat-modal';
-import { FrowardProfileModal } from '../forward-profile-modal';
-import { InfoAvatar } from '../info-avatar';
-import { InfoHeader } from '../info-header';
-import { InfoLayout } from '../info-layout';
-import { InfoNotification } from '../info-notification';
-import { InfoSummary } from '../info-summary';
-import { UnblockContactModal } from '../unblock-contact-modal';
-import AddIcon from './icons/add.svg';
-import { InfoBlockProps } from './info-contact-block.props';
+import { InfoContactScreenProps } from './info-contact-screen.props';
 
-export const InfoContactBlock = ({ uid, wsUrl, currentUid }: InfoBlockProps): JSX.Element => {
+export const InfoContactScreen = ({ uid, wsUrl, currentUid }: InfoContactScreenProps): JSX.Element => {
   const { openUnblockModal, setUid, openBlockModal, openClearModal, openForwardModal } = useInfoStore();
   const { contacts } = useContactsScreen();
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
