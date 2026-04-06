@@ -86,20 +86,18 @@ export const IncomingMessagesCard = ({
   const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
   const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
   const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
-  const [selected, setSelected] = useState<boolean | undefined>(undefined);
+  const [selected, setSelected] = useState<boolean>(true);
 
   const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
 
-  useEffect(() => {
+  const handleCheckBoxClick = (): void => {
+    setSelected(!selected);
     if (selected) {
+      console.log(selected);
       addSelectedMessagesStore(message);
     } else {
       deleteSelectedMessagesStore(message);
     }
-  }, [selected, addSelectedMessagesStore, deleteSelectedMessagesStore, message]);
-
-  const handleCheckBoxClick = (): void => {
-    setSelected(!selected);
   };
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);

@@ -1,7 +1,6 @@
 import type { RestMessageApi } from 'modules/conversation/messages-chat/model/messages-list';
 
-export type ChooseMessagesCardProps = {
-  setCheckBoxsVisibleStore: (v: boolean) => void;
+export type ForwardMessagesCardProps = {
   selectedMessagesStore: RestMessageApi[] | null;
   clearSelectedMessagesStore: () => void;
 };

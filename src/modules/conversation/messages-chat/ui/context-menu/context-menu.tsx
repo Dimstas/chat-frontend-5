@@ -10,7 +10,7 @@ import {
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
-import Check from './icons/check.svg';
+import Selected from './icons/check.svg';
 import Copy from './icons/copy.svg';
 import Delete from './icons/delete.svg';
 import Forward from './icons/forward.svg';
@@ -44,7 +44,7 @@ export const ContextMenu = ({
 
   const handleSelectedClick = (): void => {
     setCheckBoxsVisibleStore(true);
-    clearSelectedMessagesStore();
+    //clearSelectedMessagesStore();
     addSelectedMessagesStore(message);
     onClose();
   };
@@ -73,7 +73,7 @@ export const ContextMenu = ({
       <button className={styles.cell} onClick={handleSelectedClick}>
         <div className={styles.text}>Выбрать</div>
         <div className={styles.icon}>
-          <Check />
+          <Selected />
         </div>
       </button>
       <button className={clsx(styles.cell, styles.cellBottom)} onClick={handleDeleteClick}>

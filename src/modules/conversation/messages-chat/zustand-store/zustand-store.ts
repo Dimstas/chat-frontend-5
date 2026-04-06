@@ -151,12 +151,14 @@ type SelectedMessagesState = {
   deleteSelectedMessages: (msg: RestMessageApi) => void;
   clearSelectedMessages: () => void;
   setCheckBoxsVisible: (v: boolean) => void;
+  setSelectedMessages: (arr: RestMessageApi[] | null) => void;
 };
 
 export const useSelectedMessagesStore = create<SelectedMessagesState>((set) => ({
   selectedMessages: null,
   checkBoxsVisible: null,
   setCheckBoxsVisible: (checkBoxsVisible: boolean): void => set({ checkBoxsVisible }),
+  setSelectedMessages: (selectedMessages: RestMessageApi[] | null): void => set({ selectedMessages }),
   addSelectedMessages: (msg: RestMessageApi): void =>
     set((s) => {
       const prev = s.selectedMessages ?? [];
