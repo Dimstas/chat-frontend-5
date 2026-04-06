@@ -212,6 +212,9 @@ type HeaderButtonsModalState = {
   isAddModalOpen: boolean;
   openAddModal: () => void;
   closeAddModal: () => void;
+  isButtonMenuOpen: boolean;
+  openButtonMenu: () => void;
+  closeButtonMenu: () => void;
 };
 
 export const useHeaderButtonsModalStore = create<HeaderButtonsModalState>((set) => ({
@@ -221,4 +224,7 @@ export const useHeaderButtonsModalStore = create<HeaderButtonsModalState>((set) 
   isAddModalOpen: false,
   openAddModal: (): void => set({ isAddModalOpen: true }),
   closeAddModal: (): void => set({ isAddModalOpen: false }),
+  isButtonMenuOpen: false,
+  openButtonMenu: (): void => set({ isButtonMenuOpen: true }),
+  closeButtonMenu: (): void => set({ isButtonMenuOpen: false }),
 }));

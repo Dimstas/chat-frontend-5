@@ -2,7 +2,7 @@
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { useNotificationStore } from 'modules/notification/model/notification.store';
-import { JSX } from 'react';
+import { JSX, useEffect } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { NotificationModal } from '../../../../notification/ui/notification-modal';
@@ -19,7 +19,7 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   const { chats } = useChatsScreen();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
-  const { isBlockModalOpen, isAddModalOpen } = useHeaderButtonsModalStore();
+  const { isBlockModalOpen, isAddModalOpen, openButtonMenu, closeButtonMenu } = useHeaderButtonsModalStore();
   const chat = chats.find((c) => c.peer.uid === user_uid);
   const {
     avatarUrl = '',
@@ -30,6 +30,14 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
     isInContacts = false,
   } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
+
+  useEffect(() => {
+    if (isBlocked && isInContacts) {
+      closeButtonMenu();
+    } else {
+      openButtonMenu();
+    }
+  }, [closeButtonMenu, openButtonMenu, isBlocked, isInContacts, user_uid]);
 
   return (
     <div className={styles.wrapper}>
