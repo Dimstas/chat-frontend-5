@@ -204,3 +204,15 @@ export const useSelectedUidUserForForwardMessageStore = create<SelectedUidUserFo
   setSelectedUidUserForForwardMessage: (uid: string): void => set({ selectedUidUserForForwardMessage: uid }),
   clearSelectedUidUserForForwardMessage: (): void => set({ selectedUidUserForForwardMessage: '' }),
 }));
+
+type HeaderButtonsModalState = {
+  isBlockModalOpen: boolean;
+  openBlockModal: () => void;
+  closeBlockModal: () => void;
+};
+
+export const useHeaderButtonsModalStore = create<HeaderButtonsModalState>((set) => ({
+  isBlockModalOpen: false,
+  openBlockModal: (): void => set({ isBlockModalOpen: true }),
+  closeBlockModal: (): void => set({ isBlockModalOpen: false }),
+}));
