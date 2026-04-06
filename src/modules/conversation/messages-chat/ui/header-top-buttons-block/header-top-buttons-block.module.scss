@@ -23,10 +23,18 @@
 
 .addContact {
   color: var(--brand-primary);
+
+  &.blocked {
+    color: var(--brand-violet-white);
+  }
 }
 
 .blockContact {
   color: var(--text-state-error);
+
+  &.blocked {
+    color: var(--text-state-error-disabled);
+  }
 }
 
 .icon {

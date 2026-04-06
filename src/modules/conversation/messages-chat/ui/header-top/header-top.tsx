@@ -7,6 +7,7 @@ import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { NotificationModal } from '../../../../notification/ui/notification-modal';
 import { useHeaderButtonsModalStore } from '../../zustand-store/zustand-store';
+import { AddModal } from '../header-top-buttons-block/add-modal';
 import { BlockModal } from '../header-top-buttons-block/block-modal';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';
 import styles from './header-top.module.scss';
@@ -18,9 +19,16 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
   const { chats } = useChatsScreen();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
-  const { isBlockModalOpen } = useHeaderButtonsModalStore();
+  const { isBlockModalOpen, isAddModalOpen } = useHeaderButtonsModalStore();
   const chat = chats.find((c) => c.peer.uid === user_uid);
-  const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
+  const {
+    avatarUrl = '',
+    firstName = '',
+    lastName = '',
+    wasOnlineAt = null,
+    isBlocked = false,
+    isInContacts = false,
+  } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
 
   return (
@@ -48,9 +56,10 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
           </button>
         </div>
       </div>
-      <HeaderTopButtonsBlock />
+      <HeaderTopButtonsBlock nickname={chat?.peer.nickname ?? ''} isBlocked={isBlocked} isInContact={isInContacts} />
       {isModalOpen && <NotificationModal />}
       {isBlockModalOpen && <BlockModal />}
+      {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}
     </div>
   );
 };
