@@ -84,6 +84,7 @@ const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardP
   const handlerOnClick = (): void => {
     setSelectedUidUserForForwardMessageStore(chat.peer.uid);
     clearSearch?.();
+
     onOk();
   };
   return (

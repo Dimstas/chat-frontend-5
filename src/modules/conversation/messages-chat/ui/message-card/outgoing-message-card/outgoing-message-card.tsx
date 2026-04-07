@@ -54,7 +54,7 @@ export const OutgoingMessagesCard = ({
     (s) => s.selectedUidUserForForwardMessage,
   );
   const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
-
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   useEffect(() => {
     forAllDeleteRef.current = forAllDeleteStore;
     selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
@@ -82,6 +82,7 @@ export const OutgoingMessagesCard = ({
     if (ok && selectedUidUserForForwardMessageRef.current) {
       setForwardMessageStore(message);
       clearRepliedMessageStore();
+      clearSelectedMessagesStore();
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
@@ -113,7 +114,6 @@ export const OutgoingMessagesCard = ({
         className={styles.wrapper}
         onContextMenu={!checkBoxsVisibleStore ? handleContextMenu : (): void => {}}
         onMouseLeave={handleCloseMenu}
-        onClick={handleCheckBoxClick}
       >
         <ContextMenu
           position={contextMenuPos}

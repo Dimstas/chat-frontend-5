@@ -49,7 +49,7 @@ export const IncomingMessagesCard = ({
     (s) => s.selectedUidUserForForwardMessage,
   );
   const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
-
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   useEffect(() => {
     selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
   }, [selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
@@ -79,6 +79,7 @@ export const IncomingMessagesCard = ({
     if (ok && selectedUidUserForForwardMessageRef.current) {
       setForwardMessageStore(message);
       clearRepliedMessageStore();
+      clearSelectedMessagesStore();
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
@@ -114,7 +115,6 @@ export const IncomingMessagesCard = ({
         ref={(el) => {
           register(el, message);
         }}
-        onClick={handleCheckBoxClick}
       >
         <ContextMenu
           position={contextMenuPos}

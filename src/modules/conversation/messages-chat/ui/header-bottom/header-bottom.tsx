@@ -28,6 +28,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     (s) => s.clearSelectedUidUserForForwardMessage,
   );
   const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
+  console.log('selectedMessagesStore: ', selectedMessagesStore);
   const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { sendMessage } = useWebSocketChat(wsUrl, currentUserId);
@@ -79,6 +80,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
             <ForwardMessagesCard
               selectedMessagesStore={selectedMessagesStore}
               clearSelectedMessagesStore={clearSelectedMessagesStore}
+              currentUserId={currentUserId}
             />
           )}
           <form className={styles.wrapper} onSubmit={handleSubmitForm}>

@@ -3,4 +3,5 @@ import type { RestMessageApi } from 'modules/conversation/messages-chat/model/me
 export type ForwardMessagesCardProps = {
   selectedMessagesStore: RestMessageApi[] | null;
   clearSelectedMessagesStore: () => void;
+  currentUserId: string;
 };
