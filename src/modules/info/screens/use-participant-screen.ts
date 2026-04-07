@@ -10,6 +10,7 @@ type UseParticipantsScreenReturn = {
   setQuery: (q: string) => void;
   clearQuery: () => void;
   participants: Participant[] | undefined;
+  filtered: Participant[] | undefined;
 };
 
 export const useParticipantsScreen = (chatKey: string): UseParticipantsScreenReturn => {
@@ -26,10 +27,17 @@ export const useParticipantsScreen = (chatKey: string): UseParticipantsScreenRet
     [globals],
   );
 
+  const normalizedQuery = query.trim().toLowerCase();
+
+  const filtered = normalizedQuery
+    ? participants?.filter((p) => `${p.firstName} ${p.lastName}`.toLowerCase().includes(normalizedQuery))
+    : participants;
+
   return {
     query,
     setQuery,
     clearQuery,
     participants,
+    filtered,
   };
 };
