@@ -37,6 +37,7 @@ export const ChooseMessagesCard = ({
   }, [selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
   //обработчик для меню 'пересласть'
   const handleForwardClick = async (): Promise<void> => {
+    if (!selectedMessagesStore?.length) return;
     const ok = await confirm({
       isMessageForwarding: true,
     });
@@ -48,6 +49,7 @@ export const ChooseMessagesCard = ({
   const setToastVisibleStore = useToastVisibleStore((s) => s.setToastVisible);
   //обработчик для меню 'копировать'
   const handleCopyClick = (): void => {
+    if (!selectedMessagesStore?.length) return;
     const messagesText =
       selectedMessagesStore?.reduce((acc, m) => {
         acc = acc + `${m.content} `;
@@ -59,6 +61,7 @@ export const ChooseMessagesCard = ({
   };
   //обработчик для меню 'удалить'
   const handleDeleteClick = async (): Promise<void> => {
+    if (!selectedMessagesStore?.length) return;
     const ok = await confirm({
       title: 'Удалить сообщения',
       message: 'Вы действительно хотите удалить сообщения?',

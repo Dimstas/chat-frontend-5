@@ -6,6 +6,7 @@ import {
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
+  useUserIdStore,
 } from '../../zustand-store/zustand-store';
 import { ChooseMessagesCard } from '../message-card/choose-messages-card/choose-messages-card';
 import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
@@ -31,12 +32,12 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
-
+  const userIdStore = useUserIdStore((s) => s.userId);
   useEffect(() => {
-    if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length) {
+    if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
     }
-  }, [repliedMessageStore, forwardMessageStore, selectedMessagesStore]);
+  }, [repliedMessageStore, forwardMessageStore, selectedMessagesStore, userIdStore]);
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
