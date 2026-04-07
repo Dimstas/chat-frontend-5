@@ -217,10 +217,10 @@ export const useParticipantsQuery = (
     ParticipantApiResponse,
     unknown,
     InfiniteData<ParticipantApiResponse>,
-    ['participants', 'participants-list'],
+    ['participants', 'participants-list', string],
     number
   >({
-    queryKey: ['participants', 'participants-list'],
+    queryKey: ['participants', 'participants-list', chatKey],
     initialPageParam: 1,
 
     queryFn: ({ pageParam }) =>
