@@ -6,6 +6,7 @@ import {
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
+  useToastVisibleStore,
 } from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
@@ -21,7 +22,6 @@ export const ContextMenu = ({
   onClose,
   handleDeleteClick,
   handleForwardClick,
-  setToastVisible,
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
@@ -36,9 +36,10 @@ export const ContextMenu = ({
     clearSelectedMessagesStore();
     onClose();
   };
+  const setToastVisibleStore = useToastVisibleStore((s) => s.setToastVisible);
   //обработчика для контекстного меню 'Cкопировать'
   const handleCopyClick = (msgText: string): void => {
-    copyMessageToClipboard(msgText, setToastVisible);
+    copyMessageToClipboard(msgText, setToastVisibleStore);
     onClose();
   };
   // показывать компоненты <MessageCheckBox/> в DOM либо нет

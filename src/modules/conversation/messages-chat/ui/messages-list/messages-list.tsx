@@ -4,7 +4,7 @@ import { READING_TIME, useIntersectionRead } from '../../hooks/use-intersection-
 import { handlerMessagesList } from '../../lib/handler-messages-list';
 import type { RestMessageApi } from '../../model/messages-list';
 import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
-import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
+import { useMessagesChatStore, useToastVisibleStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
 import { NotificationCopyCard } from '../message-card/notification-copy-card/notification-copy-card';
@@ -191,7 +191,7 @@ export const MessagesList = ({
     }
   };
   // показывать <NotificationCopyCard/> в DOM либо нет
-  const [toastVisible, setToastVisible] = useState(false);
+  const toastVisibleStore = useToastVisibleStore((s) => s.toastVisible);
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -229,17 +229,12 @@ export const MessagesList = ({
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === currentUserId || message.from_user.uid === '' ? (
-                      <OutgoingMessagesCard
-                        message={message}
-                        sendDeleteMessage={sendDeleteMessage}
-                        setToastVisible={setToastVisible}
-                      />
+                      <OutgoingMessagesCard message={message} sendDeleteMessage={sendDeleteMessage} />
                     ) : (
                       <IncomingMessagesCard
                         message={message}
                         register={register}
                         sendDeleteMessage={sendDeleteMessage}
-                        setToastVisible={setToastVisible}
                       />
                     )}
                   </div>
@@ -261,7 +256,7 @@ export const MessagesList = ({
           <ScrollButton quantity={currentFirstUnreadIncoming !== -1 ? lastIndex - currentFirstUnreadIncoming + 1 : 0} />
         </button>
       )}
-      {toastVisible && <NotificationCopyCard posCopy={{ top: posCopy.top, left: posCopy.left }} />}
+      {toastVisibleStore && <NotificationCopyCard posCopy={{ top: posCopy.top, left: posCopy.left }} />}
     </div>
   );
 };

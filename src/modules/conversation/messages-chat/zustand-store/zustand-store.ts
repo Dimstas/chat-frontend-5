@@ -13,7 +13,7 @@ type MessagesChatState = {
   deleteMessageByUidForUser: (userId: string, uid: string) => void;
 };
 
-export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
+export const useMessagesChatStore = create<MessagesChatState>((set) => ({
   messagesByUser: {},
 
   setMessagesForUser: (userId: string, messages: Msg[]): void =>
@@ -205,4 +205,13 @@ export const useSelectedUidUserForForwardMessageStore = create<SelectedUidUserFo
   selectedUidUserForForwardMessage: '',
   setSelectedUidUserForForwardMessage: (uid: string): void => set({ selectedUidUserForForwardMessage: uid }),
   clearSelectedUidUserForForwardMessage: (): void => set({ selectedUidUserForForwardMessage: '' }),
+}));
+
+type ToastVisibleState = {
+  toastVisible: boolean;
+  setToastVisible: (toastVisible: boolean) => void;
+};
+export const useToastVisibleStore = create<ToastVisibleState>((set) => ({
+  toastVisible: false,
+  setToastVisible: (toastVisible): void => set({ toastVisible }),
 }));

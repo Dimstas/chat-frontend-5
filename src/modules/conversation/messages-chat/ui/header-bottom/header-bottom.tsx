@@ -28,10 +28,9 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     (s) => s.clearSelectedUidUserForForwardMessage,
   );
   const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
-  console.log('selectedMessagesStore: ', selectedMessagesStore);
   const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  const { sendMessage } = useWebSocketChat(wsUrl, currentUserId);
+  const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
 
   useEffect(() => {
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length) {
@@ -44,6 +43,11 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     sendMessage(textInput, repliedMessageStore);
     if (forwardMessageStore) {
       sendMessage(forwardMessageStore?.content ?? '', repliedMessageStore, forwardMessageStore);
+    }
+    if (selectedMessagesStore && selectedMessagesStore.length) {
+      selectedMessagesStore.forEach((m) => {
+        sendMessage(m.content ?? '', repliedMessageStore, m);
+      });
     }
     clearForwardMessageStore();
     clearSelectedUidUserForForwardMessageStore();
@@ -61,6 +65,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
           setCheckBoxsVisibleStore={setCheckBoxsVisibleStore}
           selectedMessagesStore={selectedMessagesStore}
           clearSelectedMessagesStore={clearSelectedMessagesStore}
+          sendDeleteMessage={sendDeleteMessage}
         />
       ) : (
         <>

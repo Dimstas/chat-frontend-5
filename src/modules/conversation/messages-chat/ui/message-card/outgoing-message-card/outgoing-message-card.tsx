@@ -21,11 +21,7 @@ import { ReplyCard } from '../reply-card/reply-card';
 import styles from './outgoing-message-card.module.scss';
 import { OutgoingMessagesCardProps } from './outgoing-message-card.props';
 
-export const OutgoingMessagesCard = ({
-  message,
-  sendDeleteMessage,
-  setToastVisible,
-}: OutgoingMessagesCardProps): JSX.Element => {
+export const OutgoingMessagesCard = ({ message, sendDeleteMessage }: OutgoingMessagesCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
   const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
@@ -65,7 +61,7 @@ export const OutgoingMessagesCard = ({
       title: 'Удалить сообщение',
       message: 'Вы действительно хотите удалить сообщение?',
       showCheckBox: true,
-      labelCheckBox: `Удалить у меня и у ${message.to_user.first_name ?? ''}`,
+      labelCheckBox: `Удалить у меня и у ${message.to_user?.first_name !== '' ? message.to_user?.first_name : message.to_user?.nickname}`,
     });
     if (ok && forAllDeleteRef.current !== null) {
       sendDeleteMessage(message, forAllDeleteRef.current);
@@ -121,7 +117,6 @@ export const OutgoingMessagesCard = ({
           onClose={handleCloseMenu}
           handleDeleteClick={handleDeleteClick}
           handleForwardClick={handleForwardClick}
-          setToastVisible={setToastVisible}
           message={message}
         />
         <div className={styles.item}>
