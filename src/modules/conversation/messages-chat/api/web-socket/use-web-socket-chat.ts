@@ -1,5 +1,6 @@
 'use client';
 
+import { CreateAddMembersRequestAPI, serializerRequestApiSchema } from 'modules/info/model/info.web-socket.api.schema';
 import { useCallback, useEffect, useRef } from 'react';
 import type {
   ChangeStatusReadMessageAPI,
@@ -21,6 +22,7 @@ type UseWebSocketChat = {
     forwardMessageStore?: RestMessageApi | null | undefined,
   ) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
+  sendMembers: (payload: CreateAddMembersRequestAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
@@ -420,7 +422,17 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
-      console.log('Send of server profile: ', payload);
+      console.log('Send to server profile: ', payload);
+    }
+  };
+
+  const sendMembers = (payload: CreateAddMembersRequestAPI): void => {
+    const resultZod = serializerRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send to server members: ', payload);
     }
   };
 
@@ -504,6 +516,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   return {
     sendMessage,
     sendProfile,
+    sendMembers,
     sendChangeStatusReadMessage,
     sendDeleteMessage,
   };

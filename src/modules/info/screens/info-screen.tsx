@@ -1,10 +1,12 @@
 'use client';
 
+import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-socket/use-web-socket-chat';
 import { JSX, useEffect } from 'react';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
 import { useInfoProfileQuery } from '../api';
 import { useInfoSearchStore } from '../model/info.search.store';
 import { useInfoStore } from '../model/info.store';
+import { CreateAddMembersRequestAPI } from '../model/info.web-socket.api.schema';
 import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
 import ForwardIcon from '../shared/icons/forward.svg';
@@ -30,6 +32,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     clearSelection,
   } = useInfoStore();
   const { clearQuery } = useInfoSearchStore();
+  const { sendMembers } = useWebSocketChat(wsUrl, currentUid);
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
 
   useEffect(() => {
@@ -79,6 +82,25 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     exitSelectionMode();
   };
 
+  const handleAddMembers = (): void => {
+    if (selectedIds) {
+      const requestUid = crypto.randomUUID();
+      const payload: CreateAddMembersRequestAPI = {
+        action: 'add_members_to_chat',
+        request_uid: requestUid,
+        object: {
+          chat_key: uid,
+          uid_users_list: [...selectedIds],
+        },
+      };
+      sendMembers(payload);
+
+      clearSelection();
+      clearQuery();
+      exitSelectionMode();
+    }
+  };
+
   const renderWithLayout = (header: JSX.Element, content: JSX.Element, footer?: JSX.Element): JSX.Element => (
     <>
       <InfoLayout header={header} footer={footer}>
@@ -96,7 +118,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
       ),
       isAddMembersMode ? <AddMemberPanel chatKey={uid} /> : <GroupPanel uid={uid} currentUid={currentUid} />,
       isAddMembersMode ? (
-        <AddMembersButton label="Добавить в группу" onClick={() => {}} disabled={selectedIds.size === 0} />
+        <AddMembersButton label="Добавить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />
       ) : undefined,
     );
   }
