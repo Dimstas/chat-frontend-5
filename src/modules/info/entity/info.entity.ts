@@ -79,3 +79,16 @@ export type Participant = {
   wasOnlineAt?: number;
   isInContacts: boolean;
 };
+
+export type UserForAdd = {
+  uid: string;
+  isDeleted: boolean;
+  avatarUrl: string;
+  avatarWebpUrl: string;
+  avatarSmallUrl: string;
+  avatarMasterUrl: string;
+  isOnline: boolean;
+  wasOnlineAt?: number;
+  firstName: string;
+  lastName: string;
+};

@@ -20,8 +20,17 @@ import {
   InviteSettingsPost,
   NewContact,
   ParticipantApiResponse,
+  UserForAddApiResponse,
 } from '../model/info.api.schema';
-import { addToContact, editChat, generateInvite, getGroupOrChannel, getParticipantList, unblockUser } from './info.api';
+import {
+  addToContact,
+  editChat,
+  generateInvite,
+  getGroupOrChannel,
+  getParticipantList,
+  getUserForAddList,
+  unblockUser,
+} from './info.api';
 import { mapInfoGroupFromApi } from './info.group.mapper';
 
 export const useInfoProfileQuery = (id: string): UseQueryResult<ProfileInfo> => {
@@ -232,6 +241,35 @@ export const useParticipantsQuery = (
         },
         chatKey,
       ),
+
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.next) return undefined;
+      const url = new URL(lastPage.next, 'http://localhost');
+      return Number(url.searchParams.get('page'));
+    },
+  });
+};
+
+export const useUserForAddQuery = (
+  query: string,
+  chatKey: string,
+): UseInfiniteQueryResult<InfiniteData<UserForAddApiResponse>, unknown> => {
+  return useInfiniteQuery<
+    UserForAddApiResponse,
+    unknown,
+    InfiniteData<UserForAddApiResponse>,
+    ['user-for-add', 'user-for-add-list', string],
+    number
+  >({
+    queryKey: ['user-for-add', 'user-for-add-list', chatKey],
+    initialPageParam: 1,
+
+    queryFn: ({ pageParam }) =>
+      getUserForAddList({
+        page: pageParam,
+        page_size: 15,
+        search: query,
+      }),
 
     getNextPageParam: (lastPage) => {
       if (!lastPage.next) return undefined;

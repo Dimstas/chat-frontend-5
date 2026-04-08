@@ -11,6 +11,8 @@ import {
   NewContact,
   ParticipantApiResponse,
   ParticipantQuery,
+  UserForAddApiResponse,
+  UserForAddQuery,
 } from '../model/info.api.schema';
 
 export const getProfileInfoById = (
@@ -101,4 +103,16 @@ export const getParticipantList = (params: ParticipantQuery, chatKey: string): P
       method: 'GET',
     },
   );
+};
+
+export const getUserForAddList = (params: UserForAddQuery): Promise<UserForAddApiResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.page_size) searchParams.set('page_size', String(params.page_size));
+  if (params.search) searchParams.set('search', params.search);
+
+  return apiFetch<UserForAddApiResponse>(`/api/proxy/api/v1/chat/list/users-for-add/?${searchParams.toString()}`, {
+    method: 'GET',
+  });
 };

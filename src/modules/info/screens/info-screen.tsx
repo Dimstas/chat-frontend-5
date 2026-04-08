@@ -3,6 +3,7 @@
 import { JSX, useEffect } from 'react';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
 import { useInfoProfileQuery } from '../api';
+import { useInfoSearchStore } from '../model/info.search.store';
 import { useInfoStore } from '../model/info.store';
 import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
@@ -26,7 +27,9 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     exitSelectionMode,
     toggleInfoOpen,
     selectedIds,
+    clearSelection,
   } = useInfoStore();
+  const { clearQuery } = useInfoSearchStore();
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
 
   useEffect(() => {
@@ -70,6 +73,12 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     });
   }
 
+  const handleBack = (): void => {
+    clearSelection();
+    clearQuery();
+    exitSelectionMode();
+  };
+
   const renderWithLayout = (header: JSX.Element, content: JSX.Element, footer?: JSX.Element): JSX.Element => (
     <>
       <InfoLayout header={header} footer={footer}>
@@ -81,11 +90,11 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   if (isGroup) {
     return renderWithLayout(
       isAddMembersMode ? (
-        <InfoHeader title="Пригласить участников" onBack={exitSelectionMode} />
+        <InfoHeader title="Пригласить участников" onBack={handleBack} />
       ) : (
         <InfoHeader menuItems={groupMenuItems} title="Информация о группе" onClose={toggleInfoOpen} />
       ),
-      isAddMembersMode ? <AddMemberPanel /> : <GroupPanel uid={uid} currentUid={currentUid} />,
+      isAddMembersMode ? <AddMemberPanel chatKey={uid} /> : <GroupPanel uid={uid} currentUid={currentUid} />,
       isAddMembersMode ? (
         <AddMembersButton label="Добавить в группу" onClick={() => {}} disabled={selectedIds.size === 0} />
       ) : undefined,

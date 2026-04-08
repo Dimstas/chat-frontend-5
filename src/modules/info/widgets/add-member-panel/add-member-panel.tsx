@@ -1,26 +1,26 @@
-import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { SearchInput } from 'modules/conversation/shared/ui';
 import { JSX } from 'react';
 import { ParticipantsPanel } from '../participant-panel';
 import styles from './add-member-panel.module.scss';
+import { useAddMemberPanel } from './use-add-member-panel';
 
-export const AddMemberPanel = (): JSX.Element => {
-  const { query, setQuery, clearQuery, contacts } = useContactsScreen();
+export const AddMemberPanel = ({ chatKey }: { chatKey: string }): JSX.Element => {
+  const { query, setQuery, clearQuery, users } = useAddMemberPanel(chatKey);
 
-  const participants = contacts?.map((c) => ({
-    uid: c.uid,
-    firstName: c.firstName,
-    lastName: c.lastName,
-    avatarUrl: c.avatarUrl,
-    avatarWebpUrl: '',
-    avatarSmallUrl: '',
-    avatarMasterUrl: '',
+  const participants = users?.map((u) => ({
+    uid: u.uid,
+    firstName: u.firstName,
+    lastName: u.lastName,
+    avatarUrl: u.avatarUrl,
+    avatarWebpUrl: u.avatarWebpUrl,
+    avatarSmallUrl: u.avatarSmallUrl,
+    avatarMasterUrl: u.avatarMasterUrl,
     isOwner: false,
     isBlocked: false,
-    isOnline: c.isOnline,
-    isDeleted: false,
+    isOnline: u.isOnline,
+    isDeleted: u.isDeleted,
     isInContacts: true,
-    wasOnlineAt: c.wasOnlineAt,
+    wasOnlineAt: u.wasOnlineAt,
   }));
 
   return (

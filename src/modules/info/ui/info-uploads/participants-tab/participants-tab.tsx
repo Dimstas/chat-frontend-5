@@ -11,15 +11,21 @@ import { SearchPanel } from './search-panel';
 
 export const ParticipantsTab = ({ currentUid, chatKey }: ParticipantsTabProps): JSX.Element => {
   const { query, setQuery, clearQuery, participants, filtered } = useParticipantsScreen(chatKey);
-  const { enterSelectionMode } = useInfoStore();
+  const { enterSelectionMode, clearSelection } = useInfoStore();
 
   const owner = filtered?.find((p) => p.isOwner);
   const members = filtered?.filter((p) => !p.isOwner) ?? [];
   const current = participants?.find((p) => p.uid === currentUid);
 
+  const handleAddToGroup = (): void => {
+    clearSelection();
+    clearQuery();
+    enterSelectionMode();
+  };
+
   return (
     <div className={styles.wrapper}>
-      {current && <ActionButton icon={<AddIcon />} label={'Пригласить в группу'} onClick={enterSelectionMode} />}
+      {current && <ActionButton icon={<AddIcon />} label={'Пригласить в группу'} onClick={handleAddToGroup} />}
       <SearchPanel query={query} onChange={setQuery} onClear={clearQuery} />
       {query ? (
         <>
