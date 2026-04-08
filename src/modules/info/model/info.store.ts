@@ -6,6 +6,8 @@ type InfoState = {
   isUnblockModalOpen: boolean;
   isClearModalOpen: boolean;
   isForwardModalOpen: boolean;
+  isAddMembersMode: boolean;
+  selectedIds: Set<string>;
   uid: string | undefined;
   setUid: (uid: string) => void;
   chatId: number | undefined;
@@ -19,6 +21,11 @@ type InfoState = {
   closeClearModal: () => void;
   openForwardModal: () => void;
   closeForwardModal: () => void;
+
+  enterSelectionMode: () => void;
+  exitSelectionMode: () => void;
+  toggleSelection: (id: string) => void;
+  clearSelection: () => void;
 };
 
 export const useInfoStore = create<InfoState>((set, get) => ({
@@ -27,6 +34,8 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   isUnblockModalOpen: false,
   isClearModalOpen: false,
   isForwardModalOpen: false,
+  isAddMembersMode: false,
+  selectedIds: new Set(),
   uid: undefined,
   setUid: (uid): void => {
     set({ uid: uid });
@@ -47,4 +56,34 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   closeClearModal: (): void => set({ isClearModalOpen: false }),
   openForwardModal: (): void => set({ isForwardModalOpen: true }),
   closeForwardModal: (): void => set({ isForwardModalOpen: false }),
+
+  enterSelectionMode: (): void =>
+    set({
+      isAddMembersMode: true,
+      selectedIds: new Set(),
+    }),
+
+  exitSelectionMode: (): void =>
+    set({
+      isAddMembersMode: false,
+      selectedIds: new Set(),
+    }),
+
+  toggleSelection: (id): void =>
+    set((state) => {
+      const next = new Set(state.selectedIds);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return { selectedIds: next };
+    }),
+
+  clearSelection: (): void =>
+    set({
+      selectedIds: new Set(),
+    }),
 }));
