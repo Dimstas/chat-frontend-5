@@ -20,7 +20,7 @@
   height: 100%;
   background-color: var(--surface-secondary);
   gap: 8px;
-  border: 0.033rem solid var(--border-layout);
+  // border: 0.033rem solid var(--border-layout);
   border-radius: 8px;
 
   overflow-y: auto;
@@ -48,5 +48,9 @@
 
   &:hover::-webkit-scrollbar-thumb {
     background-color: var(--surface-scroll);
+  }
+
+  .footer {
+
   }
 }
