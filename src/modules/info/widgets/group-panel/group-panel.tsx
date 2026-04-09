@@ -1,6 +1,7 @@
 import { useGenerateInviteLinkQuery, useGroupOrChanelQuery } from 'modules/info/api/info.query';
 import { formatParticipants } from 'modules/info/shared/utils/format';
 import { ClearChatModal } from 'modules/info/ui/clear-chat-modal';
+import { DeleteMemberModal } from 'modules/info/ui/delete-member-modal';
 import { InfoAvatar } from 'modules/info/ui/info-avatar';
 import { InfoNotification } from 'modules/info/ui/info-notification';
 import { InfoSummary } from 'modules/info/ui/info-summary';
@@ -8,7 +9,15 @@ import { InfoUploads } from 'modules/info/ui/info-uploads';
 import { GROUP_TABS } from 'modules/info/ui/info-uploads/info-uploads.constants';
 import { JSX, useEffect } from 'react';
 
-export const GroupPanel = ({ uid, currentUid }: { uid: string; currentUid: string }): JSX.Element => {
+export const GroupPanel = ({
+  uid,
+  currentUid,
+  wsUrl,
+}: {
+  uid: string;
+  currentUid: string;
+  wsUrl: string;
+}): JSX.Element => {
   const { mutate: generateLink, data } = useGenerateInviteLinkQuery(uid);
   const { data: profile, isLoading } = useGroupOrChanelQuery(uid);
 
@@ -38,6 +47,7 @@ export const GroupPanel = ({ uid, currentUid }: { uid: string; currentUid: strin
           <InfoSummary inviteLink={data?.invite_link} chatKey={uid} />
           <InfoUploads uid={uid} tabs={GROUP_TABS} chatKey={uid} currentUid={currentUid} />
           <ClearChatModal />
+          <DeleteMemberModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} />
         </>
       )}
     </>
