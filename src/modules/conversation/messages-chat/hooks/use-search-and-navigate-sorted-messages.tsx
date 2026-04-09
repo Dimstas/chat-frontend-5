@@ -4,7 +4,12 @@ import type { RestMessageApi } from '../model/messages-list';
 import { useMessagesListScreen } from '../screens';
 import { useMessagesListSearchScreen } from '../screens/use-messages-list-search-screen';
 import { smoothScrollElementIntoView } from '../utils/smooth-scroll';
-import { useUserIdStore } from '../zustand-store/zustand-store';
+import {
+  useGoToNextSearchMessageStore,
+  useGoToPrevSearchMessageStore,
+  useSearchIndicatorStore,
+  useUserIdStore,
+} from '../zustand-store/zustand-store';
 import { READING_TIME } from './use-intersection-read';
 
 type UseSearchAndNavigateSortedMessagesReturn = {
@@ -12,12 +17,6 @@ type UseSearchAndNavigateSortedMessagesReturn = {
   availableSearchUids: string[];
   setMessageRef: (uid: string) => (el: HTMLDivElement | null) => void;
   targetSearchUid: string | null;
-  goToNextSearchMessage: () => void;
-  goToPrevSearchMessage: () => void;
-  searchIndicator: {
-    currentSearchIndex: number;
-    lastSearchIndex: number;
-  } | null;
 };
 
 type UseSearchAndNavigateSortedMessagesProps = {
@@ -212,13 +211,16 @@ export const useSearchAndNavigateSortedMessages = ({
     };
   }, [searchMessagesStore, availableSearchUids, currentSearchIndex]);
 
+  const setGoToNextSearchMessageStore = useGoToNextSearchMessageStore((s) => s.setGoToNextSearchMessage);
+  const setGoToPrevSearchMessageStore = useGoToPrevSearchMessageStore((s) => s.setGoToPrevSearchMessage);
+  const setSearchIndicatorStore = useSearchIndicatorStore((s) => s.setSearchIndicator);
+  setGoToNextSearchMessageStore(goToNextSearchMessage);
+  setGoToPrevSearchMessageStore(goToPrevSearchMessage);
+  setSearchIndicatorStore(searchIndicator);
   return {
     searchMessagesStore,
     availableSearchUids,
     setMessageRef,
     targetSearchUid,
-    goToNextSearchMessage,
-    goToPrevSearchMessage,
-    searchIndicator,
   };
 };

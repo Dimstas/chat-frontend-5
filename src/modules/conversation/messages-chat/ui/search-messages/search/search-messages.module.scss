@@ -6,7 +6,7 @@
   height: 4.4rem;
   border-radius: 0.8rem;
   border-bottom: 0.1rem solid var(--border-layout);
-  padding: 1rem 1.2rem;
+  padding: 1rem 1rem;
   background-color: var(--surface-base);
 }
 .iconSearch {
@@ -32,4 +32,10 @@
     letter-spacing: 0.01rem;
     color: var(--text-secondary);
   }
+}
+.navigateButton {
+  @include mixins.flex-box($gap: 1.6rem);
+  width: 7rem;
+  height: 2.4rem;
+  padding-right: 1.6rem;
 }
