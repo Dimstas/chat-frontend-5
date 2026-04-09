@@ -1,6 +1,5 @@
 .dropdown {
   position: relative;
-  display: inline-block;
 }
 
 .trigger {
@@ -10,6 +9,12 @@
   cursor: pointer;
   border: none;
   border-radius: 4px;
+  width: 24px;
+  height: 24px;
+}
+
+.content {
+  width: 100%;
 }
 
 .menu {
