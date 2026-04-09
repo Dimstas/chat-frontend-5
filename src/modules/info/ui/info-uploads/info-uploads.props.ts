@@ -1,13 +1,16 @@
 export type InfoUploadsProps = {
   uid: string;
+  currentUid: string;
+  chatKey?: string;
+  tabs: Tab[];
 };
 
-type TabContentType = 'media' | 'files' | 'voices' | 'links';
+type TabContentType = 'media' | 'files' | 'voices' | 'links' | 'members';
 
 export type Tab = {
   id: TabContentType;
   title: string;
-  content: FileContent | LinkContent;
+  content?: FileContent | LinkContent | VoiceContent;
 };
 
 export type FileContent = {

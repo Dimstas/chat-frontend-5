@@ -9,6 +9,10 @@ import {
   InviteLinkApiResponse,
   InviteSettingsPost,
   NewContact,
+  ParticipantApiResponse,
+  ParticipantQuery,
+  UserForAddApiResponse,
+  UserForAddQuery,
 } from '../model/info.api.schema';
 
 export const getProfileInfoById = (
@@ -83,5 +87,32 @@ export const generateInvite = async (
     headers: {
       'Content-Type': 'application/json',
     },
+  });
+};
+
+export const getParticipantList = (params: ParticipantQuery, chatKey: string): Promise<ParticipantApiResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.page_size) searchParams.set('page_size', String(params.page_size));
+  if (params.search) searchParams.set('search', params.search);
+
+  return apiFetch<ParticipantApiResponse>(
+    `/api/proxy/api/v1/chat/list/groups_or_channels/${chatKey}/participants/?${searchParams.toString()}`,
+    {
+      method: 'GET',
+    },
+  );
+};
+
+export const getUserForAddList = (params: UserForAddQuery): Promise<UserForAddApiResponse> => {
+  const searchParams = new URLSearchParams();
+
+  if (params.page) searchParams.set('page', String(params.page));
+  if (params.page_size) searchParams.set('page_size', String(params.page_size));
+  if (params.search) searchParams.set('search', params.search);
+
+  return apiFetch<UserForAddApiResponse>(`/api/proxy/api/v1/chat/list/users-for-add/?${searchParams.toString()}`, {
+    method: 'GET',
   });
 };

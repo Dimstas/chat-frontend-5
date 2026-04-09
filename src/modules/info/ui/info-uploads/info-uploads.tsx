@@ -2,20 +2,20 @@ import clsx from 'clsx';
 import { FILES, LINKS, PHOTOS, VOICES } from 'modules/info/shared/utils/mock';
 import { JSX, ReactElement, useState } from 'react';
 import { FilesTab } from './files-tab';
-import { TABS } from './info-uploads.constants';
 import styles from './info-uploads.module.scss';
 import { InfoUploadsProps } from './info-uploads.props';
 import { LinksTab } from './links-tab';
 import { MediaTab } from './media-tab';
+import { ParticipantsTab } from './participants-tab';
 import { VoicesTab } from './voices-tab';
 
-export const InfoUploads = ({ uid }: InfoUploadsProps): JSX.Element => {
+export const InfoUploads = ({ uid, tabs, chatKey, currentUid }: InfoUploadsProps): JSX.Element => {
   void uid;
 
   const [activeTab, setActiveTab] = useState(0);
 
   const renderTab = (): ReactElement | null => {
-    const tab = TABS[activeTab];
+    const tab = tabs[activeTab];
 
     switch (tab.id) {
       case 'media':
@@ -26,6 +26,8 @@ export const InfoUploads = ({ uid }: InfoUploadsProps): JSX.Element => {
         return <VoicesTab items={VOICES} />;
       case 'links':
         return <LinksTab items={LINKS} />;
+      case 'members':
+        return <ParticipantsTab currentUid={currentUid} chatKey={chatKey || ''} />;
       default:
         return null;
     }
@@ -34,7 +36,7 @@ export const InfoUploads = ({ uid }: InfoUploadsProps): JSX.Element => {
   return (
     <div className={styles.container}>
       <div className={styles.tabs}>
-        {TABS.map((tab, index) => (
+        {tabs.map((tab, index) => (
           <button
             key={tab.id}
             className={clsx(styles.tab, activeTab === index && styles.active)}

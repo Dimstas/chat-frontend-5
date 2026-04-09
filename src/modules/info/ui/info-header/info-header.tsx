@@ -1,23 +1,28 @@
-import { useInfoStore } from 'modules/info/model/info.store';
 import { JSX } from 'react';
 import { Dropdown } from 'shared/ui/dropdown';
 
+import BackIcon from '../../shared/icons/back.svg';
 import CloseIcon from '../../shared/icons/close.svg';
 import DropdownIcon from '../../shared/icons/dropdown.svg';
 
 import styles from './info-header.module.scss';
 import { InfoHeaderProps } from './info-header.props';
 
-export const InfoHeader = ({ menuItems, title }: InfoHeaderProps): JSX.Element => {
-  const { toggleInfoOpen } = useInfoStore();
-
+export const InfoHeader = ({ menuItems, title, onClose, onBack }: InfoHeaderProps): JSX.Element => {
   return (
     <div className={styles.header}>
-      <button className={styles.delete} onClick={toggleInfoOpen}>
-        <CloseIcon />
-      </button>
+      {onClose && (
+        <button className={styles.delete} onClick={onClose}>
+          <CloseIcon />
+        </button>
+      )}
+      {onBack && (
+        <button onClick={onBack}>
+          <BackIcon />
+        </button>
+      )}
       <span className={styles.label}>{title ?? 'Информация'}</span>
-      <Dropdown trigger={<DropdownIcon />} items={menuItems} />
+      {menuItems && <Dropdown trigger={<DropdownIcon />} items={menuItems} />}
     </div>
   );
 };
