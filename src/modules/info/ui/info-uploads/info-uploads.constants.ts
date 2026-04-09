@@ -1,3 +1,5 @@
+import { Tab } from './info-uploads.props';
+
 export const TABS = [
   {
     id: 'media',
@@ -15,4 +17,12 @@ export const TABS = [
     id: 'links',
     title: 'Ссылки',
   },
-];
+] as Tab[];
+
+export const GROUP_TABS = [
+  {
+    id: 'members',
+    title: 'Участники',
+  },
+  ...TABS,
+] as Tab[];

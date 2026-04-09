@@ -1,7 +1,8 @@
 import { JSX } from 'react';
 
 export type DropdownProps = {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
+  children?: React.ReactNode;
   items: DropdownItem[];
 };
 

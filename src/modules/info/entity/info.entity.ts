@@ -63,3 +63,32 @@ export type GroupInfo = {
   }>;
   createdBy: string;
 };
+
+export type Participant = {
+  uid: string;
+  isDeleted: boolean;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string;
+  avatarWebpUrl: string;
+  avatarSmallUrl: string;
+  avatarMasterUrl: string;
+  isOwner: boolean;
+  isBlocked: boolean;
+  isOnline: boolean;
+  wasOnlineAt?: number;
+  isInContacts: boolean;
+};
+
+export type UserForAdd = {
+  uid: string;
+  isDeleted: boolean;
+  avatarUrl: string;
+  avatarWebpUrl: string;
+  avatarSmallUrl: string;
+  avatarMasterUrl: string;
+  isOnline: boolean;
+  wasOnlineAt?: number;
+  firstName: string;
+  lastName: string;
+};

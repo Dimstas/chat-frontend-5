@@ -5,6 +5,7 @@
     position: absolute;
     padding: 0 14.66px 0 14.66px;
     bottom: 10px;
+    z-index: 2;
 
     .name {
       font-weight: 500;
@@ -24,4 +25,21 @@
       color: var(--surface-base, #ffffff);
     }
   }
+}
+
+.imageWrapper::before {
+  content: '';
+  position: absolute;
+  top: 18rem;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(180deg, rgba(139, 139, 139, 0) 0%, rgba(0, 0, 0, 0.7) 100%);
+  z-index: 1;
+}
+
+.image-wrapper {
+  display: block;
+  width: 100%;
+  height: auto;
 }
