@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { HighlightedMessage } from '../../search-messages/highlighted-message/highlighted-message';
 import { ForvardCard } from '../forward-card/forward-card';
 import { MessageCheckBox } from '../message-checkbox/message-checkbox';
 import { ReplyCard } from '../reply-card/reply-card';
@@ -20,6 +21,8 @@ export const IncomingMessagesCard = ({
   message,
   register,
   sendDeleteMessage,
+  search,
+  isHighlighted,
 }: IncomingMessageCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -103,7 +106,7 @@ export const IncomingMessagesCard = ({
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
 
   return (
-    <div className={checkBoxsVisibleStore && has ? styles.blockSelected : styles.block}>
+    <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
         <MessageCheckBox message={message} selected={has} handleCheckBoxClick={handleCheckBoxClick} />
       )}
@@ -127,7 +130,9 @@ export const IncomingMessagesCard = ({
           {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
           {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
           <div className={styles.message}>
-            <span className={styles.messageText}> {message.content} </span>
+            <span className={styles.messageText}>
+              <HighlightedMessage text={message.content ?? ''} search={search} />
+            </span>
             <div className={styles.messageSentTime}>
               <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
             </div>

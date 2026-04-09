@@ -55,7 +55,7 @@ export const AlertForward = ({ onOk, onCancel }: AlertForwardProps): JSX.Element
               }
             }}
             placeholder="Поиск"
-            aria-label="Поиск"
+            aria-label="Поиск чатов"
           />
           {search && (
             <button>

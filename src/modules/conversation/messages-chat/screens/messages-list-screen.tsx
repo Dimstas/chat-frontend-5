@@ -29,6 +29,7 @@ export const MessagesListScreen = ({ user_uid, wsUrl, currentUserId }: MessagesL
         isFetchingNextPage={isFetchingNextPage}
         sendChangeStatusReadMessage={sendChangeStatusReadMessage}
         sendDeleteMessage={sendDeleteMessage}
+        userIdStore={userIdStore}
       />
     );
   } else {

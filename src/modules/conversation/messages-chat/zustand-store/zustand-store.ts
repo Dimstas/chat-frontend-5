@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
-
 export type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 
 type MessagesChatState = {
@@ -214,4 +213,15 @@ type ToastVisibleState = {
 export const useToastVisibleStore = create<ToastVisibleState>((set) => ({
   toastVisible: false,
   setToastVisible: (toastVisible): void => set({ toastVisible }),
+}));
+type SearchMessagesState = {
+  searchMessages: string;
+  setSearchMessages: (searchMessages: string) => void;
+  clearSearchMessages: () => void;
+};
+
+export const useSearchMessagesStore = create<SearchMessagesState>((set) => ({
+  searchMessages: '',
+  setSearchMessages: (searchMessages: string): void => set({ searchMessages }),
+  clearSearchMessages: (): void => set({ searchMessages: '' }),
 }));
