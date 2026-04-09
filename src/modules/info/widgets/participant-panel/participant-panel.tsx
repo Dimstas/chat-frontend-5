@@ -7,9 +7,7 @@ export const ParticipantsPanel = ({ participants }: { participants?: Participant
     <div>
       <ul>
         {participants?.map((member) => (
-          <>
-            <ParticipantCardSelectable key={member.uid} {...member} />
-          </>
+          <ParticipantCardSelectable key={member.uid} {...member} />
         ))}
       </ul>
     </div>

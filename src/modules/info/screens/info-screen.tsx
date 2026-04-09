@@ -1,12 +1,13 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-socket/use-web-socket-chat';
 import { JSX, useEffect } from 'react';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
 import { useInfoProfileQuery } from '../api';
 import { useInfoSearchStore } from '../model/info.search.store';
 import { useInfoStore } from '../model/info.store';
-import { CreateAddMembersRequestAPI } from '../model/info.web-socket.api.schema';
+import { AddOrRemoveMembersRequestAPI } from '../model/info.web-socket.api.schema';
 import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
 import ForwardIcon from '../shared/icons/forward.svg';
@@ -34,6 +35,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   const { clearQuery } = useInfoSearchStore();
   const { sendMembers } = useWebSocketChat(wsUrl, currentUid);
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setUid(uid);
@@ -85,7 +87,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   const handleAddMembers = (): void => {
     if (selectedIds) {
       const requestUid = crypto.randomUUID();
-      const payload: CreateAddMembersRequestAPI = {
+      const payload: AddOrRemoveMembersRequestAPI = {
         action: 'add_members_to_chat',
         request_uid: requestUid,
         object: {
@@ -94,6 +96,10 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
         },
       };
       sendMembers(payload);
+
+      queryClient.refetchQueries({
+        queryKey: ['participants', 'participants-list', uid],
+      });
 
       clearSelection();
       clearQuery();
@@ -110,17 +116,21 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   );
 
   if (isGroup) {
-    return renderWithLayout(
-      isAddMembersMode ? (
-        <InfoHeader title="Пригласить участников" onBack={handleBack} />
-      ) : (
-        <InfoHeader menuItems={groupMenuItems} title="Информация о группе" onClose={toggleInfoOpen} />
-      ),
-      isAddMembersMode ? <AddMemberPanel chatKey={uid} /> : <GroupPanel uid={uid} currentUid={currentUid} />,
-      isAddMembersMode ? (
-        <AddMembersButton label="Добавить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />
-      ) : undefined,
+    const header = isAddMembersMode ? (
+      <InfoHeader title="Пригласить участников" onBack={handleBack} />
+    ) : (
+      <InfoHeader menuItems={groupMenuItems} title="Информация о группе" onClose={toggleInfoOpen} />
     );
+    const content = isAddMembersMode ? (
+      <AddMemberPanel chatKey={uid} />
+    ) : (
+      <GroupPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />
+    );
+    const footer = isAddMembersMode ? (
+      <AddMembersButton label="Добавить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />
+    ) : undefined;
+
+    return renderWithLayout(header, content, footer);
   }
 
   return renderWithLayout(
