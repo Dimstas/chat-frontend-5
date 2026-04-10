@@ -1,4 +1,4 @@
-import { apiFetch } from './fetcher';
+import { apiFetch, apiFetchFormData } from './fetcher';
 
 export type ProfileData = {
   nickname: string;
@@ -41,6 +41,14 @@ export type ProfileResponse = {
   is_staff: boolean;
 };
 
+export type AvatarUploadResponse = {
+  file: string;
+  file_url: string;
+  file_master_url: string;
+  file_web_url: string;
+  file_small_url: string;
+};
+
 export const getProfile = (): Promise<ProfileResponse> => {
   return apiFetch<ProfileResponse>('/api/proxy/api/v1/auth/messenger/profile/', {
     method: 'POST',
@@ -59,6 +67,13 @@ export const updateProfile = (data: ProfileData): Promise<ProfileResponse> => {
     },
     body: JSON.stringify(data),
   });
+};
+
+export const uploadAvatar = (file: File): Promise<AvatarUploadResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return apiFetchFormData<AvatarUploadResponse>('/api/proxy/api/v1/auth/messenger/profile/avatar/', formData);
 };
 
 export const deleteProfile = (uid: string): Promise<{ messages: string }> => {

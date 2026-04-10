@@ -1,8 +1,7 @@
-// src/modules/settings/lib/edit-profile-block/use-edit-profile-block.ts
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useReducer, useRef } from 'react';
-import { ProfileData } from 'shared/api/profile.api';
-import { useGetProfile, useUpdateProfile } from 'shared/query/profile.query';
+import { ProfileResponse } from 'shared/api/profile.api';
+import { useGetProfile, useUpdateProfile, useUploadAvatar } from 'shared/query/profile.query';
 
 type State = {
   birthday: Date | null;
@@ -18,7 +17,7 @@ type Action =
   | { type: 'SET_LAST_NAME'; payload: string }
   | { type: 'SET_LOGIN'; payload: string }
   | { type: 'SET_INFO'; payload: string }
-  | { type: 'RESET_FROM_PROFILE'; payload: ProfileData };
+  | { type: 'RESET_FROM_PROFILE'; payload: ProfileResponse };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -46,24 +45,28 @@ const reducer = (state: State, action: Action): State => {
 };
 
 export type UseEditProfileBlockReturn = State & {
+  profile: ProfileResponse | undefined;
   isLoadingProfile: boolean;
   isSaving: boolean;
+  isUploadingAvatar: boolean;
   errorProfile: Error | null;
   errorSave: Error | null;
+  errorAvatar: Error | null;
   handleBirthdayChange: (date: Date | null) => void;
   handleFirstNameChange: (value: string) => void;
   handleLastNameChange: (value: string) => void;
   handleLoginChange: (value: string) => void;
   handleInfoChange: (value: string) => void;
   handleReturnButton: () => void;
-  handleSave: () => void;
+  handleSave: (avatarFile?: File | null) => Promise<void>;
 };
 
 export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
   const router = useRouter();
 
   const { data: profile, isLoading: isLoadingProfile, error: errorProfile } = useGetProfile();
-  const { mutate: updateProfile, isPending: isSaving, error: errorSave } = useUpdateProfile();
+  const { mutateAsync: updateProfile, isPending: isSaving, error: errorSave } = useUpdateProfile();
+  const { mutateAsync: uploadAvatar, isPending: isUploadingAvatar, error: errorAvatar } = useUploadAvatar();
 
   const [state, dispatch] = useReducer(reducer, {
     birthday: null,
@@ -76,23 +79,17 @@ export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
   const prevProfileUidRef = useRef<string | undefined>(undefined);
   const initialLoadDoneRef = useRef(false);
 
-  // Используем useEffect с флагом для начальной загрузки
   useEffect(() => {
     if (profile && !initialLoadDoneRef.current) {
       initialLoadDoneRef.current = true;
       prevProfileUidRef.current = profile.uid;
-
-      // Используем dispatch вместо setState
       dispatch({ type: 'RESET_FROM_PROFILE', payload: profile });
     }
   }, [profile]);
 
-  // Обновление при изменении профиля (кроме первого раза)
   useEffect(() => {
     if (profile && profile.uid !== prevProfileUidRef.current && initialLoadDoneRef.current) {
       prevProfileUidRef.current = profile.uid;
-
-      // Используем dispatch вместо setState
       dispatch({ type: 'RESET_FROM_PROFILE', payload: profile });
     }
   }, [profile]);
@@ -121,40 +118,51 @@ export const useEditProfileBlock = (): UseEditProfileBlockReturn => {
     dispatch({ type: 'SET_INFO', payload: value });
   }, []);
 
-  const handleSave = useCallback(() => {
-    const birthdayTimestamp = state.birthday ? Math.floor(state.birthday.getTime() / 1000) : null;
+  const handleSave = useCallback(
+    async (avatarFile?: File | null) => {
+      try {
+        if (avatarFile instanceof File) {
+          console.log('Uploading avatar...');
+          const avatarResponse = await uploadAvatar(avatarFile);
+          console.log('Avatar uploaded:', avatarResponse);
+        }
 
-    const updatePayload: ProfileData = {
-      nickname: state.login,
-      first_name: state.firstName,
-      last_name: state.lastName || undefined,
-      additional_information: state.info || undefined,
-      birthday: birthdayTimestamp || undefined,
-    };
+        const birthdayTimestamp = state.birthday ? Math.floor(state.birthday.getTime() / 1000) : null;
 
-    console.log('Sending profile update:', updatePayload);
+        const updatePayload = {
+          nickname: state.login,
+          first_name: state.firstName,
+          last_name: state.lastName || undefined,
+          additional_information: state.info || undefined,
+          birthday: birthdayTimestamp || undefined,
+        };
 
-    updateProfile(updatePayload, {
-      onSuccess: (data) => {
-        console.log('Profile updated successfully:', data);
-      },
-      onError: (error) => {
-        console.error('Error updating profile:', error);
-      },
-    });
-  }, [state, updateProfile]);
+        console.log('Updating profile:', updatePayload);
+        await updateProfile(updatePayload);
+        console.log('Profile updated successfully');
+      } catch (error) {
+        console.error('Error during save:', error);
+      }
+    },
+    [state, updateProfile, uploadAvatar],
+  );
 
   const typedErrorProfile: Error | null =
     errorProfile instanceof Error ? errorProfile : errorProfile ? new Error(String(errorProfile)) : null;
   const typedErrorSave: Error | null =
     errorSave instanceof Error ? errorSave : errorSave ? new Error(String(errorSave)) : null;
+  const typedErrorAvatar: Error | null =
+    errorAvatar instanceof Error ? errorAvatar : errorAvatar ? new Error(String(errorAvatar)) : null;
 
   return {
     ...state,
+    profile,
     isLoadingProfile,
-    isSaving,
+    isSaving: isSaving || isUploadingAvatar,
+    isUploadingAvatar,
     errorProfile: typedErrorProfile,
     errorSave: typedErrorSave,
+    errorAvatar: typedErrorAvatar,
     handleBirthdayChange,
     handleFirstNameChange,
     handleLastNameChange,

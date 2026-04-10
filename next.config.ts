@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
 
   images: {
-    domains: ['api.dev.chat.ktsf.ru'],
+    domains: ['api.dev.chat.ktsf.ru', 'api.test.chat.ktsf.ru'],
   },
 
   webpack(config): Configuration {

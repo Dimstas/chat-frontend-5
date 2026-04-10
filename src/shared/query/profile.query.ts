@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, UseMutationResult, useQuery, UseQueryResult } from '@tanstack/react-query';
-import { getProfile, ProfileResponse, updateProfile } from '../api/profile.api';
+import { AvatarUploadResponse, getProfile, ProfileResponse, updateProfile, uploadAvatar } from '../api/profile.api';
 
 export type UpdateProfilePayload = {
   nickname: string;
@@ -15,6 +15,12 @@ export type UpdateProfilePayload = {
   country?: string;
   city_id?: number;
   phone?: string;
+};
+
+export const useUploadAvatar = (): UseMutationResult<AvatarUploadResponse, unknown, File, unknown> => {
+  return useMutation({
+    mutationFn: uploadAvatar,
+  });
 };
 
 export const useUpdateProfile = (): UseMutationResult<ProfileResponse, unknown, UpdateProfilePayload, unknown> => {
