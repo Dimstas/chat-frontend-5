@@ -18,9 +18,10 @@ const serializerRequestObjectLeaveGroupApiSchema = z.object({
 });
 
 export const serializerRequestLeaveGroupApiSchema = z.object({
-  action: z.enum(['leave_chat']),
+  action: z.enum(['leave_chat', 'delete_chat']),
   request_uid: z.string(),
   object: serializerRequestObjectLeaveGroupApiSchema,
 });
 
 export type LeaveGroupRequestAPI = z.infer<typeof serializerRequestLeaveGroupApiSchema>;
+export type DeleteGroupRequestAPI = z.infer<typeof serializerRequestLeaveGroupApiSchema>;

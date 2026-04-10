@@ -9,6 +9,7 @@ type InfoState = {
   isDeleteParticipantModalOpen: boolean;
   isAddMembersMode: boolean;
   isLeaveGroupModalOpen: boolean;
+  isDeleteGroupModalOpen: boolean;
   selectedIds: Set<string>;
   uid: string | undefined;
   setUid: (uid: string) => void;
@@ -28,6 +29,8 @@ type InfoState = {
   closeDeleteParticipantModal: () => void;
   openLeaveGroupModal: () => void;
   closeLeaveGroupModal: () => void;
+  openDeleteGroupModal: () => void;
+  closeDeleteGroupModal: () => void;
 
   enterSelectionMode: () => void;
   exitSelectionMode: () => void;
@@ -44,6 +47,7 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   isDeleteParticipantModalOpen: false,
   isAddMembersMode: false,
   isLeaveGroupModalOpen: false,
+  isDeleteGroupModalOpen: false,
   selectedIds: new Set(),
   uid: undefined,
   setUid: (uid): void => {
@@ -70,6 +74,8 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   closeDeleteParticipantModal: (): void => set({ isDeleteParticipantModalOpen: false, uidToDelete: undefined }),
   openLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: true }),
   closeLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: false }),
+  openDeleteGroupModal: (): void => set({ isDeleteGroupModalOpen: true }),
+  closeDeleteGroupModal: (): void => set({ isDeleteGroupModalOpen: false }),
 
   enterSelectionMode: (): void =>
     set({
