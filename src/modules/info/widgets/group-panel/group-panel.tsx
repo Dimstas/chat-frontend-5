@@ -7,6 +7,7 @@ import { InfoNotification } from 'modules/info/ui/info-notification';
 import { InfoSummary } from 'modules/info/ui/info-summary';
 import { InfoUploads } from 'modules/info/ui/info-uploads';
 import { GROUP_TABS } from 'modules/info/ui/info-uploads/info-uploads.constants';
+import { LeaveGroupModal } from 'modules/info/ui/leave-group-modal';
 import { JSX, useEffect } from 'react';
 
 export const GroupPanel = ({
@@ -48,6 +49,7 @@ export const GroupPanel = ({
           <InfoUploads uid={uid} tabs={GROUP_TABS} chatKey={uid} currentUid={currentUid} />
           <ClearChatModal />
           <DeleteMemberModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} />
+          <LeaveGroupModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} name={name} />
         </>
       )}
     </>
