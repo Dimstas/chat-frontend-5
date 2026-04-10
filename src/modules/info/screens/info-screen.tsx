@@ -26,6 +26,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     setUid,
     openBlockModal,
     openForwardModal,
+    openLeaveGroupModal,
     isAddMembersMode,
     exitSelectionMode,
     toggleInfoOpen,
@@ -50,9 +51,9 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
       onClick: openClearModal,
     },
     {
-      label: 'Покинуть чат',
+      label: 'Покинуть группу',
       icon: <LeaveIcon />,
-      onClick: (): void => {},
+      onClick: openLeaveGroupModal,
     },
   ];
 
