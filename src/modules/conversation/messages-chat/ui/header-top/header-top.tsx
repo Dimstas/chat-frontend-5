@@ -10,6 +10,7 @@ import { useHeaderButtonsModalStore } from '../../zustand-store/zustand-store';
 import { AddModal } from '../header-top-buttons-block/add-modal';
 import { BlockModal } from '../header-top-buttons-block/block-modal';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';
+import { LeaveGroupModal } from '../header-top-buttons-block/leave-group-modal';
 import styles from './header-top.module.scss';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
@@ -27,12 +28,16 @@ export const HeaderTop = ({
   const { chats } = useChatsScreen();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
-  const { isBlockModalOpen, isAddModalOpen, openButtonMenu, closeButtonMenu } = useHeaderButtonsModalStore();
-  const chat = chats.find((c) => c.peer.uid === user_uid);
+  const { isBlockModalOpen, isAddModalOpen, isLeaveGroupModalOpen, closeButtonMenu, openButtonMenu } =
+    useHeaderButtonsModalStore();
+
+  const isGroup = user_uid.startsWith('group');
+  const chat = isGroup ? chats.find((c) => c.chat.chatKey === user_uid) : chats.find((c) => c.peer.uid === user_uid);
   const {
     avatarUrl = '',
     firstName = '',
     lastName = '',
+    nickname = '',
     wasOnlineAt = null,
     isBlocked = false,
     isInContacts = false,
@@ -58,7 +63,7 @@ export const HeaderTop = ({
           className={styles.image}
         />
         <div className={styles.info}>
-          <span className={styles.name}>{firstName + ' ' + lastName}</span>
+          <span className={styles.name}>{isGroup ? chat?.chat.name : `${firstName} ${lastName}`}</span>
           <span className={styles.status}>{status}</span>
         </div>
         <div className={styles.icon}>
@@ -74,7 +79,7 @@ export const HeaderTop = ({
       </div>
       <HeaderTopButtonsBlock
         wsUrl={wsUrl}
-        nickname={chat?.peer.nickname ?? ''}
+        nickname={nickname ?? ''}
         currentUid={currentUid}
         chatKey={user_uid}
         isBlocked={isBlocked}
@@ -83,6 +88,9 @@ export const HeaderTop = ({
       {isModalOpen && <NotificationModal />}
       {isBlockModalOpen && <BlockModal />}
       {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}
+      {isLeaveGroupModalOpen && (
+        <LeaveGroupModal wsUrl={wsUrl} chatKey={user_uid} currentUid={currentUid} name={nickname} />
+      )}
     </div>
   );
 };

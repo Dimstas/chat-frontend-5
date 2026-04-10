@@ -22,7 +22,8 @@ export const HeaderTopButtonsBlock = ({
   isInContact: boolean;
   isBlocked: boolean;
 }): JSX.Element | null => {
-  const { openBlockModal, openAddModal, isButtonMenuOpen, closeButtonMenu } = useHeaderButtonsModalStore();
+  const { openBlockModal, openAddModal, openLeaveGroupModal, isButtonMenuOpen, closeButtonMenu } =
+    useHeaderButtonsModalStore();
   const { isInfoOpen, enterSelectionMode, toggleInfoOpen } = useInfoStore();
   const { mutate: addToContact } = useAddContactQuery();
   const { participants } = useParticipantsScreen(chatKey);
@@ -50,7 +51,9 @@ export const HeaderTopButtonsBlock = ({
     enterSelectionMode();
   };
 
-  const handleLeaveGroup = (): void => {};
+  const handleLeaveGroup = (): void => {
+    openLeaveGroupModal();
+  };
 
   if (!isButtonMenuOpen || (isGroup && !member)) return null;
 
