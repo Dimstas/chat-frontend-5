@@ -55,7 +55,7 @@ export const AlertForward = ({ onOk, onCancel }: AlertForwardProps): JSX.Element
               }
             }}
             placeholder="Поиск"
-            aria-label="Поиск"
+            aria-label="Поиск чатов"
           />
           {search && (
             <button>
@@ -84,6 +84,7 @@ const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardP
   const handlerOnClick = (): void => {
     setSelectedUidUserForForwardMessageStore(chat.peer.uid);
     clearSearch?.();
+
     onOk();
   };
   return (

@@ -16,7 +16,6 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   const { setChatId } = useInfoStore();
   const { id, notifications, is_favorite, newMessageCount } = chat;
   const { firstName, lastName, uid, nickname } = peer;
-
   const {
     lastSeenMessage,
     lastMessage: {

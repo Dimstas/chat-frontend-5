@@ -126,7 +126,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     socket.onmessage = (event: MessageEvent): void => {
       if (socketInstanceIdRef.current !== myId) return;
       const data = JSON.parse(event.data);
-      console.log(data);
+      //console.log(data);
       //Cобытия:
       // 1.Подтверждает отправленние созданного исходящего сообщения в обычный чат по request_uid
       if (
@@ -239,19 +239,26 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         pendingTimeouts.current.delete(data.request_uid);
       }
 
-      //6.входящее ws-сообщение delete_message oб удалении входящего сообщения
+      //6.входящее ws-сообщение delete_message oб удалении входящего либо исходящего сообщения обычного чата
       if (
         data.action === 'delete_message' &&
-        data.status === 'OK'
-        //data.object.to_user.uid === currentUserIdRef.current
+        data.status === 'OK' &&
+        !data.object.to_user.username.includes('group_')
       ) {
-        console.log('Cообщение сервера об удалении входящего либо исходящего сообщения :', data);
+        console.log('Cообщение сервера об удалении входящего либо исходящего сообщения чата :', data);
         // локально удаляем сообщение из store и сразу его отсутствие показываем в DOM
         if (data.object.from_user.uid === currentUserIdRef.current) {
           deleteMessageByUidForUser(data.object.to_user.uid, data.object.uid);
         } else {
           deleteMessageByUidForUser(data.object.from_user.uid, data.object.uid);
         }
+        pendingTimeouts.current.delete(data.request_uid);
+      }
+
+      //входящее ws-сообщение delete_message oб удалении входящего либо исходящего сообщения группы
+      if (data.action === 'delete_message' && data.status === 'OK' && data.object.to_user.username.includes('group_')) {
+        console.log('Cообщение сервера об удалении входящего либо исходящего сообщения группы:', data);
+        deleteMessageByUidForUser(data.object.to_user.username, data.object.uid);
         pendingTimeouts.current.delete(data.request_uid);
       }
     };
@@ -446,7 +453,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       if (!message.uid || message.new === false) return;
       const requestUid = crypto.randomUUID();
       // выясняем это простой чат либо группа (если true то группа)
-      const has = userIdRef.current.includes('group_');
+      const has = message.chat_key.includes('group_');
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: ChangeStatusReadMessageAPI = {
         action: 'change_status_read_message',
@@ -458,11 +465,14 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         },
       };
       if (has) {
-        payloadMessage.object.chat_key = userIdRef.current;
+        payloadMessage.object.chat_key = message.chat_key;
       }
       //валидация c помощью zod
       const resultZod = serializerRequestChangeStatusReadMessageApiSchema.safeParse(payloadMessage);
-      updateMessageByUidForUser(message.from_user.uid, message.uid, { status: 'read', new: false });
+      updateMessageByUidForUser(has ? message.chat_key : message.from_user.uid, message.uid, {
+        status: 'read',
+        new: false,
+      });
       const socket = wsRef.current;
       if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
         //отправляем запрос
@@ -483,9 +493,10 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   // Функция удаления сообщения
   const sendDeleteMessage = useCallback(
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }, for_all?: boolean | null): void => {
-      //console.log('Start: ', for_all);
       if (!message.uid) return;
       const requestUid = crypto.randomUUID();
+      // выясняем это простой чат либо группа (если true то группа)
+      const has = message.chat_key.includes('group_');
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: DeleteMessageApi = {
         action: 'delete_message',
@@ -493,13 +504,22 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         object: {
           uid: message.uid,
           for_all: for_all ?? false,
-          //chat_key: '',
         },
       };
+      if (has) {
+        payloadMessage.object.chat_key = message.chat_key;
+      }
       //валидация c помощью zod
       const resultZod = serializerRequestDeleteMessageApiSchema.safeParse(payloadMessage);
       // локально удаляем сообщение из store и сразу его отсутствие показываем в DOM
-      deleteMessageByUidForUser(userIdRef.current, message.uid);
+      deleteMessageByUidForUser(
+        has
+          ? message.chat_key
+          : message.from_user.uid === currentUserIdRef.current
+            ? message.to_user.uid
+            : message.from_user.uid,
+        message.uid,
+      );
       const socket = wsRef.current;
       if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
         //отправляем запрос

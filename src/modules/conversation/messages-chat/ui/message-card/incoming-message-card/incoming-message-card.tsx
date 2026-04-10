@@ -10,6 +10,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { HighlightedMessage } from '../../search-messages/highlighted-message/highlighted-message';
 import { ForvardCard } from '../forward-card/forward-card';
 import { MessageCheckBox } from '../message-checkbox/message-checkbox';
 import { ReplyCard } from '../reply-card/reply-card';
@@ -20,7 +21,8 @@ export const IncomingMessagesCard = ({
   message,
   register,
   sendDeleteMessage,
-  setToastVisible,
+  search,
+  isHighlighted,
 }: IncomingMessageCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -49,7 +51,7 @@ export const IncomingMessagesCard = ({
     (s) => s.selectedUidUserForForwardMessage,
   );
   const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
-
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   useEffect(() => {
     selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
   }, [selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
@@ -79,6 +81,7 @@ export const IncomingMessagesCard = ({
     if (ok && selectedUidUserForForwardMessageRef.current) {
       setForwardMessageStore(message);
       clearRepliedMessageStore();
+      clearSelectedMessagesStore();
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
@@ -86,26 +89,24 @@ export const IncomingMessagesCard = ({
   const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
   const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
   const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
-  const [selected, setSelected] = useState<boolean | undefined>(undefined);
+  const [selected, setSelected] = useState<boolean>(true);
 
   const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
 
-  useEffect(() => {
+  const handleCheckBoxClick = (): void => {
+    setSelected(!selected);
     if (selected) {
+      console.log(selected);
       addSelectedMessagesStore(message);
     } else {
       deleteSelectedMessagesStore(message);
     }
-  }, [selected, addSelectedMessagesStore, deleteSelectedMessagesStore, message]);
-
-  const handleCheckBoxClick = (): void => {
-    setSelected(!selected);
   };
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
 
   return (
-    <div className={checkBoxsVisibleStore && has ? styles.blockSelected : styles.block}>
+    <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
         <MessageCheckBox message={message} selected={has} handleCheckBoxClick={handleCheckBoxClick} />
       )}
@@ -116,7 +117,6 @@ export const IncomingMessagesCard = ({
         ref={(el) => {
           register(el, message);
         }}
-        onClick={handleCheckBoxClick}
       >
         <ContextMenu
           position={contextMenuPos}
@@ -124,14 +124,15 @@ export const IncomingMessagesCard = ({
           onClose={handleCloseMenu}
           handleDeleteClick={handleDeleteClick}
           handleForwardClick={handleForwardClick}
-          setToastVisible={setToastVisible}
           message={message}
         />
         <div className={styles.item}>
           {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
           {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
           <div className={styles.message}>
-            <span className={styles.messageText}> {message.content} </span>
+            <span className={styles.messageText}>
+              <HighlightedMessage text={message.content ?? ''} search={search} />
+            </span>
             <div className={styles.messageSentTime}>
               <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
             </div>

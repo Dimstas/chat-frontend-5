@@ -14,4 +14,5 @@ export type MessageListProps = {
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
     selected?: boolean,
   ) => void;
+  userIdStore: string;
 };

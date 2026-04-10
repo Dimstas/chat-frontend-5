@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
-
 export type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 
 type MessagesChatState = {
@@ -13,7 +12,7 @@ type MessagesChatState = {
   deleteMessageByUidForUser: (userId: string, uid: string) => void;
 };
 
-export const useMessagesChatStore = create<MessagesChatState>((set, get) => ({
+export const useMessagesChatStore = create<MessagesChatState>((set) => ({
   messagesByUser: {},
 
   setMessagesForUser: (userId: string, messages: Msg[]): void =>
@@ -151,12 +150,14 @@ type SelectedMessagesState = {
   deleteSelectedMessages: (msg: RestMessageApi) => void;
   clearSelectedMessages: () => void;
   setCheckBoxsVisible: (v: boolean) => void;
+  setSelectedMessages: (arr: RestMessageApi[] | null) => void;
 };
 
 export const useSelectedMessagesStore = create<SelectedMessagesState>((set) => ({
   selectedMessages: null,
   checkBoxsVisible: null,
   setCheckBoxsVisible: (checkBoxsVisible: boolean): void => set({ checkBoxsVisible }),
+  setSelectedMessages: (selectedMessages: RestMessageApi[] | null): void => set({ selectedMessages }),
   addSelectedMessages: (msg: RestMessageApi): void =>
     set((s) => {
       const prev = s.selectedMessages ?? [];
@@ -203,4 +204,73 @@ export const useSelectedUidUserForForwardMessageStore = create<SelectedUidUserFo
   selectedUidUserForForwardMessage: '',
   setSelectedUidUserForForwardMessage: (uid: string): void => set({ selectedUidUserForForwardMessage: uid }),
   clearSelectedUidUserForForwardMessage: (): void => set({ selectedUidUserForForwardMessage: '' }),
+}));
+
+type ToastVisibleState = {
+  toastVisible: boolean;
+  setToastVisible: (toastVisible: boolean) => void;
+};
+export const useToastVisibleStore = create<ToastVisibleState>((set) => ({
+  toastVisible: false,
+  setToastVisible: (toastVisible): void => set({ toastVisible }),
+}));
+type SearchMessagesState = {
+  searchMessages: string;
+  setSearchMessages: (searchMessages: string) => void;
+  clearSearchMessages: () => void;
+};
+
+export const useSearchMessagesStore = create<SearchMessagesState>((set) => ({
+  searchMessages: '',
+  setSearchMessages: (searchMessages: string): void => set({ searchMessages }),
+  clearSearchMessages: (): void => set({ searchMessages: '' }),
+}));
+
+type GoToNextSearchMessageState = {
+  goToNextSearchMessage: (() => void) | null;
+  setGoToNextSearchMessage: (goToNextSearchMessage: () => void) => void;
+  clearGoToNextSearchMessage: () => void;
+};
+
+export const useGoToNextSearchMessageStore = create<GoToNextSearchMessageState>((set) => ({
+  goToNextSearchMessage: null,
+  setGoToNextSearchMessage: (goToNextSearchMessage: () => void | null): void => set({ goToNextSearchMessage }),
+  clearGoToNextSearchMessage: (): void => set({ goToNextSearchMessage: null }),
+}));
+
+type GoToPrevSearchMessageState = {
+  goToPrevSearchMessage: (() => void) | null;
+  setGoToPrevSearchMessage: (goToPrevSearchMessage: () => void) => void;
+  clearGoToPrevSearchMessage: () => void;
+};
+
+export const useGoToPrevSearchMessageStore = create<GoToPrevSearchMessageState>((set) => ({
+  goToPrevSearchMessage: null,
+  setGoToPrevSearchMessage: (goToPrevSearchMessage: (() => void) | null): void => set({ goToPrevSearchMessage }),
+  clearGoToPrevSearchMessage: (): void => set({ goToPrevSearchMessage: null }),
+}));
+
+type SearchIndicatorState = {
+  searchIndicator: {
+    currentSearchIndex: number;
+    lastSearchIndex: number;
+  } | null;
+  setSearchIndicator: (
+    searchIndicator: {
+      currentSearchIndex: number;
+      lastSearchIndex: number;
+    } | null,
+  ) => void;
+  clearSearchIndicator: () => void;
+};
+
+export const useSearchIndicatorStore = create<SearchIndicatorState>((set) => ({
+  searchIndicator: null,
+  setSearchIndicator: (
+    searchIndicator: {
+      currentSearchIndex: number;
+      lastSearchIndex: number;
+    } | null,
+  ): void => set({ searchIndicator }),
+  clearSearchIndicator: (): void => set({ searchIndicator: null }),
 }));
