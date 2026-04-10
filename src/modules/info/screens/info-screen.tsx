@@ -10,6 +10,7 @@ import { useInfoStore } from '../model/info.store';
 import { AddOrRemoveMembersRequestAPI } from '../model/info.web-socket.api.schema';
 import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
+import DeleteIcon from '../shared/icons/delete-outline.svg';
 import ForwardIcon from '../shared/icons/forward.svg';
 import LeaveIcon from '../shared/icons/leave.svg';
 import { AddMembersButton } from '../ui/add-members-button';
@@ -19,6 +20,7 @@ import { AddMemberPanel } from '../widgets/add-member-panel';
 import { ContactPanel } from '../widgets/contact-panel';
 import { GroupPanel } from '../widgets/group-panel';
 import { InfoScreenProps } from './info-screen.props';
+import { useParticipantsScreen } from './use-participant-screen';
 
 export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Element => {
   const {
@@ -26,6 +28,8 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     setUid,
     openBlockModal,
     openForwardModal,
+    openLeaveGroupModal,
+    openDeleteGroupModal,
     isAddMembersMode,
     exitSelectionMode,
     toggleInfoOpen,
@@ -35,6 +39,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   const { clearQuery } = useInfoSearchStore();
   const { sendMembers } = useWebSocketChat(wsUrl, currentUid);
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
+  const { participants } = useParticipantsScreen(uid);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -42,19 +47,29 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   }, [uid, setUid]);
 
   const isGroup = uid.startsWith('group');
+  const participant = participants?.find((p) => p.uid === currentUid);
 
   const groupMenuItems: DropdownItem[] = [
     {
+      label: 'Покинуть группу',
+      icon: <LeaveIcon />,
+      onClick: openLeaveGroupModal,
+    },
+  ];
+
+  if (isGroup && participant?.isOwner) {
+    groupMenuItems.unshift({
       label: 'Очистить чат',
       icon: <ClearIcon />,
       onClick: openClearModal,
-    },
-    {
-      label: 'Покинуть чат',
-      icon: <LeaveIcon />,
-      onClick: (): void => {},
-    },
-  ];
+    });
+    groupMenuItems.push({
+      label: 'Удалить группу',
+      icon: <DeleteIcon />,
+      variant: 'alert',
+      onClick: openDeleteGroupModal,
+    });
+  }
 
   const contactMenuItems: DropdownItem[] = [
     {

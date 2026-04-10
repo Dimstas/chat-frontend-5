@@ -274,3 +274,33 @@ export const useSearchIndicatorStore = create<SearchIndicatorState>((set) => ({
   ): void => set({ searchIndicator }),
   clearSearchIndicator: (): void => set({ searchIndicator: null }),
 }));
+
+type HeaderButtonsModalState = {
+  isBlockModalOpen: boolean;
+  openBlockModal: () => void;
+  closeBlockModal: () => void;
+  isAddModalOpen: boolean;
+  openAddModal: () => void;
+  closeAddModal: () => void;
+  isButtonMenuOpen: boolean;
+  openButtonMenu: () => void;
+  closeButtonMenu: () => void;
+  isLeaveGroupModalOpen: boolean;
+  openLeaveGroupModal: () => void;
+  closeLeaveGroupModal: () => void;
+};
+
+export const useHeaderButtonsModalStore = create<HeaderButtonsModalState>((set) => ({
+  isBlockModalOpen: false,
+  openBlockModal: (): void => set({ isBlockModalOpen: true }),
+  closeBlockModal: (): void => set({ isBlockModalOpen: false }),
+  isAddModalOpen: false,
+  openAddModal: (): void => set({ isAddModalOpen: true }),
+  closeAddModal: (): void => set({ isAddModalOpen: false }),
+  isButtonMenuOpen: false,
+  openButtonMenu: (): void => set({ isButtonMenuOpen: true }),
+  closeButtonMenu: (): void => set({ isButtonMenuOpen: false }),
+  isLeaveGroupModalOpen: false,
+  openLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: true }),
+  closeLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: false }),
+}));
