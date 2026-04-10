@@ -22,7 +22,7 @@ export default async function ContactsLayout({
     return (
       <main className={styles.wrapper}>
         <Suspense>
-          <HeaderTop user_uid={user_uid} />
+          <HeaderTop wsUrl={wsUrl} user_uid={user_uid} currentUid="" />
         </Suspense>
         {children}
         <HeaderBottom wsUrl={wsUrl} currentUserId={' '} />
