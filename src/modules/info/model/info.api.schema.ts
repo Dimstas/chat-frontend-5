@@ -152,3 +152,61 @@ const InviteLinkApiSchema = z.object({
 });
 
 export type InviteLinkApiResponse = z.infer<typeof InviteLinkApiSchema>;
+
+export const SearchQuerySchema = z.object({
+  page: z.number().int().positive().optional(),
+  page_size: z.number().int().positive().optional(),
+  search: z.string().optional(),
+});
+
+export type ParticipantQuery = z.infer<typeof SearchQuerySchema>;
+export type UserForAddQuery = z.infer<typeof SearchQuerySchema>;
+
+export const ParticipantApiSchema = z.object({
+  uid: z.uuid(),
+  is_deleted: z.boolean(),
+  first_name: z.string(),
+  last_name: z.string(),
+  avatar_url: z.string(),
+  avatar_webp_url: z.string(),
+  avatar_small_url: z.string(),
+  avatar_master_url: z.string(),
+  is_owner: z.boolean(),
+  is_blocked: z.boolean(),
+  is_online: z.boolean(),
+  was_online_at: z.number().nullable(),
+  is_in_contacts: z.boolean(),
+});
+
+export const PaginatedResponseSchema = z.object({
+  count: z.number(),
+  next: z.string().optional(),
+  previous: z.string().optional(),
+});
+
+export const ParticipantResponseSchema = PaginatedResponseSchema.extend({
+  results: z.array(ParticipantApiSchema),
+});
+
+export type ParticipantApiResponse = z.infer<typeof ParticipantResponseSchema>;
+export type ParticipantApi = z.infer<typeof ParticipantApiSchema>;
+
+export const UserForAddApiSchema = z.object({
+  uid: z.uuid(),
+  is_deleted: z.boolean(),
+  avatar_url: z.string(),
+  avatar_webp_url: z.string(),
+  avatar_small_url: z.string(),
+  avatar_master_url: z.string(),
+  is_online: z.boolean(),
+  was_online_at: z.number().nullable(),
+  first_name: z.string(),
+  last_name: z.string(),
+});
+
+export const UserForAddResponseSchema = PaginatedResponseSchema.extend({
+  results: z.array(UserForAddApiSchema),
+});
+
+export type UserForAddApiResponse = z.infer<typeof UserForAddResponseSchema>;
+export type UserForAddApi = z.infer<typeof UserForAddApiSchema>;

@@ -5,7 +5,7 @@ import { DropdownItem, DropdownProps } from './dropdown.props';
 import { useDropdown } from './hooks/useDropdown';
 import { MenuItem } from './menu-item';
 
-export const Dropdown: FC<DropdownProps> = ({ trigger, items }) => {
+export const Dropdown: FC<DropdownProps> = ({ trigger, children, items }) => {
   const { isOpen, toggleMenu, closeMenu, dropdownRef, menuRef } = useDropdown();
 
   const handleClickMenuItem = (item: DropdownItem): void => {
@@ -17,9 +17,17 @@ export const Dropdown: FC<DropdownProps> = ({ trigger, items }) => {
 
   return (
     <div className={styles.dropdown} ref={dropdownRef}>
-      <div className={styles.trigger} onClick={toggleMenu}>
-        {trigger}
-      </div>
+      {trigger && (
+        <div className={styles.trigger} onClick={toggleMenu}>
+          {trigger}
+        </div>
+      )}
+
+      {children && (
+        <div className={styles.content} onContextMenu={toggleMenu}>
+          {children}
+        </div>
+      )}
 
       <div className={clsx(styles.menu, isOpen ? styles.open : styles.hidden)} ref={menuRef}>
         {items.map((item, index) => (
