@@ -15,7 +15,15 @@ import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
 const URL_DEFAULT_Avatar = '/images/messages-chats/default-avatar.svg';
 
-export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
+export const HeaderTop = ({
+  wsUrl,
+  user_uid,
+  currentUid,
+}: {
+  wsUrl: string;
+  user_uid: string;
+  currentUid: string;
+}): JSX.Element => {
   const { chats } = useChatsScreen();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
@@ -64,7 +72,14 @@ export const HeaderTop = ({ user_uid }: { user_uid: string }): JSX.Element => {
           </button>
         </div>
       </div>
-      <HeaderTopButtonsBlock nickname={chat?.peer.nickname ?? ''} isBlocked={isBlocked} isInContact={isInContacts} />
+      <HeaderTopButtonsBlock
+        wsUrl={wsUrl}
+        nickname={chat?.peer.nickname ?? ''}
+        currentUid={currentUid}
+        chatKey={user_uid}
+        isBlocked={isBlocked}
+        isInContact={isInContacts}
+      />
       {isModalOpen && <NotificationModal />}
       {isBlockModalOpen && <BlockModal />}
       {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}
