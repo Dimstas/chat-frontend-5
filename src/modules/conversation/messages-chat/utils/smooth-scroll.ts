@@ -60,20 +60,40 @@ export function smoothScrollTo(container: HTMLElement, targetScrollTop: number, 
 }
 
 /**
- * Плавно прокручивает контейнер так, чтобы элемент `el` оказался выровнен по верху видимой области (block: 'start').
+ * Плавно прокручивает контейнер так, чтобы элемент `el` оказался выровнен по центру видимой области.
  * duration в миллисекундах (по умолчанию 100).
  */
 export const smoothScrollElementIntoView = (
   container: HTMLDivElement | null,
   el: HTMLDivElement | null,
   duration = 100,
+  block: 'start' | 'center' | 'end' = 'center', // Добавляем параметр выравнивания
 ): Promise<void> => {
   if (!container || !el) return Promise.resolve();
 
-  // вычисляем смещение элемента относительно контейнера (учитываем тот факт, что контейнер может быть элементом с прокруткой)
   const containerRect = container.getBoundingClientRect();
   const elRect = el.getBoundingClientRect();
-  const offset = elRect.top - containerRect.top; // смещение верхней границы элемента относительно верхней границы контейнера
+
+  let offset: number;
+
+  switch (block) {
+    case 'center':
+      // Центрируем элемент в контейнере
+      const containerCenter = containerRect.height / 2;
+      const elCenter = elRect.height / 2;
+      offset = elRect.top + elCenter - (containerRect.top + containerCenter);
+      break;
+    case 'end':
+      // Выравниваем по низу контейнера
+      offset = elRect.bottom - containerRect.bottom + 50; //50px смещение относительно низа вверх
+      break;
+    case 'start':
+    default:
+      // Выравниваем по верху контейнера (исходное поведение)
+      offset = elRect.top - containerRect.top + 50; //50px смещение относительно вверха в низ
+      break;
+  }
+
   const targetScrollTop = container.scrollTop + offset;
 
   return smoothScrollTo(container, targetScrollTop, duration);

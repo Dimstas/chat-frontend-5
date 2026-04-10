@@ -6,11 +6,12 @@ import {
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
+  useToastVisibleStore,
 } from '../../zustand-store/zustand-store';
 import styles from './context-menu.module.scss';
 import type { ContextMenuProps } from './context-menu.props';
 import Answer from './icons/answer.svg';
-import Check from './icons/check.svg';
+import Selected from './icons/check.svg';
 import Copy from './icons/copy.svg';
 import Delete from './icons/delete.svg';
 import Forward from './icons/forward.svg';
@@ -21,30 +22,34 @@ export const ContextMenu = ({
   onClose,
   handleDeleteClick,
   handleForwardClick,
-  setToastVisible,
   message,
 }: ContextMenuProps): JSX.Element | null => {
   const setRepliedMessageStore = useRepliedMessageStore((s) => s.setRepliedMessage);
+  const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
   const clearForwardMessageStore = useForwardMessageStore((s) => s.clearForwardMessage);
+  const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
 
   const handleAnswerClick = (): void => {
     setRepliedMessageStore(message);
     clearForwardMessageStore();
+    clearSelectedMessagesStore();
     onClose();
   };
+  const setToastVisibleStore = useToastVisibleStore((s) => s.setToastVisible);
   //обработчика для контекстного меню 'Cкопировать'
   const handleCopyClick = (msgText: string): void => {
-    copyMessageToClipboard(msgText, setToastVisible);
+    copyMessageToClipboard(msgText, setToastVisibleStore);
     onClose();
   };
-  const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
-  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
 
   const handleSelectedClick = (): void => {
     setCheckBoxsVisibleStore(true);
     clearSelectedMessagesStore();
+    clearForwardMessageStore();
+    clearRepliedMessageStore();
     addSelectedMessagesStore(message);
     onClose();
   };
@@ -73,7 +78,7 @@ export const ContextMenu = ({
       <button className={styles.cell} onClick={handleSelectedClick}>
         <div className={styles.text}>Выбрать</div>
         <div className={styles.icon}>
-          <Check />
+          <Selected />
         </div>
       </button>
       <button className={clsx(styles.cell, styles.cellBottom)} onClick={handleDeleteClick}>

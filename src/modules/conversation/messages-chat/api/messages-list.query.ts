@@ -24,6 +24,7 @@ export const useMessagesListQuery = (
         //...params,
         page: pageParam,
         page_size: PAGE_SIZE,
+        search: params.search,
       });
     },
 

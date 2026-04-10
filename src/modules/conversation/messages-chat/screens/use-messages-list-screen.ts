@@ -57,7 +57,6 @@ export const useMessagesListScreen = (user_uid: string): UseMessagesListScreenRe
   const clearSearch = useMessagesListStore((s) => s.clearSearch);
 
   const debouncedSearch = useDebouncedValue(search, 300).trim().toLowerCase();
-
   const { data, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessagesListQuery(user_uid, {
     from_me,
     new: newS,

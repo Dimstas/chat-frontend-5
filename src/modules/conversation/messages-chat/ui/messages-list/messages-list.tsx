@@ -1,10 +1,11 @@
 'use client';
 import { JSX, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { READING_TIME, useIntersectionRead } from '../../hooks/use-intersection-read';
+import { useSearchAndNavigateSortedMessages } from '../../hooks/use-search-and-navigate-sorted-messages';
 import { handlerMessagesList } from '../../lib/handler-messages-list';
 import type { RestMessageApi } from '../../model/messages-list';
 import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
-import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
+import { useMessagesChatStore, useToastVisibleStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
 import { NotificationCopyCard } from '../message-card/notification-copy-card/notification-copy-card';
@@ -13,6 +14,7 @@ import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
 import type { MessageListProps } from './message-list.props';
 import { useFixedTargetIndex } from './use-fixed-target-index';
+
 export const MessagesList = ({
   messagesList,
   currentUserId,
@@ -21,11 +23,11 @@ export const MessagesList = ({
   fetchNextPage,
   sendChangeStatusReadMessage,
   sendDeleteMessage,
+  userIdStore,
 }: MessageListProps): JSX.Element => {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const targetItemRef = useRef<HTMLDivElement | null>(null);
   const lastItemRef = useRef<HTMLDivElement | null>(null);
-  const userIdStore = useUserIdStore((s) => s.userId);
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]);
   const setMessagesForUser = useMessagesChatStore((s) => s.setMessagesForUser);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -60,9 +62,7 @@ export const MessagesList = ({
     currentUserId,
   );
   // хук ws + hook для определения прочтения видимости
-
   const { register } = useIntersectionRead(sendChangeStatusReadMessage);
-
   // Эффект прокрутки к targetIndex (если есть)
   useEffect(() => {
     if (targetIndex === -1) return;
@@ -177,6 +177,7 @@ export const MessagesList = ({
       ro.disconnect();
     };
   }, []);
+
   // обработчик события onClick для компонента  <ScrollButton /> медленно скролит в низ до первого сообщения
   const onClickScrollButton = (): void => {
     if (targetIndex === lastIndex) {
@@ -187,11 +188,17 @@ export const MessagesList = ({
       const el = lastItemRef.current;
       const container = wrapperRef.current;
       if (!el || !container || !targetIndex) return;
-      smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME);
+      smoothScrollElementIntoView(container, el, (lastIndex - targetIndex) * READING_TIME, 'start');
     }
   };
+
   // показывать <NotificationCopyCard/> в DOM либо нет
-  const [toastVisible, setToastVisible] = useState(false);
+  const toastVisibleStore = useToastVisibleStore((s) => s.toastVisible);
+
+  //хук для серверного поиска сообщений и осуществления клиенской навигации по данным сообщениям,
+  // текст которых содержит значение из поисковой строки окна чата
+  const { searchMessagesStore, availableSearchUids, setMessageRef, targetSearchUid } =
+    useSearchAndNavigateSortedMessages({ flatList, wrapperRef });
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
@@ -218,12 +225,20 @@ export const MessagesList = ({
                 const isTarget = globalIndex === targetIndex;
                 const isSentinel = globalIndex === triggerIndex;
                 const isLast = globalIndex === lastIndex;
+                // Подсветка для найденного сообщения
+                const isSearchMatch = searchMessagesStore && availableSearchUids.includes(message.uid);
 
                 return (
                   <div
                     key={globalIndex}
                     tabIndex={-1}
-                    ref={isTarget ? targetItemRef : isSentinel ? sentinelRef : isLast ? lastItemRef : undefined}
+                    ref={(el) => {
+                      // Применяем оба рефа
+                      setMessageRef(message.uid)(el);
+                      if (isTarget) targetItemRef.current = el;
+                      if (isSentinel) sentinelRef.current = el;
+                      if (isLast) lastItemRef.current = el;
+                    }}
                   >
                     {!!targetIndex && globalIndex === targetIndex + 1 && lastIndex - targetIndex > 14 && (
                       <div className={styles.text}>непрочитанные сообщения</div>
@@ -232,14 +247,16 @@ export const MessagesList = ({
                       <OutgoingMessagesCard
                         message={message}
                         sendDeleteMessage={sendDeleteMessage}
-                        setToastVisible={setToastVisible}
+                        search={searchMessagesStore}
+                        isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                       />
                     ) : (
                       <IncomingMessagesCard
                         message={message}
                         register={register}
                         sendDeleteMessage={sendDeleteMessage}
-                        setToastVisible={setToastVisible}
+                        search={searchMessagesStore}
+                        isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                       />
                     )}
                   </div>
@@ -261,7 +278,7 @@ export const MessagesList = ({
           <ScrollButton quantity={currentFirstUnreadIncoming !== -1 ? lastIndex - currentFirstUnreadIncoming + 1 : 0} />
         </button>
       )}
-      {toastVisible && <NotificationCopyCard posCopy={{ top: posCopy.top, left: posCopy.left }} />}
+      {toastVisibleStore && <NotificationCopyCard posCopy={{ top: posCopy.top, left: posCopy.left }} />}
     </div>
   );
 };

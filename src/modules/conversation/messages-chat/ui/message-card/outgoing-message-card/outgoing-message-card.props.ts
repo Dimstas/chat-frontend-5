@@ -6,5 +6,6 @@ export type OutgoingMessagesCardProps = {
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
     selected?: boolean,
   ) => void;
-  setToastVisible: (v: boolean) => void;
+  search: string;
+  isHighlighted: boolean | string;
 };

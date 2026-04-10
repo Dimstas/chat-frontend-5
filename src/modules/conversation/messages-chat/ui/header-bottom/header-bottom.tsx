@@ -6,9 +6,11 @@ import {
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
+  useUserIdStore,
 } from '../../zustand-store/zustand-store';
 import { ChooseMessagesCard } from '../message-card/choose-messages-card/choose-messages-card';
 import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
+import { ForwardMessagesCard } from '../message-card/forward-messages-card/forward-messages-card';
 import { ReplyToMessageCard } from '../message-card/reply-to-message-card/reply-to-message-card';
 import { MessageInput } from '../message-input/message-input';
 import styles from './header-bottom.module.scss';
@@ -26,16 +28,16 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const clearSelectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
     (s) => s.clearSelectedUidUserForForwardMessage,
   );
-
+  const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const { sendMessage } = useWebSocketChat(wsUrl, currentUserId);
-
+  const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
+  const userIdStore = useUserIdStore((s) => s.userId);
   useEffect(() => {
-    if (repliedMessageStore || forwardMessageStore) {
+    if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
     }
-  }, [repliedMessageStore, forwardMessageStore]);
+  }, [repliedMessageStore, forwardMessageStore, selectedMessagesStore, userIdStore]);
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
@@ -43,18 +45,29 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     if (forwardMessageStore) {
       sendMessage(forwardMessageStore?.content ?? '', repliedMessageStore, forwardMessageStore);
     }
+    if (selectedMessagesStore && selectedMessagesStore.length) {
+      selectedMessagesStore.forEach((m) => {
+        sendMessage(m.content ?? '', repliedMessageStore, m);
+      });
+    }
     clearForwardMessageStore();
     clearSelectedUidUserForForwardMessageStore();
     setTextInput('');
     clearRepliedMessageStore();
+    clearSelectedMessagesStore();
   };
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
-  const setcheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
+  const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
 
   return (
     <div className={styles.block}>
       {checkBoxsVisibleStore ? (
-        <ChooseMessagesCard setcheckBoxsVisibleStore={setcheckBoxsVisibleStore} />
+        <ChooseMessagesCard
+          setCheckBoxsVisibleStore={setCheckBoxsVisibleStore}
+          selectedMessagesStore={selectedMessagesStore}
+          clearSelectedMessagesStore={clearSelectedMessagesStore}
+          sendDeleteMessage={sendDeleteMessage}
+        />
       ) : (
         <>
           {repliedMessageStore && (
@@ -67,6 +80,13 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
             <ForwardMessageCard
               forwardMessageStore={forwardMessageStore}
               clearForwardMessageStore={clearForwardMessageStore}
+            />
+          )}
+          {!!selectedMessagesStore?.length && (
+            <ForwardMessagesCard
+              selectedMessagesStore={selectedMessagesStore}
+              clearSelectedMessagesStore={clearSelectedMessagesStore}
+              currentUserId={currentUserId}
             />
           )}
           <form className={styles.wrapper} onSubmit={handleSubmitForm}>

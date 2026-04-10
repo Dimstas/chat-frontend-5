@@ -12,6 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
+import { HighlightedMessage } from '../../search-messages/highlighted-message/highlighted-message';
 import { ForvardCard } from '../forward-card/forward-card';
 import CheckOneIcon from '../icons/check-one.svg';
 import CheckTwoIcon from '../icons/check-two.svg';
@@ -24,7 +25,8 @@ import { OutgoingMessagesCardProps } from './outgoing-message-card.props';
 export const OutgoingMessagesCard = ({
   message,
   sendDeleteMessage,
-  setToastVisible,
+  search,
+  isHighlighted,
 }: OutgoingMessagesCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -54,7 +56,7 @@ export const OutgoingMessagesCard = ({
     (s) => s.selectedUidUserForForwardMessage,
   );
   const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
-
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   useEffect(() => {
     forAllDeleteRef.current = forAllDeleteStore;
     selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
@@ -65,7 +67,7 @@ export const OutgoingMessagesCard = ({
       title: 'Удалить сообщение',
       message: 'Вы действительно хотите удалить сообщение?',
       showCheckBox: true,
-      labelCheckBox: `Удалить у меня и у ${message.to_user.first_name ?? ''}`,
+      labelCheckBox: `Удалить у меня и у ${message.to_user?.first_name !== '' ? message.to_user?.first_name : message.to_user?.nickname}`,
     });
     if (ok && forAllDeleteRef.current !== null) {
       sendDeleteMessage(message, forAllDeleteRef.current);
@@ -82,6 +84,7 @@ export const OutgoingMessagesCard = ({
     if (ok && selectedUidUserForForwardMessageRef.current) {
       setForwardMessageStore(message);
       clearRepliedMessageStore();
+      clearSelectedMessagesStore();
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
@@ -89,24 +92,22 @@ export const OutgoingMessagesCard = ({
   const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
   const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
   const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
-  const [selected, setSelected] = useState<boolean | undefined>(undefined);
+  const [selected, setSelected] = useState<boolean>(true);
   const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
-  useEffect(() => {
+
+  const handleCheckBoxClick = (): void => {
+    setSelected(!selected);
     if (selected) {
       addSelectedMessagesStore(message);
     } else {
       deleteSelectedMessagesStore(message);
     }
-  }, [selected, addSelectedMessagesStore, deleteSelectedMessagesStore, message]);
-
-  const handleCheckBoxClick = (): void => {
-    setSelected(!selected);
   };
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
 
   return (
-    <div className={checkBoxsVisibleStore && has ? styles.blockSelected : styles.block}>
+    <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
         <MessageCheckBox message={message} selected={has} handleCheckBoxClick={handleCheckBoxClick} />
       )}
@@ -114,7 +115,6 @@ export const OutgoingMessagesCard = ({
         className={styles.wrapper}
         onContextMenu={!checkBoxsVisibleStore ? handleContextMenu : (): void => {}}
         onMouseLeave={handleCloseMenu}
-        onClick={handleCheckBoxClick}
       >
         <ContextMenu
           position={contextMenuPos}
@@ -122,14 +122,15 @@ export const OutgoingMessagesCard = ({
           onClose={handleCloseMenu}
           handleDeleteClick={handleDeleteClick}
           handleForwardClick={handleForwardClick}
-          setToastVisible={setToastVisible}
           message={message}
         />
         <div className={styles.item}>
           {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={false} />}
           {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
           <div className={styles.message}>
-            <span className={styles.messageText}> {message.content} </span>
+            <span className={styles.messageText}>
+              <HighlightedMessage text={message.content ?? ''} search={search} />
+            </span>
             <div className={styles.messageSentTime}>
               <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
               <div className={styles.messageChatIcons}>
