@@ -2,26 +2,26 @@
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { useNotificationStore } from 'modules/notification/model/notification.store';
-import { JSX, useState } from 'react';
-import { JSX, useEffect } from 'react';
+import { JSX, useEffect, useState } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { NotificationModal } from '../../../../notification/ui/notification-modal';
-import { useSearchIndicatorStore, useSearchMessagesStore } from '../../zustand-store/zustand-store';
-import { SearchResultCard } from '../search-messages/search-result-card/search-result-card';
-import { SearchMessages } from '../search-messages/search/search-messages';
-import { useHeaderButtonsModalStore } from '../../zustand-store/zustand-store';
+import {
+  useHeaderButtonsModalStore,
+  useSearchIndicatorStore,
+  useSearchMessagesStore,
+} from '../../zustand-store/zustand-store';
 import { AddModal } from '../header-top-buttons-block/add-modal';
 import { BlockModal } from '../header-top-buttons-block/block-modal';
 import { HeaderTopButtonsBlock } from '../header-top-buttons-block/header-top-buttons-block';
 import { LeaveGroupModal } from '../header-top-buttons-block/leave-group-modal';
+import { SearchResultCard } from '../search-messages/search-result-card/search-result-card';
+import { SearchMessages } from '../search-messages/search/search-messages';
 import styles from './header-top.module.scss';
-import type { HeaderTopProps } from './header-top.props';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
 const URL_DEFAULT_Avatar = '/images/messages-chats/default-avatar.svg';
 
-export const HeaderTop = ({ user_uid }: HeaderTopProps): JSX.Element => {
 export const HeaderTop = ({
   wsUrl,
   user_uid,
@@ -77,7 +77,7 @@ export const HeaderTop = ({
         ) : (
           <>
             <div className={styles.info} onClick={() => toggleInfoOpen()}>
-              <span className={styles.name}>{firstName + ' ' + lastName}</span>
+              <span className={styles.name}>{isGroup ? chat?.chat.name : `${firstName} ${lastName}`}</span>
               <span className={styles.status}>{status}</span>
             </div>
             <div className={styles.icon} onClick={() => setSearchMessagesVisible(true)}>
@@ -88,21 +88,6 @@ export const HeaderTop = ({
             </div>
           </>
         )}
-        />
-        <div className={styles.info}>
-          <span className={styles.name}>{isGroup ? chat?.chat.name : `${firstName} ${lastName}`}</span>
-          <span className={styles.status}>{status}</span>
-        </div>
-        <div className={styles.icon}>
-          <button>
-            <SearchIcon />
-          </button>
-        </div>
-        <div className={styles.icon}>
-          <button>
-            <CallIcon />
-          </button>
-        </div>
       </div>
       {searchIndicatorStore && searchMessagesStore && (
         <SearchResultCard
@@ -110,7 +95,6 @@ export const HeaderTop = ({
           lastSearchIndex={searchIndicatorStore.lastSearchIndex}
         />
       )}
-      {/* <HeaderTopButtonsBlock /> */}
       <HeaderTopButtonsBlock
         wsUrl={wsUrl}
         nickname={nickname ?? ''}
