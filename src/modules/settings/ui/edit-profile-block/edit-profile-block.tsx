@@ -23,6 +23,7 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
   } = useImageUpload();
 
   const {
+    profile,
     birthday,
     firstName,
     lastName,
@@ -50,6 +51,11 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
     closeCropper();
   };
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    await handleSave(selectedFile);
+  };
+
   if (isLoadingProfile) {
     return <div>Загрузка профиля...</div>;
   }
@@ -58,7 +64,8 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
     return <div>Ошибка загрузки профиля: {errorProfile.message}</div>;
   }
 
-  const avatarSrc = previewUrl || '/images/settings/noAvatarIcon.svg';
+  const avatarSrc = previewUrl || profile?.avatar_url || '/images/settings/noAvatarIcon.svg';
+
   const avatarStyle: React.CSSProperties = {};
   if (croppedZoom !== null && previewUrl) {
     avatarStyle.transform = `scale(${croppedZoom / 100})`;
@@ -82,7 +89,14 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
         </button>
         <div className={styles.imageContainer}>
           <div className={styles.avatar}>
-            <Image src={avatarSrc} alt="Аватар" width={200} height={200} className={''} style={avatarStyle} />
+            <Image
+              src={avatarSrc}
+              alt="Аватар"
+              width={200}
+              height={200}
+              className={styles.avatarImage}
+              style={avatarStyle}
+            />
           </div>
           <button type="button" className={styles.selectImage} onClick={triggerFileSelect}>
             Выбрать фотографию
@@ -96,13 +110,7 @@ export const EditProfileBlock: React.FC = ({}): JSX.Element => {
           />
           {imageUploadError && <div className={styles.error}>{imageUploadError}</div>}
         </div>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSave();
-          }}
-          className={styles.profileForm}
-        >
+        <form onSubmit={handleSubmit} className={styles.profileForm}>
           <TextInput
             label="Изменить имя"
             placeholder=""

@@ -59,7 +59,7 @@ export const AllSettingsBlock: React.FC<AllSettingsBlockProps> = ({
         <div className={styles.content}>
           <h1 className={styles.title}>Настройки</h1>
           <UserCard
-            avatar={profile.avatar ? profile.avatar : ''}
+            avatar={profile.avatar_url || profile.avatar}
             name={profile.first_name}
             phone={profile.phone}
             nickName={`@${profile.nickname}`}
