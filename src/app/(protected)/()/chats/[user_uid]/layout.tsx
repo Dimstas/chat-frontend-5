@@ -23,7 +23,7 @@ export default async function MessagesLayout({
     return (
       <main className={styles.wrapper}>
         <Suspense>
-          <HeaderTop user_uid={user_uid} />
+          <HeaderTop wsUrl={wsUrl} user_uid={user_uid} currentUid={payload.user_id} />
         </Suspense>
         {children}
         <Suspense>

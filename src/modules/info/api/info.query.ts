@@ -97,7 +97,9 @@ export const useBlockUserMutation = (id: string): UseMutationResult<BlockProfile
     },
 
     onSettled: () => {
-      console.log('Инвалидация blacklist query');
+      void queryClient.invalidateQueries({
+        queryKey: ['chats', 'chat-list'],
+      });
 
       void queryClient.invalidateQueries({
         queryKey: ['blacklist'],
@@ -128,6 +130,10 @@ export const useUnblockUserMutation = (id: string): UseMutationResult<void, Erro
     },
 
     onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ['chats', 'chat-list'],
+      });
+
       void queryClient.invalidateQueries({
         queryKey: ['blacklist'],
       });

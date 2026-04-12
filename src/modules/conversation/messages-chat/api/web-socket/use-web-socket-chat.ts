@@ -2,7 +2,10 @@
 
 import {
   AddOrRemoveMembersRequestAPI,
+  DeleteGroupRequestAPI,
+  LeaveGroupRequestAPI,
   serializerRequestApiSchema,
+  serializerRequestLeaveGroupApiSchema,
 } from 'modules/info/model/info.web-socket.api.schema';
 import { useCallback, useEffect, useRef } from 'react';
 import type {
@@ -26,6 +29,8 @@ type UseWebSocketChat = {
   ) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendMembers: (payload: AddOrRemoveMembersRequestAPI) => void;
+  sendLeaveGroup: (payload: LeaveGroupRequestAPI) => void;
+  sendDeleteGroup: (payload: DeleteGroupRequestAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
@@ -447,6 +452,28 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     }
   };
 
+  // Покинуть группу / канал
+  const sendLeaveGroup = (payload: LeaveGroupRequestAPI): void => {
+    const resultZod = serializerRequestLeaveGroupApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send to server leave from group: ', payload);
+    }
+  };
+
+  // Удалить группу / канал
+  const sendDeleteGroup = (payload: DeleteGroupRequestAPI): void => {
+    const resultZod = serializerRequestLeaveGroupApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send to server delete group: ', payload);
+    }
+  };
+
   // Функция отправки сообщения на изменение статуса прочитки входящего сообщения
   const sendChangeStatusReadMessage = useCallback(
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
@@ -541,6 +568,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     sendMessage,
     sendProfile,
     sendMembers,
+    sendLeaveGroup,
+    sendDeleteGroup,
     sendChangeStatusReadMessage,
     sendDeleteMessage,
   };
