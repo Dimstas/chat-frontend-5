@@ -1,5 +1,7 @@
 'use client';
 
+import { translateMessageIntoChat } from 'modules/conversation/chats/utils/utils';
+import { useChatsListStore } from 'modules/conversation/chats/zustand-store-chats-list/zustand-store-chats-list';
 import {
   AddOrRemoveMembersRequestAPI,
   DeleteGroupRequestAPI,
@@ -67,6 +69,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const updateMessageByUidForUser = useMessagesChatStore.getState().updateMessageByUidForUser;
   const upsertMessageForUser = useMessagesChatStore.getState().upsertMessageForUser;
   const deleteMessageByUidForUser = useMessagesChatStore.getState().deleteMessageByUidForUser;
+  const addChatInChatsListStore = useChatsListStore.getState().addChatInChatsList;
+
   // maccив интервалов [{requestUid:timeout_id},...] на каждое отправленное сообщение с помошью ws
   // нужно отследить через какое время на отправленное клиентом сообщение, ws пришлет ответ-подтверждение,
   // либо его вообще не пришлет
@@ -178,6 +182,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       if (
         data.action === 'create_text_message' &&
         data.status === 'OK' &&
+        data.object.chat_type === 'chat' &&
         data.object.to_user?.uid === currentUserIdRef.current
       ) {
         console.log('Получили входящее сообщение c обычного чата) :', data);
@@ -186,11 +191,13 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         const fromUserUid = data.object.from_user.uid;
         const serverMessage = { ...data.object, status: 'sent' };
         upsertMessageForUser(fromUserUid, serverMessage);
+        addChatInChatsListStore(translateMessageIntoChat(serverMessage));
       }
       //  Поступило входящее сообщение c группы
       if (
         data.action === 'create_text_message' &&
         data.status === 'OK' &&
+        (data.object.chat_type === 'public-group' || data.object.chat_type === 'private-group') &&
         data.object.from_user?.uid !== currentUserIdRef.current
       ) {
         console.log('Получили входящее сообщение с группы) :', data);
@@ -199,6 +206,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         const fromUserUid = data.object.chat_key;
         const serverMessage = { ...data.object, status: 'sent' };
         upsertMessageForUser(fromUserUid, serverMessage);
+        addChatInChatsListStore(translateMessageIntoChat(serverMessage));
       }
 
       //4. входящее ws-сообщение read-status поступило отправителю первоначального исходящего текстового сообщения в обычном чате
@@ -339,7 +347,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         updated_at: 0,
         chat_id: 0,
         chat_key: has ? userIdRef.current : '',
-        chat_type: '',
+        chat_type: 'chat',
         message_rtc: {
           uid: '',
           duration: 0,

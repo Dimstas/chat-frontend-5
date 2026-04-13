@@ -67,7 +67,7 @@ export const restMessageApiSchema = z.object({
   updated_at: z.number(),
   chat_id: z.number(),
   chat_key: z.string(),
-  chat_type: z.string(),
+  chat_type: z.enum(['chat', 'public-group', 'private-group', 'public-channel', 'private-channel']),
   message_rtc: messageRTCApiSchema.optional(),
 });
 export type RestMessageApi = z.infer<typeof restMessageApiSchema>;
