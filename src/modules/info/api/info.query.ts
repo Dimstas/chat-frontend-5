@@ -16,12 +16,14 @@ import {
   BlockProfileApiResponse,
   ChatPost,
   ChatPostApiResponse,
+  GroupAvatarApiResponse,
   InviteLinkApiResponse,
   InviteSettingsPost,
   NewContact,
   ParticipantApiResponse,
   UserForAddApiResponse,
 } from '../model/info.api.schema';
+import { useInfoEditGroupStore } from '../model/info.edit-group.store';
 import {
   addToContact,
   editChat,
@@ -30,6 +32,7 @@ import {
   getParticipantList,
   getUserForAddList,
   unblockUser,
+  updateAvatar,
 } from './info.api';
 import { mapInfoGroupFromApi } from './info.group.mapper';
 
@@ -281,6 +284,18 @@ export const useUserForAddQuery = (
       if (!lastPage.next) return undefined;
       const url = new URL(lastPage.next, 'http://localhost');
       return Number(url.searchParams.get('page'));
+    },
+  });
+};
+
+export const useUpdateProfileAvatarQuery = (): UseMutationResult<GroupAvatarApiResponse, unknown, File> => {
+  const { setGroupData } = useInfoEditGroupStore();
+
+  return useMutation({
+    mutationFn: updateAvatar,
+
+    onSettled: (data) => {
+      setGroupData({ avatarUid: data?.uid });
     },
   });
 };
