@@ -1,5 +1,6 @@
 'use client';
-import { JSX, useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
+import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import {
   useForwardMessageStore,
@@ -8,6 +9,7 @@ import {
   useSelectedUidUserForForwardMessageStore,
   useUserIdStore,
 } from '../../zustand-store/zustand-store';
+import { ContextMenuAttachFile } from '../context-menu/context-menu-attach-file/context-menu-attach-file';
 import { ChooseMessagesCard } from '../message-card/choose-messages-card/choose-messages-card';
 import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
 import { ForwardMessagesCard } from '../message-card/forward-messages-card/forward-messages-card';
@@ -59,6 +61,27 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
   const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
 
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+
+  const clipIconButtonRef = useRef<HTMLDivElement | null>(null);
+
+  const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
+    event.preventDefault();
+    if (clipIconButtonRef.current) {
+      const { y, x } = clipIconButtonRef.current.getBoundingClientRect();
+      const menuHeight = 108;
+      const adjustedX = x - 10;
+      const adjustedY = y - menuHeight - 10;
+      setContextMenuPos({ x: adjustedX, y: adjustedY });
+      setContextMenuVisible(true);
+    }
+  };
+
+  const handleCloseMenu = (): void => {
+    setContextMenuVisible(false);
+  };
+
   return (
     <div className={styles.block}>
       {checkBoxsVisibleStore ? (
@@ -90,9 +113,16 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
             />
           )}
           <form className={styles.wrapper} onSubmit={handleSubmitForm}>
-            <span className={styles.clipIcon}>
+            <div
+              className={contextMenuVisible ? clsx(styles.clipIcon, styles.clipIconActive) : styles.clipIcon}
+              ref={clipIconButtonRef}
+              onContextMenu={handleContextMenu}
+            >
+              {contextMenuVisible && (
+                <ContextMenuAttachFile contextMenuPos={contextMenuPos} handleCloseMenu={handleCloseMenu} />
+              )}
               <ClipIcon />
-            </span>
+            </div>
             <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
             <span className={styles.micIcon}>
               {textInput ? (
