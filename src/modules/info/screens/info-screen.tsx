@@ -168,7 +168,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
         menuItems={groupMenuItems}
         title="Информация о группе"
         onClose={toggleInfoOpen}
-        onSetting={enterSettingsMode}
+        onSetting={participant?.isOwner ? enterSettingsMode : undefined}
       />,
       <GroupPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />,
     );
