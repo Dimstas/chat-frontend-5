@@ -2,14 +2,18 @@
 import clsx from 'clsx';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
+import { useAlert } from '../../hooks/use-alert';
 import {
+  useAttachmentFilesStore,
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
+  useTextForAttachmentFilesStore,
   useUserIdStore,
 } from '../../zustand-store/zustand-store';
 import { ContextMenuAttachFile } from '../context-menu/context-menu-attach-file/context-menu-attach-file';
+import type { Attachment } from '../context-menu/context-menu-attach-file/context-menu-attach-file.props';
 import { ChooseMessagesCard } from '../message-card/choose-messages-card/choose-messages-card';
 import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
 import { ForwardMessagesCard } from '../message-card/forward-messages-card/forward-messages-card';
@@ -35,6 +39,16 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
   const userIdStore = useUserIdStore((s) => s.userId);
+  const attachmentFilesStore = useAttachmentFilesStore((s) => s.attachmentFiles);
+  const textForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.textForAttachmentFiles);
+  const clearAttachmentFilesStore = useAttachmentFilesStore((s) => s.clearAttachmentFiles);
+  const clearTextForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.clearTextForAttachmentFiles);
+  const textForAttachmentFilesRef = useRef<string>(textForAttachmentFilesStore);
+  const attachmentFilesRef = useRef<Attachment[]>(attachmentFilesStore);
+  useEffect(() => {
+    textForAttachmentFilesRef.current = textForAttachmentFilesStore;
+    attachmentFilesRef.current = attachmentFilesStore;
+  }, [textForAttachmentFilesStore, attachmentFilesStore]);
   useEffect(() => {
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
@@ -78,6 +92,22 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
+  // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
+  const { confirm } = useAlert();
+
+  const handleAttachmentFilesClick = async (): Promise<void> => {
+    const ok = await confirm({
+      isAttachmentFiles: true,
+    });
+    if (ok) {
+      sendMessage(textForAttachmentFilesRef.current);
+      clearAttachmentFilesStore();
+      clearTextForAttachmentFilesStore();
+    } else {
+      // отмена — ничего не делаем
+    }
+  };
+
   return (
     <div className={styles.block}>
       {checkBoxsVisibleStore ? (
@@ -118,7 +148,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
                 <ContextMenuAttachFile
                   contextMenuPos={contextMenuPos}
                   handleCloseMenu={handleCloseMenu}
-                  sendMessage={sendMessage}
+                  handleAttachmentFilesClick={handleAttachmentFilesClick}
                 />
               )}
               <ClipIcon />

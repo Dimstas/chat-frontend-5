@@ -1,11 +1,7 @@
 'use client';
 import clsx from 'clsx';
-import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { fileToBase64 } from 'modules/conversation/messages-chat/utils/file-to-base64';
-import {
-  useAttachmentFilesStore,
-  useTextForAttachmentFilesStore,
-} from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import { useAttachmentFilesStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { JSX, useEffect, useRef } from 'react';
 import File from '../icons/file.svg';
 import Img from '../icons/image.svg';
@@ -16,15 +12,13 @@ const maxSize = 25 * 1024 * 1024; // в байтах, по умолчанию 25
 export const ContextMenuAttachFile = ({
   contextMenuPos,
   handleCloseMenu,
-  sendMessage,
+  handleAttachmentFilesClick,
 }: ContextMenuAttachFileProps): JSX.Element | null => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const attachmentFilesStore = useAttachmentFilesStore((s) => s.attachmentFiles);
   const setAttachmentFilesStore = useAttachmentFilesStore((s) => s.setAttachmentFiles);
-  const clearAttachmentFilesStore = useAttachmentFilesStore((s) => s.clearAttachmentFiles);
-  const textForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.textForAttachmentFiles);
-  const clearTextForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.clearTextForAttachmentFiles);
+
   // Очистка URL объектов
   useEffect(() => {
     return (): void => {
@@ -79,27 +73,12 @@ export const ContextMenuAttachFile = ({
     }
     setAttachmentFilesStore((prev) => [...prev, ...newAttachments]);
   };
-  // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
-  const { confirm } = useAlert();
-
-  const handleAttachmentFilesClick = async (): Promise<void> => {
-    const ok = await confirm({
-      isAttachmentFiles: true,
-    });
-    if (ok) {
-      sendMessage(textForAttachmentFilesStore);
-      clearAttachmentFilesStore();
-      clearTextForAttachmentFilesStore();
-    } else {
-      // отмена — ничего не делаем
-    }
-  };
   // обработчик который срабатывает при выборе файла(файлов)
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>): void => {
     processFiles(e.target.files);
+    handleAttachmentFilesClick(); //открываем модальное окно <AlertAttachmentFiles /> и ждем ок;
     e.target.value = ''; // Сброс input
     handleCloseMenu(); // закрываем контекстное меню
-    handleAttachmentFilesClick(); //открываем модальное окно <AlertAttachmentFiles /> и ждем ок;
   };
 
   // const handleRemoveAttachment = (id: string): void => {
