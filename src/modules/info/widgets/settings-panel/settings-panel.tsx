@@ -74,6 +74,7 @@ export const SettingsPanel = ({
 
       await sendEditGroup(payload);
       await queryClient.refetchQueries({ queryKey: ['info', 'group', uid] });
+      queryClient.invalidateQueries({ queryKey: ['chats', 'chat-list'] });
     } catch (error) {
       console.error('Ошибка при сохранении:', error);
     } finally {

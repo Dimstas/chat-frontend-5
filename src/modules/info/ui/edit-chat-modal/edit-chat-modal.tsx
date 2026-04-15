@@ -36,9 +36,8 @@ export const EditChatModal = ({ wsUrl, currentUid, chatKey }: EditChatModalProps
 
     sendEditGroup(payload);
 
-    await queryClient.refetchQueries({
-      queryKey: ['info', 'group', chatKey],
-    });
+    await queryClient.refetchQueries({ queryKey: ['info', 'group', chatKey] });
+    queryClient.invalidateQueries({ queryKey: ['chats', 'chat-list'] });
 
     resetGroup();
     closeEditChatModal();
