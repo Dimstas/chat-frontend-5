@@ -1,4 +1,5 @@
 import { useUpdateProfileAvatarQuery } from 'modules/info/api/info.query';
+import { useInfoEditGroupStore } from 'modules/info/model/info.edit-group.store';
 import { useImageUpload } from 'modules/settings/lib/edit-profile-block/use-image-upload';
 import { ImageCropperModal } from 'modules/settings/ui/image-cropper/image-cropper-modal';
 import Image from 'next/image';
@@ -10,6 +11,7 @@ export const InfoAvatarUploader = ({ avatarHref }: InfoAvatarUploaderProps): JSX
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [croppedZoom, setCroppedZoom] = useState<number | null>(null);
   const { mutate: updateAvatar } = useUpdateProfileAvatarQuery();
+  const { setGroupData } = useInfoEditGroupStore();
 
   const {
     selectedFile,
@@ -35,7 +37,7 @@ export const InfoAvatarUploader = ({ avatarHref }: InfoAvatarUploaderProps): JSX
 
     setIsUploadingAvatar(true);
     try {
-      await updateAvatar(file);
+      await updateAvatar(file, { onSettled: (data) => setGroupData({ avatarUid: data?.uid }) });
     } catch (error) {
       console.error('Ошибка загрузки аватара:', error);
     } finally {

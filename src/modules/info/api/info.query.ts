@@ -23,7 +23,6 @@ import {
   ParticipantApiResponse,
   UserForAddApiResponse,
 } from '../model/info.api.schema';
-import { useInfoEditGroupStore } from '../model/info.edit-group.store';
 import {
   addToContact,
   editChat,
@@ -281,13 +280,7 @@ export const useUserForAddQuery = (
 };
 
 export const useUpdateProfileAvatarQuery = (): UseMutationResult<GroupAvatarApiResponse, unknown, File> => {
-  const { setGroupData } = useInfoEditGroupStore();
-
   return useMutation({
     mutationFn: updateAvatar,
-
-    onSettled: (data) => {
-      setGroupData({ avatarUid: data?.uid });
-    },
   });
 };
