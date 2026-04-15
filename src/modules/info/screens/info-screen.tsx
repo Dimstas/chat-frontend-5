@@ -53,6 +53,12 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
 
   useEffect(() => {
     setUid(uid);
+
+    return (): void => {
+      exitSettingsMode();
+      clearSelection();
+      exitSelectionMode();
+    };
   }, [uid, setUid]);
 
   const isGroup = uid.startsWith('group');
