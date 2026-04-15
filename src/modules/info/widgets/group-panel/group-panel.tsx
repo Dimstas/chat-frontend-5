@@ -9,7 +9,7 @@ import { InfoSummary } from 'modules/info/ui/info-summary';
 import { InfoUploads } from 'modules/info/ui/info-uploads';
 import { GROUP_TABS } from 'modules/info/ui/info-uploads/info-uploads.constants';
 import { LeaveGroupModal } from 'modules/info/ui/leave-group-modal';
-import { JSX, useEffect } from 'react';
+import { JSX } from 'react';
 
 export const GroupPanel = ({
   uid,
@@ -20,18 +20,14 @@ export const GroupPanel = ({
   currentUid: string;
   wsUrl: string;
 }): JSX.Element => {
-  const { mutate: generateLink, data } = useGenerateInviteLinkQuery(uid);
+  const { data: link } = useGenerateInviteLinkQuery(uid, {
+    expires_in: 86400,
+  });
   const { data: profile, isLoading } = useGroupOrChanelQuery(uid);
 
   const name = profile?.name ?? '';
   const membersCount = profile?.participants.length ?? 0;
   const status = formatParticipants(membersCount);
-
-  useEffect(() => {
-    generateLink({
-      expires_in: 86400,
-    });
-  }, [generateLink]);
 
   return (
     <>
@@ -46,7 +42,7 @@ export const GroupPanel = ({
           />
           <InfoNotification chatId={profile?.id} />
           <InfoSummary description={profile?.description} />
-          <InfoSummary inviteLink={data?.invite_link} chatKey={uid} />
+          <InfoSummary inviteLink={link?.invite_link} chatKey={uid} />
           <InfoUploads uid={uid} tabs={GROUP_TABS} chatKey={uid} currentUid={currentUid} />
           <ClearChatModal />
           <DeleteMemberModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} />

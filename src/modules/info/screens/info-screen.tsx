@@ -5,9 +5,12 @@ import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-soc
 import { JSX, useEffect } from 'react';
 import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
 import { useInfoProfileQuery } from '../api';
+import { useInfoEditGroupStore } from '../model/info.edit-group.store';
 import { useInfoSearchStore } from '../model/info.search.store';
 import { useInfoStore } from '../model/info.store';
 import { AddOrRemoveMembersRequestAPI } from '../model/info.web-socket.api.schema';
+import BackIcon from '../shared/icons/back.svg';
+import BackArrowIcon from '../shared/icons/backarrow.svg';
 import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
 import DeleteIcon from '../shared/icons/delete-outline.svg';
@@ -19,6 +22,7 @@ import { InfoLayout } from '../ui/info-layout';
 import { AddMemberPanel } from '../widgets/add-member-panel';
 import { ContactPanel } from '../widgets/contact-panel';
 import { GroupPanel } from '../widgets/group-panel';
+import { SettingsPanel } from '../widgets/settings-panel';
 import { InfoScreenProps } from './info-screen.props';
 import { useParticipantsScreen } from './use-participant-screen';
 
@@ -30,6 +34,10 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     openForwardModal,
     openLeaveGroupModal,
     openDeleteGroupModal,
+    openEditChatModal,
+    isGroupSettingsMode,
+    enterSettingsMode,
+    exitSettingsMode,
     isAddMembersMode,
     exitSelectionMode,
     toggleInfoOpen,
@@ -37,6 +45,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     clearSelection,
   } = useInfoStore();
   const { clearQuery } = useInfoSearchStore();
+  const { hasChanges } = useInfoEditGroupStore();
   const { sendMembers } = useWebSocketChat(wsUrl, currentUid);
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
   const { participants } = useParticipantsScreen(uid);
@@ -44,6 +53,12 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
 
   useEffect(() => {
     setUid(uid);
+
+    return (): void => {
+      exitSettingsMode();
+      clearSelection();
+      exitSelectionMode();
+    };
   }, [uid, setUid]);
 
   const isGroup = uid.startsWith('group');
@@ -84,7 +99,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     },
   ];
 
-  if (!profile?.isBlocked) {
+  if (!isGroup && !profile?.isBlocked) {
     contactMenuItems.push({
       label: 'Заблокировать',
       icon: <BlockIcon />,
@@ -97,6 +112,14 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     clearSelection();
     clearQuery();
     exitSelectionMode();
+  };
+
+  const handleSettingBack = (): void => {
+    if (hasChanges) {
+      openEditChatModal();
+    } else {
+      exitSettingsMode();
+    }
   };
 
   const handleAddMembers = (): void => {
@@ -131,21 +154,30 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   );
 
   if (isGroup) {
-    const header = isAddMembersMode ? (
-      <InfoHeader title="Пригласить участников" onBack={handleBack} />
-    ) : (
-      <InfoHeader menuItems={groupMenuItems} title="Информация о группе" onClose={toggleInfoOpen} />
-    );
-    const content = isAddMembersMode ? (
-      <AddMemberPanel chatKey={uid} />
-    ) : (
-      <GroupPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />
-    );
-    const footer = isAddMembersMode ? (
-      <AddMembersButton label="Добавить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />
-    ) : undefined;
+    if (isAddMembersMode) {
+      return renderWithLayout(
+        <InfoHeader title="Пригласить участников" backProps={{ icon: <BackIcon />, onClick: handleBack }} />,
+        <AddMemberPanel chatKey={uid} />,
+        <AddMembersButton label="Добавить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />,
+      );
+    }
 
-    return renderWithLayout(header, content, footer);
+    if (isGroupSettingsMode) {
+      return renderWithLayout(
+        <InfoHeader title="Настройки" backProps={{ icon: <BackArrowIcon />, onClick: handleSettingBack }} />,
+        <SettingsPanel uid={uid} wsUrl={wsUrl} currentUid={currentUid} />,
+      );
+    }
+
+    return renderWithLayout(
+      <InfoHeader
+        menuItems={groupMenuItems}
+        title="Информация о группе"
+        onClose={toggleInfoOpen}
+        onSetting={participant?.isOwner ? enterSettingsMode : undefined}
+      />,
+      <GroupPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />,
+    );
   }
 
   return renderWithLayout(

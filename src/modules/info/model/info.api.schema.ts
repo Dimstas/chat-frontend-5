@@ -210,3 +210,9 @@ export const UserForAddResponseSchema = PaginatedResponseSchema.extend({
 
 export type UserForAddApiResponse = z.infer<typeof UserForAddResponseSchema>;
 export type UserForAddApi = z.infer<typeof UserForAddApiSchema>;
+
+export const GroupAvatarApiSchema = z.object({
+  uid: z.uuid(),
+});
+
+export type GroupAvatarApiResponse = z.infer<typeof GroupAvatarApiSchema>;

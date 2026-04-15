@@ -27,6 +27,7 @@ import type { ButtonProps, ButtonVariant } from './button.props';
  * @return {JSX.Element}
  */
 export const ButtonUI = <V extends ButtonVariant>({
+  spinner,
   label,
   variant,
   appearance,
@@ -36,7 +37,13 @@ export const ButtonUI = <V extends ButtonVariant>({
 
   return (
     <button className={clsx(styles[mode], styles[appearance])} {...props}>
-      {label}
+      {spinner ? (
+        <div className={styles.loadingSpinner}>
+          <div className={styles.spinner}></div>
+        </div>
+      ) : (
+        <>{label}</>
+      )}
     </button>
   );
 };
