@@ -76,7 +76,7 @@ export const AlertForward = ({ onOk, onCancel }: AlertForwardProps): JSX.Element
 };
 
 const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardProps): JSX.Element => {
-  const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
+  const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null, nickname = '' } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
   const setSelectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
     (s) => s.setSelectedUidUserForForwardMessage,
@@ -97,7 +97,9 @@ const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardP
         )}
       </div>
       <div className={styles.nameEndStatus}>
-        <div className={styles.name}>{`${firstName} ${lastName}`} </div>
+        <div className={styles.name}>
+          {firstName === '' && lastName === '' ? `${nickname}` : `${firstName} ${lastName}`}
+        </div>
         <div className={styles.status}>{status}</div>
       </div>
     </div>

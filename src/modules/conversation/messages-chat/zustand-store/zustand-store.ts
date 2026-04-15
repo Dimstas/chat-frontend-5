@@ -321,3 +321,15 @@ export const useAttachmentFilesStore = create<AttachmentFilesState>((set) => ({
     })),
   clearAttachmentFiles: (): void => set({ attachmentFiles: [] }),
 }));
+
+type TextForAttachmentFilesState = {
+  textForAttachmentFiles: string;
+  setTextForAttachmentFiles: (textForAttachmentFiles: string) => void;
+  clearTextForAttachmentFiles: () => void;
+};
+
+export const useTextForAttachmentFilesStore = create<TextForAttachmentFilesState>((set) => ({
+  textForAttachmentFiles: '',
+  setTextForAttachmentFiles: (textForAttachmentFiles: string): void => set({ textForAttachmentFiles }),
+  clearTextForAttachmentFiles: (): void => set({ textForAttachmentFiles: '' }),
+}));

@@ -3,7 +3,6 @@ import clsx from 'clsx';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import {
-  useAttachmentFilesStore,
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
@@ -36,10 +35,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
   const userIdStore = useUserIdStore((s) => s.userId);
-  const attachmentFilesStore = useAttachmentFilesStore((s) => s.attachmentFiles);
-
-  console.log('attachmentFilesStore:', attachmentFilesStore);
-
   useEffect(() => {
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
@@ -80,7 +75,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       setContextMenuVisible(true);
     }
   };
-
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
@@ -121,7 +115,11 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
               onContextMenu={handleContextMenu}
             >
               {contextMenuVisible && (
-                <ContextMenuAttachFile contextMenuPos={contextMenuPos} handleCloseMenu={handleCloseMenu} />
+                <ContextMenuAttachFile
+                  contextMenuPos={contextMenuPos}
+                  handleCloseMenu={handleCloseMenu}
+                  sendMessage={sendMessage}
+                />
               )}
               <ClipIcon />
             </div>
