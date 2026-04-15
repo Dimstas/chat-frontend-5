@@ -7,6 +7,7 @@ type InfoEditGroupState = {
   avatarUid?: string;
   avatarPreview?: string;
   hasChanges: boolean;
+  isSaving: boolean;
   setGroupData: (data: Partial<Omit<InfoEditGroupState, 'setGroupData' | 'resetGroup'>>) => void;
   resetGroup: () => void;
 };
@@ -18,6 +19,7 @@ export const useInfoEditGroupStore = create<InfoEditGroupState>((set) => ({
   avatarUid: undefined,
   avatarPreview: undefined,
   hasChanges: false,
+  isSaving: false,
   setGroupData: (data: Partial<Omit<InfoEditGroupState, 'setGroupData' | 'resetGroup'>>): void =>
     set((state) => ({ ...state, ...data })),
   resetGroup: (): void =>
@@ -28,5 +30,6 @@ export const useInfoEditGroupStore = create<InfoEditGroupState>((set) => ({
       avatarUid: undefined,
       avatarPreview: undefined,
       hasChanges: false,
+      isSaving: false,
     }),
 }));

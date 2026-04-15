@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-socket/use-web-socket-chat';
 import { useGenerateInviteLinkQuery, useGroupOrChanelQuery } from 'modules/info/api/info.query';
 import { useInfoEditGroupStore } from 'modules/info/model/info.edit-group.store';
+import { useInfoStore } from 'modules/info/model/info.store';
 import { EditChatRequestAPI } from 'modules/info/model/info.web-socket.api.schema';
 import { EditChatModal } from 'modules/info/ui/edit-chat-modal';
 import { InfoAvatarUploader } from 'modules/info/ui/info-avatar-uploader';
@@ -21,10 +22,11 @@ export const SettingsPanel = ({
   uid: string;
   wsUrl: string;
   currentUid: string;
-}): JSX.Element => {
+}): JSX.Element | null => {
   const { data: profile, isLoading } = useGroupOrChanelQuery(uid);
   const { mutate: generateLink, data } = useGenerateInviteLinkQuery(uid);
   const { setGroupData, resetGroup, avatarUid, name, description, chatType, hasChanges } = useInfoEditGroupStore();
+  const { isGroupSettingsMode } = useInfoStore();
   const { sendEditGroup } = useWebSocketChat(wsUrl, currentUid);
   const queryClient = useQueryClient();
 
@@ -54,25 +56,32 @@ export const SettingsPanel = ({
     });
   }, [name, description, chatType, avatarUid, profile]);
 
-  const handleSave = (): void => {
-    const requestUid = crypto.randomUUID();
-    const payload: EditChatRequestAPI = {
-      action: 'edit_chat',
-      request_uid: requestUid,
-      object: {
-        chat_key: uid,
-        name: name,
-        description: description,
-        chat_type: chatType,
-        avatar_uid: avatarUid,
-      },
-    };
-    sendEditGroup(payload);
+  const handleSave = async (): Promise<void> => {
+    setGroupData({ isSaving: true });
+    try {
+      const requestUid = crypto.randomUUID();
+      const payload: EditChatRequestAPI = {
+        action: 'edit_chat',
+        request_uid: requestUid,
+        object: {
+          chat_key: uid,
+          name: name,
+          description: description,
+          chat_type: chatType,
+          avatar_uid: avatarUid,
+        },
+      };
 
-    queryClient.refetchQueries({
-      queryKey: ['info', 'group', uid],
-    });
+      await sendEditGroup(payload);
+      await queryClient.refetchQueries({ queryKey: ['info', 'group', uid] });
+    } catch (error) {
+      console.error('Ошибка при сохранении:', error);
+    } finally {
+      setGroupData({ isSaving: false });
+    }
   };
+
+  if (!isGroupSettingsMode) return null;
 
   return (
     <>
