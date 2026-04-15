@@ -24,16 +24,15 @@ export const SettingsPanel = ({
   currentUid: string;
 }): JSX.Element | null => {
   const { data: profile, isLoading } = useGroupOrChanelQuery(uid);
-  const { mutate: generateLink, data } = useGenerateInviteLinkQuery(uid);
+  const { data: link } = useGenerateInviteLinkQuery(uid, {
+    expires_in: 86400,
+  });
   const { setGroupData, resetGroup, avatarUid, name, description, chatType, hasChanges } = useInfoEditGroupStore();
   const { isGroupSettingsMode } = useInfoStore();
   const { sendEditGroup } = useWebSocketChat(wsUrl, currentUid);
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    generateLink({
-      expires_in: 86400,
-    });
     if (!isLoading) {
       setGroupData({
         name: profile?.name,
@@ -94,7 +93,7 @@ export const SettingsPanel = ({
           <InfoNotification chatId={profile?.id} />
           <InfoGroupSummaryEdit />
           <InfoGroupTypeSelect chatType={profile?.chatType as GroupType} />
-          <InfoGroupInviteLink inviteLink={data?.invite_link ?? ''} chatKey={uid} />
+          <InfoGroupInviteLink inviteLink={link?.invite_link ?? ''} chatKey={uid} />
           <InfoGroupSettingsSaveButton label={'Сохранить'} onClick={handleSave} disabled={!hasChanges} />
           <EditChatModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} />
         </>

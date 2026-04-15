@@ -201,29 +201,19 @@ export const useEditChatQuery = (chatId: number): UseMutationResult<ChatPostApiR
 
 export const useGenerateInviteLinkQuery = (
   chatKey: string,
-): UseMutationResult<InviteLinkApiResponse, Error, InviteSettingsPost> => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationKey: ['generate', 'invite', chatKey],
-
-    mutationFn: async (inviteSetting): Promise<InviteLinkApiResponse> => {
-      return await generateInvite(inviteSetting, chatKey);
+  inviteSetting: InviteSettingsPost,
+): UseQueryResult<InviteLinkApiResponse> => {
+  return useQuery({
+    queryKey: ['generate', 'invite', chatKey],
+    queryFn: async ({ signal }) => {
+      console.log('Запрос на генерацию новой ссылки-приглашения');
+      return await generateInvite(inviteSetting, chatKey, { signal });
     },
 
-    onSuccess: () => {
-      console.log('Ссылка сгенерирована');
-    },
-
-    onError: (error: Error) => {
-      console.error('Ошибка POST‑запроса:', error);
-    },
-
-    onSettled: () => {
-      void queryClient.invalidateQueries({
-        queryKey: ['generate', 'invite'],
-      });
-    },
+    enabled: !!chatKey,
+    placeholderData: (previousData) => previousData,
+    staleTime: inviteSetting.expires_in * 1000,
+    retry: false,
   });
 };
 
