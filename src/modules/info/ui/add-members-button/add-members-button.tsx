@@ -13,7 +13,13 @@ export const AddMembersButton = ({
 }): JSX.Element => {
   return (
     <div className={styles.wrapper}>
-      <ButtonUI label={label} variant={'general'} appearance={disabled ? 'disabled' : 'primary'} onClick={onClick} />
+      <ButtonUI
+        label={label}
+        variant={'general'}
+        appearance={disabled ? 'disabled' : 'primary'}
+        disabled={disabled}
+        onClick={onClick}
+      />
     </div>
   );
 };
