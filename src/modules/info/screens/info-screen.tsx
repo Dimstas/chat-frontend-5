@@ -45,10 +45,10 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     clearSelection,
   } = useInfoStore();
   const { clearQuery } = useInfoSearchStore();
+  const { hasChanges } = useInfoEditGroupStore();
   const { sendMembers } = useWebSocketChat(wsUrl, currentUid);
   const { data: profile, isLoading } = useInfoProfileQuery(uid);
   const { participants } = useParticipantsScreen(uid);
-  const { hasChanges } = useInfoEditGroupStore();
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -99,7 +99,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     },
   ];
 
-  if (!profile?.isBlocked) {
+  if (!isGroup && !profile?.isBlocked) {
     contactMenuItems.push({
       label: 'Заблокировать',
       icon: <BlockIcon />,
