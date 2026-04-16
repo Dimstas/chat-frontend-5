@@ -20,6 +20,7 @@ import { AddMembersButton } from '../ui/add-members-button';
 import { InfoHeader } from '../ui/info-header';
 import { InfoLayout } from '../ui/info-layout';
 import { AddMemberPanel } from '../widgets/add-member-panel';
+import { ChannelPanel } from '../widgets/channel-panel';
 import { ContactPanel } from '../widgets/contact-panel';
 import { GroupPanel } from '../widgets/group-panel';
 import { SettingsPanel } from '../widgets/settings-panel';
@@ -62,6 +63,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   }, [uid, setUid]);
 
   const isGroup = uid.startsWith('group');
+  const isChannel = uid.startsWith('channel');
   const participant = participants?.find((p) => p.uid === currentUid);
 
   const groupMenuItems: DropdownItem[] = [
@@ -177,6 +179,33 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
         onSetting={participant?.isOwner ? enterSettingsMode : undefined}
       />,
       <GroupPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />,
+    );
+  }
+
+  if (isChannel) {
+    if (isAddMembersMode) {
+      return renderWithLayout(
+        <InfoHeader title="Добавить подписчиков" backProps={{ icon: <BackIcon />, onClick: handleBack }} />,
+        <AddMemberPanel chatKey={uid} />,
+        <AddMembersButton label="Пригласить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />,
+      );
+    }
+
+    if (isGroupSettingsMode) {
+      return renderWithLayout(
+        <InfoHeader title="Настройки" backProps={{ icon: <BackArrowIcon />, onClick: handleSettingBack }} />,
+        <SettingsPanel uid={uid} wsUrl={wsUrl} currentUid={currentUid} />,
+      );
+    }
+
+    return renderWithLayout(
+      <InfoHeader
+        menuItems={groupMenuItems}
+        title="Информация о канале"
+        onClose={toggleInfoOpen}
+        onSetting={participant?.isOwner ? enterSettingsMode : undefined}
+      />,
+      <ChannelPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />,
     );
   }
 
