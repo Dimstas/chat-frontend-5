@@ -2,7 +2,7 @@
 import clsx from 'clsx';
 import { fileToBase64 } from 'modules/conversation/messages-chat/utils/file-to-base64';
 import { useAttachmentFilesStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
-import { JSX, useEffect, useRef } from 'react';
+import { JSX, useRef } from 'react';
 import File from '../icons/file.svg';
 import Img from '../icons/image.svg';
 import styles from './context-menu-attach-file.module.scss';
@@ -16,15 +16,7 @@ export const ContextMenuAttachFile = ({
 }: ContextMenuAttachFileProps): JSX.Element | null => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const attachmentFilesStore = useAttachmentFilesStore((s) => s.attachmentFiles);
   const setAttachmentFilesStore = useAttachmentFilesStore((s) => s.setAttachmentFiles);
-
-  // Очистка URL объектов
-  useEffect(() => {
-    return (): void => {
-      attachmentFilesStore.forEach((att) => URL.revokeObjectURL(att.preview));
-    };
-  }, [attachmentFilesStore]);
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxSize) {
@@ -52,15 +44,6 @@ export const ContextMenuAttachFile = ({
         console.error(validationError);
         continue;
       }
-      // Проверка на дубликаты
-      const isDuplicate = attachmentFilesStore.some(
-        (att) => att.file.name === file.name && att.file.size === file.size,
-      );
-
-      if (isDuplicate) {
-        console.error(`Файл "${file.name}" уже добавлен`);
-        continue;
-      }
       // Конвертируем в нужный формат
       const fileData = await fileToBase64(file);
       newAttachments.push({
@@ -80,14 +63,6 @@ export const ContextMenuAttachFile = ({
     e.target.value = ''; // Сброс input
     handleCloseMenu(); // закрываем контекстное меню
   };
-
-  // const handleRemoveAttachment = (id: string): void => {
-  //   setAttachmentFilesStore((prev) => {
-  //     const removed = prev.find((att) => att.id === id);
-  //     if (removed) URL.revokeObjectURL(removed.preview);
-  //     return prev.filter((att) => att.id !== id);
-  //   });
-  // };
 
   const triggerFileInput = (): void => {
     fileInputRef.current?.click();

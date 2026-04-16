@@ -311,6 +311,7 @@ type AttachmentFilesState = {
   attachmentFiles: Attachment[];
   setAttachmentFiles: (value: Attachment[] | ((prev: Attachment[]) => Attachment[])) => void;
   clearAttachmentFiles: () => void;
+  deleteAttachmentFiles: (id: string) => void;
 };
 
 export const useAttachmentFilesStore = create<AttachmentFilesState>((set) => ({
@@ -320,6 +321,17 @@ export const useAttachmentFilesStore = create<AttachmentFilesState>((set) => ({
       attachmentFiles: typeof value === 'function' ? value(s.attachmentFiles) : value,
     })),
   clearAttachmentFiles: (): void => set({ attachmentFiles: [] }),
+  deleteAttachmentFiles: (id: string): void =>
+    set((s) => {
+      const prev = s.attachmentFiles;
+      const exists = prev.find((f) => f.id === id);
+      if (exists) {
+        return {
+          attachmentFiles: prev.filter((f) => f.id !== id),
+        };
+      }
+      return { attachmentFiles: [...prev] };
+    }),
 }));
 
 type TextForAttachmentFilesState = {

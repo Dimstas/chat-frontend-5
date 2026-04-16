@@ -48,7 +48,10 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   useEffect(() => {
     textForAttachmentFilesRef.current = textForAttachmentFilesStore;
     attachmentFilesRef.current = attachmentFilesStore;
+    console.log('textForAttachmentFilesRef.current: ', textForAttachmentFilesRef.current);
+    console.log('attachmentFilesRef.current: ', attachmentFilesRef.current);
   }, [textForAttachmentFilesStore, attachmentFilesStore]);
+
   useEffect(() => {
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
