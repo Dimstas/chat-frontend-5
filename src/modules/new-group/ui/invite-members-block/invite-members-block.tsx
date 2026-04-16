@@ -22,6 +22,7 @@ export const InviteMembersBlock = ({ wsUrl }: InviteMembersBlockProps): JSX.Elem
   const selectedUids = useContactsSelectionStore((s) => s.selectedIds);
   const { name, description, chatType, avatarUid, resetGroup } = useNewGroupStore();
   const { createGroup } = useWebSocketCreateGroup(wsUrl);
+  const exitSelectionMode = useContactsSelectionStore((s) => s.exitSelectionMode);
   const router = useRouter();
 
   useEffect(() => {
@@ -52,6 +53,7 @@ export const InviteMembersBlock = ({ wsUrl }: InviteMembersBlockProps): JSX.Elem
       });
 
       resetGroup();
+      exitSelectionMode();
       console.log('созданная группа', result);
       router.push(`/new-group`);
     } catch (error) {

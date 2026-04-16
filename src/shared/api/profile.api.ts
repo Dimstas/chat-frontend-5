@@ -76,11 +76,10 @@ export const uploadAvatar = (file: File): Promise<AvatarUploadResponse> => {
   return apiFetchFormData<AvatarUploadResponse>('/api/proxy/api/v1/auth/messenger/profile/avatar/', formData);
 };
 
-export const deleteProfile = (uid: string): Promise<{ messages: string }> => {
-  console.log('DELETE URL:', `/api/proxy/api/v1/auth/messenger/profile/${encodeURIComponent(uid)}/`);
-  const url = `/api/proxy/api/v1/auth/messenger/profile/${encodeURIComponent(uid)}/`;
+export const deleteProfile = (): Promise<{ messages: string }> => {
+  console.log('DELETE URL: /api/proxy/api/v1/auth/messenger/profile/');
 
-  return apiFetch<{ messages: string }>(url, {
+  return apiFetch<{ messages: string }>('/api/proxy/api/v1/auth/messenger/profile/', {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
