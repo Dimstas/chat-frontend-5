@@ -8,6 +8,8 @@ type InfoState = {
   isForwardModalOpen: boolean;
   isDeleteParticipantModalOpen: boolean;
   isAddMembersMode: boolean;
+  isGroupSettingsMode: boolean;
+  isEditChatModalOpen: boolean;
   isLeaveGroupModalOpen: boolean;
   isDeleteGroupModalOpen: boolean;
   selectedIds: Set<string>;
@@ -31,6 +33,11 @@ type InfoState = {
   closeLeaveGroupModal: () => void;
   openDeleteGroupModal: () => void;
   closeDeleteGroupModal: () => void;
+  openEditChatModal: () => void;
+  closeEditChatModal: () => void;
+
+  enterSettingsMode: () => void;
+  exitSettingsMode: () => void;
 
   enterSelectionMode: () => void;
   exitSelectionMode: () => void;
@@ -44,8 +51,10 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   isUnblockModalOpen: false,
   isClearModalOpen: false,
   isForwardModalOpen: false,
+  isEditChatModalOpen: false,
   isDeleteParticipantModalOpen: false,
   isAddMembersMode: false,
+  isGroupSettingsMode: false,
   isLeaveGroupModalOpen: false,
   isDeleteGroupModalOpen: false,
   selectedIds: new Set(),
@@ -76,6 +85,18 @@ export const useInfoStore = create<InfoState>((set, get) => ({
   closeLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: false }),
   openDeleteGroupModal: (): void => set({ isDeleteGroupModalOpen: true }),
   closeDeleteGroupModal: (): void => set({ isDeleteGroupModalOpen: false }),
+  openEditChatModal: (): void => set({ isEditChatModalOpen: true }),
+  closeEditChatModal: (): void => set({ isEditChatModalOpen: false }),
+
+  enterSettingsMode: (): void =>
+    set({
+      isGroupSettingsMode: true,
+    }),
+
+  exitSettingsMode: (): void =>
+    set({
+      isGroupSettingsMode: false,
+    }),
 
   enterSelectionMode: (): void =>
     set({

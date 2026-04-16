@@ -10,6 +10,7 @@ export type ButtonVariant = keyof AppearanceMap;
 type ButtonAppearance<V extends ButtonVariant> = AppearanceMap[V][number];
 
 export type ButtonProps<V extends ButtonVariant> = ButtonHTMLAttributes<HTMLButtonElement> & {
+  spinner?: boolean;
   label: string;
   variant: V;
   appearance: ButtonAppearance<V>;

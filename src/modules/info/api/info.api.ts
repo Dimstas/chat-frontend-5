@@ -4,6 +4,7 @@ import {
   BlockProfileApiResponse,
   ChatPost,
   ChatPostApiResponse,
+  GroupAvatarApiResponse,
   GroupOrChanelApiResponse,
   InfoProfileApiResponse,
   InviteLinkApiResponse,
@@ -114,5 +115,15 @@ export const getUserForAddList = (params: UserForAddQuery): Promise<UserForAddAp
 
   return apiFetch<UserForAddApiResponse>(`/api/proxy/api/v1/chat/list/users-for-add/?${searchParams.toString()}`, {
     method: 'GET',
+  });
+};
+
+export const updateAvatar = (file: File): Promise<GroupAvatarApiResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return apiFetch<GroupAvatarApiResponse>(`/api/proxy/api/v1/media/upload/group-avatar/`, {
+    method: 'POST',
+    body: formData,
   });
 };
