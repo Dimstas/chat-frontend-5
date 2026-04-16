@@ -5,13 +5,13 @@ import {
   useTextForAttachmentFilesStore,
 } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { JSX, useRef, useState } from 'react';
+import { AutosizeTextarea } from '../../autosize-textarea/autosize-textarea';
 import { EmodjiBlock } from '../../emodji-block/emodji-block';
 import SmailIcon from '../../message-input/icon/smail.svg';
 import VioletSmailIcon from '../../message-input/icon/violet-smail.svg';
 import styles from './alert-attachment-files.module.scss';
 import type {
   AlertAttachmentFilesProps,
-  AlertAutosizeTextareaProps,
   AlertButtonSmailProps,
   AlertMessageInputProps,
 } from './alert-attachment-files.props';
@@ -83,12 +83,15 @@ const AlertMessageInput = ({ textInput, setTextInput }: AlertMessageInputProps):
   };
   return (
     <div className={styles.headerBottomInputBlock}>
-      <AlertAutosizeTextarea
+      <AutosizeTextarea
         id="text"
         name="text"
         placeholder="Добавить подпись"
         value={textInput}
         onChange={(e) => setTextInput(e.target.value)}
+        maxHeight={172}
+        inputRef={inputRef}
+        isScroll={false}
       />
       <ButtonSmail
         buttonRef={buttonRef}
@@ -114,33 +117,5 @@ const ButtonSmail = ({ buttonRef, showEmojiPicker, openEmojiPicker }: AlertButto
     <div className={styles.icon} ref={buttonRef}>
       {showEmojiPicker ? <VioletSmailIcon /> : <SmailIcon onMouseEnter={openEmojiPicker} />}
     </div>
-  );
-};
-
-const AlertAutosizeTextarea = ({ style, onInput, ...props }: AlertAutosizeTextareaProps): JSX.Element => {
-  // вызываем resize при вводе — сохраняем возможность внешнего onInput
-  const handleInput: React.FormEventHandler<HTMLTextAreaElement> = (e) => {
-    if (onInput) onInput(e);
-  };
-  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
-    if (e.key !== 'Enter') return;
-    // Shift+Enter => обычный перенос строки в textarea
-    if (e.shiftKey) return;
-    // Обычный Enter => submit
-    e.preventDefault();
-    // вызвать submit через ближайшую форму
-    const form = e.currentTarget.form;
-    form?.requestSubmit?.(); // modern
-    if (!form?.requestSubmit) form?.submit(); // fallback
-  };
-  return (
-    <textarea
-      className={styles.textarea}
-      rows={1}
-      style={{ resize: 'none', ...style }}
-      onInput={handleInput}
-      onKeyDown={handleKeyDown}
-      {...props}
-    />
   );
 };

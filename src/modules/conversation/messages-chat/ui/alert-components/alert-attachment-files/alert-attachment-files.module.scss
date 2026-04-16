@@ -129,29 +129,7 @@
   background-color: var(--surface-base);
   overflow: hidden;
 }
-.textarea {
-  @include mixins.flex-box($justify: start, $align: flex-end);
-  width: 100%;
-  height: auto;
-  max-height: 17.2rem;
-  font-weight: 400;
-  font-size: 1.6rem;
-  line-height: 1.3;
-  letter-spacing: 0.01rem;
-  overflow-y: hidden;
-  resize: none;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
 
-  &::placeholder {
-    font-weight: 400;
-    font-size: 1.6rem;
-    line-height: 1.3;
-    letter-spacing: 0.01rem;
-    color: var(--text-secondary);
-  }
-}
 .headerBottomInputBlockIcon {
   @include mixins.flex-box();
   width: 2rem;
