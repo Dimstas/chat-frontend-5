@@ -87,6 +87,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       const adjustedY = y - menuHeight - 10;
       setContextMenuPos({ x: adjustedX, y: adjustedY });
       setContextMenuVisible(true);
+      setTextInput('');
     }
   };
   const handleCloseMenu = (): void => {
@@ -100,6 +101,8 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       isAttachmentFiles: true,
     });
     if (ok) {
+      console.log('textForAttachmentFilesRef.current: ', textForAttachmentFilesRef.current);
+      console.log('attachmentFilesRef.current: ', attachmentFilesRef.current);
       sendMessage(textForAttachmentFilesRef.current);
       clearAttachmentFilesStore();
       clearTextForAttachmentFilesStore();
