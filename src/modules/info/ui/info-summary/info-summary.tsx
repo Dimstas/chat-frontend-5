@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX } from 'react';
 import CopiedIcon from '../../../notification/ui/notification-modal/icons/copied.svg';
-import CopyIcon from './icons/copy.svg';
+import CopyIcon from '../../shared/icons/copy.svg';
 import styles from './info-summary.module.scss';
 import { InfoSummaryProps } from './info-summary.props';
 

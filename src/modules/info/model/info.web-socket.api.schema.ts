@@ -25,3 +25,19 @@ export const serializerRequestLeaveGroupApiSchema = z.object({
 
 export type LeaveGroupRequestAPI = z.infer<typeof serializerRequestLeaveGroupApiSchema>;
 export type DeleteGroupRequestAPI = z.infer<typeof serializerRequestLeaveGroupApiSchema>;
+
+const serializerRequestObjectEditChatApiSchema = z.object({
+  chat_key: z.string(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  avatar_uid: z.string().optional(),
+  chat_type: z.enum(['chat', 'public-group', 'private-group', 'public-channel', 'private-channel']).optional(),
+});
+
+export const serializerRequestEditChat = z.object({
+  action: z.enum(['edit_chat']),
+  request_uid: z.string(),
+  object: serializerRequestObjectEditChatApiSchema,
+});
+
+export type EditChatRequestAPI = z.infer<typeof serializerRequestEditChat>;

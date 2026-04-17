@@ -1,8 +1,9 @@
+import { useInfoEditGroupStore } from 'modules/info/model/info.edit-group.store';
 import { JSX } from 'react';
 import { ButtonUI } from 'shared/ui';
-import styles from './add-members-button.module.scss';
+import styles from './info-group-settings-save-button.module.scss';
 
-export const AddMembersButton = ({
+export const InfoGroupSettingsSaveButton = ({
   label,
   onClick,
   disabled,
@@ -11,14 +12,16 @@ export const AddMembersButton = ({
   onClick: () => void;
   disabled: boolean;
 }): JSX.Element => {
+  const { isSaving } = useInfoEditGroupStore();
   return (
     <div className={styles.wrapper}>
       <ButtonUI
+        spinner={isSaving}
         label={label}
         variant={'general'}
         appearance={disabled ? 'disabled' : 'primary'}
-        disabled={disabled}
         onClick={onClick}
+        disabled={disabled || isSaving}
       />
     </div>
   );
