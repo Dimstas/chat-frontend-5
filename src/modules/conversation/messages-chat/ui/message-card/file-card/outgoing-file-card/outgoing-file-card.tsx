@@ -1,32 +1,38 @@
 'use client';
+
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import {
+  useForAllDeleteStore,
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
 } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
-import { ContextMenu } from '../../context-menu/context-menu';
-import { HighlightedMessage } from '../../search-messages/highlighted-message/highlighted-message';
-import { ForvardCard } from '../forward-card/forward-card';
-import { MessageCheckBox } from '../message-checkbox/message-checkbox';
-import { ReplyCard } from '../reply-card/reply-card';
-import styles from './incoming-message-card.module.scss';
-import type { IncomingMessageCardProps } from './incoming-message.props';
+import { ContextMenu } from '../../../context-menu/context-menu';
+import { ForvardCard } from '../../forward-card/forward-card';
+import CheckOneIcon from '../../icons/check-one.svg';
+import CheckTwoIcon from '../../icons/check-two.svg';
+import WatchIcon from '../../icons/watch.svg';
+import { MessageCheckBox } from '../../message-checkbox/message-checkbox';
+import { ReplyCard } from '../../reply-card/reply-card';
+import { HighlightedFileName } from '../highlighted-file-name/highlighted-file-name';
+import DeleteFileIcon from '../icons/delete-file-icon.svg';
+import FileIcon from '../icons/file-icon.svg';
+import styles from './outgoing-file-card.module.scss';
+import { OutgoingFileCardProps } from './outgoing-file-card.props';
 
-export const IncomingMessagesCard = ({
+export const OutgoingFileCard = ({
   message,
-  register,
   sendDeleteMessage,
   search,
   isHighlighted,
-}: IncomingMessageCardProps): JSX.Element => {
+}: OutgoingFileCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
-
   const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
     event.preventDefault();
     const menuWidth = 250;
@@ -47,27 +53,27 @@ export const IncomingMessagesCard = ({
   };
 
   const { confirm } = useAlert();
+  const forAllDeleteStore = useForAllDeleteStore((s) => s.forAllDelete);
+  const forAllDeleteRef = useRef<boolean>(forAllDeleteStore);
   const selectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
     (s) => s.selectedUidUserForForwardMessage,
   );
   const selectedUidUserForForwardMessageRef = useRef<string>(selectedUidUserForForwardMessageStore);
   const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
   useEffect(() => {
+    forAllDeleteRef.current = forAllDeleteStore;
     selectedUidUserForForwardMessageRef.current = selectedUidUserForForwardMessageStore;
-  }, [selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
+  }, [forAllDeleteRef, forAllDeleteStore, selectedUidUserForForwardMessageStore, selectedUidUserForForwardMessageRef]);
 
   const handleDeleteClick = async (): Promise<void> => {
     const ok = await confirm({
       title: 'Удалить сообщение',
       message: 'Вы действительно хотите удалить сообщение?',
-      showCheckBox: false,
+      showCheckBox: true,
+      labelCheckBox: `Удалить у меня и у ${message.to_user?.first_name !== '' ? message.to_user?.first_name : message.to_user?.nickname}`,
     });
-
-    if (ok) {
-      // вызываем переданный обработчик удаления
-      sendDeleteMessage(message);
-    } else {
-      // отмена — ничего не делаем
+    if (ok && forAllDeleteRef.current !== null) {
+      sendDeleteMessage(message, forAllDeleteRef.current);
     }
   };
   const setForwardMessageStore = useForwardMessageStore((s) => s.setForwardMessage);
@@ -85,12 +91,11 @@ export const IncomingMessagesCard = ({
       router.push(`/chats/${selectedUidUserForForwardMessageRef.current}`);
     }
   };
-  // выясняем является ли "message" в массиве выбранных сообщений ("selectedMessagesStore")
+  // выясняем имеется ли "message" в массиве выбранных сообщений ("selectedMessagesStore")
   const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
   const addSelectedMessagesStore = useSelectedMessagesStore((s) => s.addSelectedMessages);
   const deleteSelectedMessagesStore = useSelectedMessagesStore((s) => s.deleteSelectedMessages);
   const [selected, setSelected] = useState<boolean>(true);
-
   const has = selectedMessagesStore?.some((selectedMessage) => selectedMessage.uid === message.uid);
 
   const handleCheckBoxClick = (): void => {
@@ -104,6 +109,12 @@ export const IncomingMessagesCard = ({
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
 
+  //выясняем картинка это или файл по расширению в названии файла (если true - картинка)
+  const fileImage = ['.jpeg', '.png', '.gif', '.webp', '.jpg'];
+  const isFileImage = fileImage.some((word) =>
+    message.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+  );
+
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
@@ -113,9 +124,6 @@ export const IncomingMessagesCard = ({
         className={styles.wrapper}
         onContextMenu={!checkBoxsVisibleStore ? handleContextMenu : (): void => {}}
         onMouseLeave={handleCloseMenu}
-        ref={(el) => {
-          register(el, message);
-        }}
       >
         <ContextMenu
           position={contextMenuPos}
@@ -126,14 +134,39 @@ export const IncomingMessagesCard = ({
           message={message}
         />
         <div className={styles.item}>
-          {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
+          {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={false} />}
           {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
-          <div className={styles.message}>
-            <span className={styles.messageText}>
-              <HighlightedMessage text={message.content ?? ''} search={search} />
-            </span>
-            <div className={styles.messageSentTime}>
-              <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
+          <div className={styles.contentBlock}>
+            <div className={styles.fileIcon}>
+              {message.status === 'pending' || message.status === 'failed' ? (
+                <DeleteFileIcon />
+              ) : isFileImage ? (
+                <Image
+                  key={message.files_list[0].uid}
+                  src={message.files_list[0].file_url}
+                  alt={message.files_list[0].download_name}
+                  width={48}
+                  height={48}
+                />
+              ) : (
+                <FileIcon />
+              )}
+            </div>
+            <div className={styles.fileInfo}>
+              <div className={styles.fileName}>
+                <HighlightedFileName fileName={message.files_list[0].download_name} search={search} />
+              </div>
+              <div className={styles.fileSizeAndMessageTimeBlock}>
+                <div className={styles.fileSize}>5.2 MБ</div>
+                <div className={styles.messageTimeAndChatIcons}>
+                  <div className={styles.messageTime}>{getMessageTime(message.created_at)}</div>
+                  <div className={styles.messageChatIcons}>
+                    {message.status === 'sent' && message.new === true && <CheckOneIcon />}
+                    {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
+                    {message.new === false && <CheckTwoIcon />}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

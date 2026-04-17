@@ -82,9 +82,12 @@ const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardP
     (s) => s.setSelectedUidUserForForwardMessage,
   );
   const handlerOnClick = (): void => {
-    setSelectedUidUserForForwardMessageStore(chat.peer.uid);
+    if (chat.chat.chatType === 'chat') {
+      setSelectedUidUserForForwardMessageStore(chat.peer.uid);
+    } else {
+      setSelectedUidUserForForwardMessageStore(`group_${chat.peer.uid}`);
+    }
     clearSearch?.();
-
     onOk();
   };
   return (

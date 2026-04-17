@@ -150,11 +150,9 @@ const ButtonSmail = ({ buttonRef, showEmojiPicker, openEmojiPicker }: AlertButto
 };
 const PreviewFileCard = ({ file }: { file: Attachment }): JSX.Element => {
   const deleteAttachmentFilesStore = useAttachmentFilesStore((s) => s.deleteAttachmentFiles);
-  //выясняем картинка это или файл по расширению в названии файла
+  //выясняем картинка это или файл по расширению в названии файла (если true - картинка)
   const fileExtension = ['.jpeg', '.png', '.gif', '.webp', '.jpg'];
-  const hasFileExtension = fileExtension.some((word) =>
-    file.fileData.filename.toLowerCase().includes(word.toLowerCase()),
-  );
+  const isFileImage = fileExtension.some((word) => file.fileData.filename.toLowerCase().includes(word.toLowerCase()));
   // Функция для получения размера в МБ
   const getFileSizeInMB = (attachment: Attachment): number => {
     const sizeInBytes = attachment.file.size;
@@ -167,7 +165,7 @@ const PreviewFileCard = ({ file }: { file: Attachment }): JSX.Element => {
       <div className={styles.previewFileCardContent}>
         <div className={styles.previewFileCardContentAvatar}>
           <div className={styles.previewFileCardContentAvatar}>
-            {hasFileExtension ? (
+            {isFileImage ? (
               <Image key={file.id} src={file.preview} alt={file.fileData.filename} width={48} height={48} />
             ) : (
               <File />

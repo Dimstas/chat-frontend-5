@@ -21,14 +21,21 @@ import {
   serializerRequestCreatingMessageApiSchema,
   serializerRequestDeleteMessageApiSchema,
 } from '../../model/messages-list';
+import type { Attachment } from '../../ui/context-menu/context-menu-attach-file/context-menu-attach-file.props';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 
 type UseWebSocketChat = {
-  sendMessage: (
-    content: string,
-    repliedMessageStore?: RestMessageApi | null | undefined,
-    forwardMessageStore?: RestMessageApi | null | undefined,
-  ) => void;
+  sendMessage: ({
+    content,
+    repliedMessage,
+    forwardMessage,
+    file,
+  }: {
+    content: string;
+    repliedMessage?: RestMessageApi | null | undefined;
+    forwardMessage?: RestMessageApi | null | undefined;
+    file?: Attachment | null | undefined;
+  }) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendMembers: (payload: AddOrRemoveMembersRequestAPI) => void;
   sendLeaveGroup: (payload: LeaveGroupRequestAPI) => void;
@@ -310,14 +317,19 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция отправки сообщения
   const sendMessage = useCallback(
-    (
-      content: string,
-      repliedMessageStore?: RestMessageApi | null | undefined,
-      forwardMessageStore?: RestMessageApi | null | undefined,
-    ): void => {
+    ({
+      content,
+      repliedMessage,
+      forwardMessage,
+      file,
+    }: {
+      content: string;
+      repliedMessage?: RestMessageApi | null | undefined;
+      forwardMessage?: RestMessageApi | null | undefined;
+      file?: Attachment | null | undefined;
+    }): void => {
       if (!content.trim()) return;
       const requestUid = crypto.randomUUID();
-
       // выясняем это простой чат либо группа (если true то группа)
       const has = userIdRef.current.includes('group_');
       //создаем в DOM временное сообщение-заглушку для помещения в список сообщений
@@ -357,37 +369,54 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         },
         status: 'pending',
       };
-      if (repliedMessageStore) {
+      if (repliedMessage) {
         tempMessage.replied_messages = [
           {
-            id: repliedMessageStore.id,
-            uid: repliedMessageStore.uid,
+            id: repliedMessage.id,
+            uid: repliedMessage.uid,
             is_deleted: false,
-            from_user: repliedMessageStore.from_user.uid,
-            first_name: repliedMessageStore.from_user.first_name ?? '',
-            last_name: repliedMessageStore.from_user.last_name ?? '',
-            content: repliedMessageStore.content,
+            from_user: repliedMessage.from_user.uid,
+            first_name: repliedMessage.from_user.first_name ?? '',
+            last_name: repliedMessage.from_user.last_name ?? '',
+            content: repliedMessage.content,
             files_list: [],
           },
         ];
       }
-      if (forwardMessageStore) {
+      if (forwardMessage) {
         tempMessage.forwarded_messages = [
           {
-            id: forwardMessageStore.id,
-            uid: forwardMessageStore.uid,
+            id: forwardMessage.id,
+            uid: forwardMessage.uid,
             is_deleted: false,
-            from_user: forwardMessageStore.from_user.uid,
-            first_name: forwardMessageStore.from_user.first_name ?? '',
-            last_name: forwardMessageStore.from_user.last_name ?? '',
-            content: forwardMessageStore.content,
+            from_user: forwardMessage.from_user.uid,
+            first_name: forwardMessage.from_user.first_name ?? '',
+            last_name: forwardMessage.from_user.last_name ?? '',
+            content: forwardMessage.content,
             files_list: [],
-            avatar_webp_url: forwardMessageStore.from_user.avatar_webp_url,
+            avatar_webp_url: forwardMessage.from_user.avatar_webp_url,
           },
         ];
       }
-      // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
+      if (file) {
+        tempMessage.files_list = [
+          {
+            id: 0,
+            uid: file.id,
+            download_name: file.fileData.filename,
+            media_kind: '',
+            file_url: file.preview,
+            file_protected_url: '',
+            file_webp_url: '',
+            file_small_url: '',
+            file_type: '',
+            created_at: '',
+            updated_at: '',
+          },
+        ];
+      }
 
+      // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
       addMessageForUser(userIdRef.current, tempMessage);
 
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
@@ -397,23 +426,26 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         object: {
           content,
           status: 'publish',
+          files: [],
           replied_messages: [],
           forwarded_messages: [],
         },
       };
 
-      if (repliedMessageStore) {
-        payloadMessage.object.replied_messages = [repliedMessageStore.uid];
-      }
-      if (forwardMessageStore) {
-        payloadMessage.object.forwarded_messages = [forwardMessageStore.uid];
-      }
       if (has) {
         payloadMessage.object.chat_key = userIdRef.current;
       } else {
         payloadMessage.object.to_user_uid = userIdRef.current;
       }
-
+      if (repliedMessage) {
+        payloadMessage.object.replied_messages = [repliedMessage.uid];
+      }
+      if (forwardMessage) {
+        payloadMessage.object.forwarded_messages = [forwardMessage.uid];
+      }
+      if (file) {
+        payloadMessage.object.files = [file.fileData];
+      }
       //валидация c помощью zod
       const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);
 

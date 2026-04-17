@@ -48,8 +48,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   useEffect(() => {
     textForAttachmentFilesRef.current = textForAttachmentFilesStore;
     attachmentFilesRef.current = attachmentFilesStore;
-    console.log('textForAttachmentFilesRef.current: ', textForAttachmentFilesRef.current);
-    console.log('attachmentFilesRef.current: ', attachmentFilesRef.current);
   }, [textForAttachmentFilesStore, attachmentFilesStore]);
 
   useEffect(() => {
@@ -60,13 +58,13 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
-    sendMessage(textInput, repliedMessageStore);
+    sendMessage({ content: textInput, repliedMessage: repliedMessageStore });
     if (forwardMessageStore) {
-      sendMessage(forwardMessageStore?.content ?? '', repliedMessageStore, forwardMessageStore);
+      sendMessage({ content: forwardMessageStore?.content ?? '', forwardMessage: forwardMessageStore });
     }
     if (selectedMessagesStore && selectedMessagesStore.length) {
-      selectedMessagesStore.forEach((m) => {
-        sendMessage(m.content ?? '', repliedMessageStore, m);
+      selectedMessagesStore.forEach((msg) => {
+        sendMessage({ content: msg.content ?? '', forwardMessage: msg });
       });
     }
     clearForwardMessageStore();
@@ -106,7 +104,13 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     if (ok) {
       console.log('textForAttachmentFilesRef.current: ', textForAttachmentFilesRef.current);
       console.log('attachmentFilesRef.current: ', attachmentFilesRef.current);
-      sendMessage(textForAttachmentFilesRef.current);
+      sendMessage({ content: textForAttachmentFilesRef.current });
+      if (attachmentFilesRef.current && attachmentFilesRef.current.length) {
+        attachmentFilesRef.current.forEach((attachmentFile) => {
+          console.log('attachmentFile: ', attachmentFile);
+          sendMessage({ content: textForAttachmentFilesRef.current, file: attachmentFile });
+        });
+      }
       clearAttachmentFilesStore();
       clearTextForAttachmentFilesStore();
     } else {
