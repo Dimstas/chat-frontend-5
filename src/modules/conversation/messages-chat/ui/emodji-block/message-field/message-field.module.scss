@@ -13,15 +13,7 @@
   background-color: var(--surface-base);
 }
 
-.violetIconContainer {
-  @include mixins.flex-box();
-  width: 3.2rem;
-  height: 3.2rem;
-  padding: 0 0.2rem;
-  color: var(--brand-secondary);
-}
-
-.grayIconContainer {
+.iconContainer {
   @include mixins.flex-box();
   width: 3.2rem;
   height: 3.2rem;
@@ -29,7 +21,11 @@
   color: var(--text-secondary);
 }
 
-.grayIconContainer:hover {
-  stroke: var(--brand-secondary);
-  stroke-width: 0.5;
+.iconContainerActive {
+  @include mixins.flex-box();
+  width: 3.2rem;
+  height: 3.2rem;
+  padding: 0 0.2rem;
+  color: var(--text-secondary);
+  color: var(--brand-secondary);
 }

@@ -75,6 +75,7 @@ export const MessageInput = ({ textInput, setTextInput, inputRef }: MessageInput
           onChange={(e) => setTextInput(e.target.value)}
           maxHeight={472}
           inputRef={inputRef}
+          isScroll={true}
         />
       </div>
       <ButtonSmail

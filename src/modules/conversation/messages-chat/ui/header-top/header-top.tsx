@@ -1,5 +1,6 @@
 'use client';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
+import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX, useEffect, useState } from 'react';
@@ -20,6 +21,7 @@ import { SearchMessages } from '../search-messages/search/search-messages';
 import styles from './header-top.module.scss';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
+
 const URL_DEFAULT_Avatar = '/images/messages-chats/default-avatar.svg';
 
 export const HeaderTop = ({
@@ -54,7 +56,6 @@ export const HeaderTop = ({
   const [searchMessagesVisible, setSearchMessagesVisible] = useState<boolean>(false);
   const searchIndicatorStore = useSearchIndicatorStore((s) => s.searchIndicator);
   const searchMessagesStore = useSearchMessagesStore((s) => s.searchMessages);
-
   useEffect(() => {
     if (isBlocked && isInContacts) {
       closeButtonMenu();
@@ -62,6 +63,7 @@ export const HeaderTop = ({
       openButtonMenu();
     }
   }, [closeButtonMenu, openButtonMenu, isBlocked, isInContacts, user_uid]);
+  const { contacts } = useContactsScreen();
 
   return (
     <div className={styles.wrapper}>
@@ -91,20 +93,22 @@ export const HeaderTop = ({
           </>
         )}
       </div>
-      {searchIndicatorStore && searchMessagesStore && (
+      {searchMessagesStore && (
         <SearchResultCard
-          currentSearchIndex={searchIndicatorStore.currentSearchIndex}
-          lastSearchIndex={searchIndicatorStore.lastSearchIndex}
+          currentSearchIndex={searchIndicatorStore?.currentSearchIndex ?? 0}
+          lastSearchIndex={searchIndicatorStore?.lastSearchIndex ?? 0}
         />
       )}
-      <HeaderTopButtonsBlock
-        wsUrl={wsUrl}
-        nickname={nickname ?? ''}
-        currentUid={currentUid}
-        chatKey={user_uid}
-        isBlocked={isBlocked}
-        isInContact={isInContacts}
-      />
+      {!contacts?.some((c) => c.uid === user_uid) && (
+        <HeaderTopButtonsBlock
+          wsUrl={wsUrl}
+          nickname={nickname ?? ''}
+          currentUid={currentUid}
+          chatKey={user_uid}
+          isBlocked={isBlocked}
+          isInContact={isInContacts}
+        />
+      )}
       {isModalOpen && <NotificationModal />}
       {isBlockModalOpen && <BlockModal />}
       {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}

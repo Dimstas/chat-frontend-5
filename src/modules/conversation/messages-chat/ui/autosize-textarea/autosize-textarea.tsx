@@ -7,35 +7,41 @@ export const AutosizeTextarea = ({
   style,
   onInput,
   inputRef,
+  isScroll,
   ...props
 }: AutosizeTextareaProps): JSX.Element => {
   //const ref = useRef<HTMLTextAreaElement | null>(null);
-  const resize = useCallback(() => {
-    const el = inputRef.current;
-    if (!el) return;
-    // сброс высоты чтобы правильно вычислить scrollHeight
-    el.style.height = 'auto';
-    const scrollHeight = el.scrollHeight;
-    const newHeight = Math.min(scrollHeight, maxHeight);
-    el.style.height = `${newHeight}px`;
-    // при достижении maxHeight включаем вертикальную прокрутку, иначе скрываем полосу
-    el.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-  }, [maxHeight, inputRef]);
+  const resize = useCallback(
+    (isScroll: boolean) => {
+      const el = inputRef.current;
+      if (!el) return;
+      // сброс высоты чтобы правильно вычислить scrollHeight
+      el.style.height = 'auto';
+      const scrollHeight = el.scrollHeight;
+      const newHeight = Math.min(scrollHeight, maxHeight);
+      el.style.height = `${newHeight}px`;
+      // при достижении maxHeight включаем вертикальную прокрутку, иначе скрываем полосу
+      if (isScroll) {
+        el.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
+      }
+    },
+    [maxHeight, inputRef],
+  );
 
   useEffect(() => {
-    resize(); // подгонка при монтировании/значениях по умолчанию
+    resize(isScroll); // подгонка при монтировании/значениях по умолчанию
     // также подгоняем при ресайзе окна (опционально)
-    window.addEventListener('resize', resize);
-    return (): void => window.removeEventListener('resize', resize);
+    window.addEventListener('resize', () => resize(isScroll));
+    return (): void => window.removeEventListener('resize', () => resize(isScroll));
   }, [resize]);
 
   // вызываем resize при вводе — сохраняем возможность внешнего onInput
   const handleInput: React.FormEventHandler<HTMLTextAreaElement> = (e) => {
-    resize();
+    resize(isScroll);
     if (onInput) onInput(e);
   };
   useEffect(() => {
-    resize();
+    resize(isScroll);
   }, [props.value, resize]);
 
   const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (e) => {
