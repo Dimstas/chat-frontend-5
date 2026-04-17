@@ -15,6 +15,7 @@ import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
 import DeleteIcon from '../shared/icons/delete-outline.svg';
 import ForwardIcon from '../shared/icons/forward.svg';
+import LeaveIconRed from '../shared/icons/leave-red.svg';
 import LeaveIcon from '../shared/icons/leave.svg';
 import { AddMembersButton } from '../ui/add-members-button';
 import { InfoHeader } from '../ui/info-header';
@@ -58,7 +59,6 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     return (): void => {
       exitSettingsMode();
       clearSelection();
-      exitSelectionMode();
     };
   }, [uid, setUid]);
 
@@ -82,6 +82,31 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     });
     groupMenuItems.push({
       label: 'Удалить группу',
+      icon: <DeleteIcon />,
+      variant: 'alert',
+      onClick: openDeleteGroupModal,
+    });
+  }
+
+  const channelMenuItems: DropdownItem[] = [];
+
+  if (isChannel && !participant?.isOwner) {
+    channelMenuItems.push({
+      label: 'Покинуть канал',
+      icon: <LeaveIconRed />,
+      variant: 'alert',
+      onClick: openLeaveGroupModal,
+    });
+  }
+
+  if (isChannel && participant?.isOwner) {
+    channelMenuItems.unshift({
+      label: 'Очистить канал',
+      icon: <ClearIcon />,
+      onClick: openClearModal,
+    });
+    channelMenuItems.push({
+      label: 'Удалить канал',
       icon: <DeleteIcon />,
       variant: 'alert',
       onClick: openDeleteGroupModal,
@@ -185,9 +210,9 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
   if (isChannel) {
     if (isAddMembersMode) {
       return renderWithLayout(
-        <InfoHeader title="Добавить подписчиков" backProps={{ icon: <BackIcon />, onClick: handleBack }} />,
+        <InfoHeader title="Пригласить подписчиков" backProps={{ icon: <BackIcon />, onClick: handleBack }} />,
         <AddMemberPanel chatKey={uid} />,
-        <AddMembersButton label="Пригласить в группу" onClick={handleAddMembers} disabled={selectedIds.size === 0} />,
+        <AddMembersButton label="Добавить в канал" onClick={handleAddMembers} disabled={selectedIds.size === 0} />,
       );
     }
 
@@ -200,7 +225,7 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
 
     return renderWithLayout(
       <InfoHeader
-        menuItems={groupMenuItems}
+        menuItems={channelMenuItems}
         title="Информация о канале"
         onClose={toggleInfoOpen}
         onSetting={participant?.isOwner ? enterSettingsMode : undefined}
