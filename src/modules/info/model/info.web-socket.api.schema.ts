@@ -41,3 +41,16 @@ export const serializerRequestEditChat = z.object({
 });
 
 export type EditChatRequestAPI = z.infer<typeof serializerRequestEditChat>;
+
+const clearGroupMessagesObjectSerializer = z.object({
+  chat_key: z.string(),
+  confirm: z.boolean(),
+});
+
+export const serializerRequestClearGroupMessages = z.object({
+  action: z.enum(['clear_group_messages']),
+  request_uid: z.string(),
+  object: clearGroupMessagesObjectSerializer,
+});
+
+export type ClearGroupRequestAPI = z.infer<typeof serializerRequestClearGroupMessages>;

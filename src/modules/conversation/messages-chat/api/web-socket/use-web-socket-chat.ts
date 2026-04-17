@@ -2,10 +2,12 @@
 
 import {
   AddOrRemoveMembersRequestAPI,
+  ClearGroupRequestAPI,
   DeleteGroupRequestAPI,
   EditChatRequestAPI,
   LeaveGroupRequestAPI,
   serializerRequestApiSchema,
+  serializerRequestClearGroupMessages,
   serializerRequestEditChat,
   serializerRequestLeaveGroupApiSchema,
 } from 'modules/info/model/info.web-socket.api.schema';
@@ -34,6 +36,7 @@ type UseWebSocketChat = {
   sendLeaveGroup: (payload: LeaveGroupRequestAPI) => void;
   sendDeleteGroup: (payload: DeleteGroupRequestAPI) => void;
   sendEditGroup: (payload: EditChatRequestAPI) => void;
+  sendClearGroup: (payload: ClearGroupRequestAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
@@ -488,6 +491,17 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     }
   };
 
+  // Очистка сообщений группы / канала
+  const sendClearGroup = (payload: ClearGroupRequestAPI): void => {
+    const resultZod = serializerRequestClearGroupMessages.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send to server crear group: ', payload);
+    }
+  };
+
   // Функция отправки сообщения на изменение статуса прочитки входящего сообщения
   const sendChangeStatusReadMessage = useCallback(
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
@@ -585,6 +599,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     sendLeaveGroup,
     sendDeleteGroup,
     sendEditGroup,
+    sendClearGroup,
     sendChangeStatusReadMessage,
     sendDeleteMessage,
   };
