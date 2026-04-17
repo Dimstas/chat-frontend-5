@@ -63,3 +63,21 @@
   gap: 0.8rem;
   height: 3.2rem;
 }
+
+.checkboxContainer {
+  @include mixins.flex-box($align: center, $justify: start, $gap: 0.8rem);
+  margin-bottom: 2rem;
+}
+
+.checkbox {
+  cursor: pointer;
+}
+
+.checkboxText {
+  font-family: Roboto;
+  font-weight: 400;
+  font-style: Regular;
+  font-size: 14px;
+  line-height: 120%;
+  letter-spacing: 1%;
+}

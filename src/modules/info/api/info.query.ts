@@ -44,7 +44,7 @@ export const useInfoProfileQuery = (id: string): UseQueryResult<ProfileInfo> => 
 
     select: (data) => mapInfoProfileFromApi(data),
 
-    enabled: !!id && !id.startsWith('group'),
+    enabled: !!id && !id.startsWith('group') && !id.startsWith('channel'),
     placeholderData: (previousData) => previousData,
     staleTime: 5 * 60 * 1000,
   });
@@ -246,7 +246,7 @@ export const useParticipantsQuery = (
       return Number(url.searchParams.get('page'));
     },
 
-    enabled: !!chatKey && chatKey.startsWith('group'),
+    enabled: !!chatKey && (chatKey.startsWith('group') || chatKey.startsWith('channel')),
   });
 };
 

@@ -19,6 +19,7 @@ type InfoState = {
   setChatId: (id: number) => void;
   uidToDelete: string | undefined;
   toggleInfoOpen: () => void;
+  closeInfoScreen: () => void;
   openBlockModal: () => void;
   closeBlockModal: () => void;
   openUnblockModal: () => void;
@@ -71,6 +72,7 @@ export const useInfoStore = create<InfoState>((set, get) => ({
     const state = get();
     set({ isInfoOpen: !state.isInfoOpen });
   },
+  closeInfoScreen: (): void => set({ isInfoOpen: false }),
   openBlockModal: (): void => set({ isBlockModalOpen: true }),
   closeBlockModal: (): void => set({ isBlockModalOpen: false }),
   openUnblockModal: (): void => set({ isUnblockModalOpen: true }),

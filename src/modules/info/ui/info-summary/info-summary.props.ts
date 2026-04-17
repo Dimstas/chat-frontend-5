@@ -5,5 +5,6 @@ export type InfoSummaryProps = {
   about?: string;
   description?: string;
   inviteLink?: string;
+  inviteLinkChannel?: string;
   chatKey?: string;
 };

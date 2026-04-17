@@ -38,8 +38,11 @@ export const HeaderTop = ({
   const { isModalOpen } = useNotificationStore();
   const { isBlockModalOpen, isAddModalOpen, isLeaveGroupModalOpen, closeButtonMenu, openButtonMenu } =
     useHeaderButtonsModalStore();
-  const isGroup = user_uid.startsWith('group');
-  const chat = isGroup ? chats.find((c) => c.chat.chatKey === user_uid) : chats.find((c) => c.peer.uid === user_uid);
+
+  const isGroupOrChannel = user_uid.startsWith('group') || user_uid.startsWith('channel');
+  const chat = isGroupOrChannel
+    ? chats.find((c) => c.chat.chatKey === user_uid)
+    : chats.find((c) => c.peer.uid === user_uid);
   const {
     avatarUrl = '',
     firstName = '',
@@ -78,7 +81,7 @@ export const HeaderTop = ({
         ) : (
           <>
             <div className={styles.info} onClick={() => toggleInfoOpen()}>
-              <span className={styles.name}>{isGroup ? chat?.chat.name : `${firstName} ${lastName}`}</span>
+              <span className={styles.name}>{isGroupOrChannel ? chat?.chat.name : `${firstName} ${lastName}`}</span>
               <span className={styles.status}>{status}</span>
             </div>
             <div className={styles.icon} onClick={() => setSearchMessagesVisible(true)}>

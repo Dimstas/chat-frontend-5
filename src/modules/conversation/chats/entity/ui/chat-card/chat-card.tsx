@@ -9,6 +9,7 @@ import { JSX } from 'react';
 import { CardHeaderMeta } from './card-header-meta';
 import { CardNewMessageMeta } from './card-new-message-meta';
 import { CardPreview } from './card-preview';
+import { CHAT_TYPE_PREFIXES } from './chat-card.constant';
 import styles from './chat-card.module.scss';
 import { MutedIcon } from './icons';
 
@@ -30,7 +31,8 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   } = messages || {};
 
   const pathname = usePathname();
-  const isSelected = pathname === `/chats/${chat.chatType === 'chat' ? peer.uid : `group_${peer.uid}`}`;
+  const prefix = CHAT_TYPE_PREFIXES[chat.chatType];
+  const isSelected = pathname === `/chats/${chat.chatType === 'chat' ? peer.uid : `${prefix}_${peer.uid}`}`;
   const hasNewMessages = lastMessageUid !== uid && lastSeenMessage?.id !== lastMessageId;
 
   const handleClick = (): void => {
@@ -46,7 +48,7 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
       notifications={notifications}
       isInContacts={peer.isInContacts}
       isFavorite={chat.is_favorite}
-      href={`/chats/${chat.chatType === 'chat' ? peer.uid : `group_${peer.uid}`}`}
+      href={`/chats/${chat.chatType === 'chat' ? peer.uid : `${prefix}_${peer.uid}`}`}
       hasContextMenu={true}
       imageOptions={{
         src: peer.avatarUrl,

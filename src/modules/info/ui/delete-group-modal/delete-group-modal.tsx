@@ -14,10 +14,11 @@ type DeleteGroupModalProps = {
 };
 
 export const DeleteGroupModal = ({ wsUrl, currentUid, chatKey, name }: DeleteGroupModalProps): JSX.Element | null => {
-  const { isDeleteGroupModalOpen, closeDeleteGroupModal } = useInfoStore();
+  const { isDeleteGroupModalOpen, closeDeleteGroupModal, closeInfoScreen } = useInfoStore();
   const { sendDeleteGroup } = useWebSocketChat(wsUrl, currentUid);
   const { openPopup, setCallback, setTitle, setTimer } = useNotificationStore();
   const queryClient = useQueryClient();
+  const isGroup = chatKey.startsWith('group');
 
   if (!isDeleteGroupModalOpen) return null;
 
@@ -30,6 +31,7 @@ export const DeleteGroupModal = ({ wsUrl, currentUid, chatKey, name }: DeleteGro
     };
     sendDeleteGroup(payload);
     queryClient.invalidateQueries({ queryKey: ['chats', 'chat-list'] });
+    closeInfoScreen();
   };
 
   const handleDelete = (): void => {
@@ -43,8 +45,12 @@ export const DeleteGroupModal = ({ wsUrl, currentUid, chatKey, name }: DeleteGro
 
   return (
     <Modal
-      title={`Удалить группу «${name}»?`}
-      content={'Все сообщения в этом чате будут удалены только для вас. Собеседник по-прежнему сможет их видеть'}
+      title={`Удалить ${isGroup ? 'группу' : 'канал'} «${name}»?`}
+      content={
+        isGroup
+          ? 'Вы точно хотите удалить эту группу и все сообщения в ней для всех участников? Это действие нельзя отменить.'
+          : 'Вы точно хотите удалить этот канал и все публикации в нем для всех подписчиков? Это действие нельзя отменить.'
+      }
       firstButtonText="Отменить"
       secondButtonText="Удалить"
       onFirstButtonClick={closeDeleteGroupModal}

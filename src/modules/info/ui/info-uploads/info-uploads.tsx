@@ -28,6 +28,8 @@ export const InfoUploads = ({ uid, tabs, chatKey, currentUid }: InfoUploadsProps
         return <LinksTab items={LINKS} />;
       case 'members':
         return <ParticipantsTab currentUid={currentUid} chatKey={chatKey || ''} />;
+      case 'subscribers':
+        return <ParticipantsTab currentUid={currentUid} chatKey={chatKey || ''} />;
       default:
         return null;
     }

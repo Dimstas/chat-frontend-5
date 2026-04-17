@@ -5,7 +5,7 @@ export type InfoUploadsProps = {
   tabs: Tab[];
 };
 
-type TabContentType = 'media' | 'files' | 'voices' | 'links' | 'members';
+type TabContentType = 'media' | 'files' | 'voices' | 'links' | 'members' | 'subscribers';
 
 export type Tab = {
   id: TabContentType;

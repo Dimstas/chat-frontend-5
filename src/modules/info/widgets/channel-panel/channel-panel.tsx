@@ -1,17 +1,17 @@
 import { useGenerateInviteLinkQuery, useGroupOrChanelQuery } from 'modules/info/api/info.query';
-import { formatParticipants } from 'modules/info/shared/utils/format';
-import { ClearGroupModal } from 'modules/info/ui/clear-group-modal';
+import { formatSubscribers } from 'modules/info/shared/utils/format';
+import { ClearChannelModal } from 'modules/info/ui/clear-channel-modal';
 import { DeleteGroupModal } from 'modules/info/ui/delete-group-modal';
 import { DeleteMemberModal } from 'modules/info/ui/delete-member-modal';
 import { InfoAvatar } from 'modules/info/ui/info-avatar';
 import { InfoNotification } from 'modules/info/ui/info-notification';
 import { InfoSummary } from 'modules/info/ui/info-summary';
 import { InfoUploads } from 'modules/info/ui/info-uploads';
-import { GROUP_TABS } from 'modules/info/ui/info-uploads/info-uploads.constants';
-import { LeaveGroupModal } from 'modules/info/ui/leave-group-modal';
+import { CHANNEL_TABS } from 'modules/info/ui/info-uploads/info-uploads.constants';
+import { LeaveChannelModal } from 'modules/info/ui/leave-channel-modal';
 import { JSX } from 'react';
 
-export const GroupPanel = ({
+export const ChannelPanel = ({
   uid,
   currentUid,
   wsUrl,
@@ -19,7 +19,7 @@ export const GroupPanel = ({
   uid: string;
   currentUid: string;
   wsUrl: string;
-}): JSX.Element => {
+}): JSX.Element | null => {
   const { data: link } = useGenerateInviteLinkQuery(uid, {
     expires_in: 86400,
   });
@@ -27,7 +27,9 @@ export const GroupPanel = ({
 
   const name = profile?.name ?? '';
   const membersCount = profile?.participants.length ?? 0;
-  const status = formatParticipants(membersCount);
+  const status = formatSubscribers(membersCount);
+
+  if (!profile) return null;
 
   return (
     <>
@@ -41,12 +43,12 @@ export const GroupPanel = ({
             status={status}
           />
           <InfoNotification chatId={profile?.id} />
-          <InfoSummary description={profile?.description} />
-          <InfoSummary inviteLink={link?.invite_link} chatKey={uid} />
-          <InfoUploads uid={uid} tabs={GROUP_TABS} chatKey={uid} currentUid={currentUid} />
-          <ClearGroupModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} />
+          {profile?.description && <InfoSummary description={profile?.description} />}
+          <InfoSummary inviteLinkChannel={link?.invite_link} chatKey={uid} />
+          <InfoUploads uid={uid} tabs={CHANNEL_TABS} chatKey={uid} currentUid={currentUid} />
+          <ClearChannelModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} name={name} />
           <DeleteMemberModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} />
-          <LeaveGroupModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} name={name} />
+          <LeaveChannelModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} name={name} />
           <DeleteGroupModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} name={name} />
         </>
       )}
