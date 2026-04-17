@@ -76,15 +76,18 @@ export const AlertForward = ({ onOk, onCancel }: AlertForwardProps): JSX.Element
 };
 
 const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardProps): JSX.Element => {
-  const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null } = chat?.peer ?? {};
+  const { avatarUrl = '', firstName = '', lastName = '', wasOnlineAt = null, nickname = '' } = chat?.peer ?? {};
   const status = getLastSeenLabel(wasOnlineAt);
   const setSelectedUidUserForForwardMessageStore = useSelectedUidUserForForwardMessageStore(
     (s) => s.setSelectedUidUserForForwardMessage,
   );
   const handlerOnClick = (): void => {
-    setSelectedUidUserForForwardMessageStore(chat.peer.uid);
+    if (chat.chat.chatType === 'chat') {
+      setSelectedUidUserForForwardMessageStore(chat.peer.uid);
+    } else {
+      setSelectedUidUserForForwardMessageStore(`group_${chat.peer.uid}`);
+    }
     clearSearch?.();
-
     onOk();
   };
   return (
@@ -97,7 +100,9 @@ const AlertForwardChatCard = ({ chat, onOk, clearSearch }: AlertForwardChatCardP
         )}
       </div>
       <div className={styles.nameEndStatus}>
-        <div className={styles.name}>{`${firstName} ${lastName}`} </div>
+        <div className={styles.name}>
+          {firstName === '' && lastName === '' ? `${nickname}` : `${firstName} ${lastName}`}
+        </div>
         <div className={styles.status}>{status}</div>
       </div>
     </div>

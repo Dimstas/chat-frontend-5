@@ -2,4 +2,5 @@ export type AutosizeTextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaEle
   maxHeight?: number;
   onInput?: React.FormEventHandler<HTMLTextAreaElement>;
   inputRef: React.RefObject<HTMLTextAreaElement | null>;
+  isScroll: boolean;
 };

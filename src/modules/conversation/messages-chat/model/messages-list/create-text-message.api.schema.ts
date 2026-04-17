@@ -4,12 +4,14 @@ const serializerFileMessageApiSchema = z.object({
   filename: z.string().default('document.pdf'),
   data: z.string().default('UERGLTEuNCBmaWxlIGNvbnRlbnQ='),
 });
+export type FileMessageApi = z.infer<typeof serializerFileMessageApiSchema>;
 const serializerRequestObjectCreateMessageApiSchema = z.object({
   to_user_uid: z.string().nullable().optional(),
   chat_key: z.string().nullable().optional(),
   content: z.string().trim(),
   status: z.enum(['publish', 'draft']),
   files: z.array(serializerFileMessageApiSchema).max(10).nullable().optional(),
+  message_attachment_uids: z.array(string()).nullable().optional(),
   replied_messages: z.array(string()).nullable().optional(),
   forwarded_messages: z.array(string()).nullable().optional(),
 });

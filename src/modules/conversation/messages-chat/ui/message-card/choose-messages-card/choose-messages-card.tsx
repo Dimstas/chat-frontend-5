@@ -84,17 +84,26 @@ export const ChooseMessagesCard = ({
         <div className={styles.text}>{`Выбрано ${formatMessages(selectedMessagesStore?.length ?? 0)}`}</div>
       </div>
       <div className={styles.icon}>
-        <div className={styles.icon} onClick={handleForwardClick}>
+        <div
+          className={(selectedMessagesStore?.length ?? 0) ? styles.icon : styles.iconBlock}
+          onClick={handleForwardClick}
+        >
           <Forward />
         </div>
       </div>
       <div className={styles.icon}>
-        <div className={styles.icon} onClick={handleCopyClick}>
+        <div
+          className={(selectedMessagesStore?.length ?? 0) ? styles.icon : styles.iconBlock}
+          onClick={handleCopyClick}
+        >
           <Copy />
         </div>
       </div>
       <div className={styles.icon}>
-        <div className={styles.icon} onClick={handleDeleteClick}>
+        <div
+          className={(selectedMessagesStore?.length ?? 0) ? styles.iconRed : styles.iconBlock}
+          onClick={handleDeleteClick}
+        >
           <Delete />
         </div>
       </div>

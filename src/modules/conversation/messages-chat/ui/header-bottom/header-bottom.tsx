@@ -1,13 +1,19 @@
 'use client';
-import { JSX, useEffect, useRef, useState } from 'react';
+import clsx from 'clsx';
+import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
+import { useAlert } from '../../hooks/use-alert';
 import {
+  useAttachmentFilesStore,
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
+  useTextForAttachmentFilesStore,
   useUserIdStore,
 } from '../../zustand-store/zustand-store';
+import { ContextMenuAttachFile } from '../context-menu/context-menu-attach-file/context-menu-attach-file';
+import type { Attachment } from '../context-menu/context-menu-attach-file/context-menu-attach-file.props';
 import { ChooseMessagesCard } from '../message-card/choose-messages-card/choose-messages-card';
 import { ForwardMessageCard } from '../message-card/forward-message-card/forward-message-card';
 import { ForwardMessagesCard } from '../message-card/forward-messages-card/forward-messages-card';
@@ -33,6 +39,17 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
   const userIdStore = useUserIdStore((s) => s.userId);
+  const attachmentFilesStore = useAttachmentFilesStore((s) => s.attachmentFiles);
+  const textForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.textForAttachmentFiles);
+  const clearAttachmentFilesStore = useAttachmentFilesStore((s) => s.clearAttachmentFiles);
+  const clearTextForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.clearTextForAttachmentFiles);
+  const textForAttachmentFilesRef = useRef<string>(textForAttachmentFilesStore);
+  const attachmentFilesRef = useRef<Attachment[]>(attachmentFilesStore);
+  useEffect(() => {
+    textForAttachmentFilesRef.current = textForAttachmentFilesStore;
+    attachmentFilesRef.current = attachmentFilesStore;
+  }, [textForAttachmentFilesStore, attachmentFilesStore]);
+
   useEffect(() => {
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
@@ -41,13 +58,13 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
-    sendMessage(textInput, repliedMessageStore);
+    sendMessage({ content: textInput, repliedMessage: repliedMessageStore });
     if (forwardMessageStore) {
-      sendMessage(forwardMessageStore?.content ?? '', repliedMessageStore, forwardMessageStore);
+      sendMessage({ content: forwardMessageStore?.content ?? '', forwardMessage: forwardMessageStore });
     }
     if (selectedMessagesStore && selectedMessagesStore.length) {
-      selectedMessagesStore.forEach((m) => {
-        sendMessage(m.content ?? '', repliedMessageStore, m);
+      selectedMessagesStore.forEach((msg) => {
+        sendMessage({ content: msg.content ?? '', forwardMessage: msg });
       });
     }
     clearForwardMessageStore();
@@ -58,6 +75,48 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   };
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
   const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+  const clipIconButtonRef = useRef<HTMLDivElement | null>(null);
+
+  const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
+    event.preventDefault();
+    if (clipIconButtonRef.current) {
+      const { y, x } = clipIconButtonRef.current.getBoundingClientRect();
+      const menuHeight = 108;
+      const adjustedX = x - 10;
+      const adjustedY = y - menuHeight - 10;
+      setContextMenuPos({ x: adjustedX, y: adjustedY });
+      setContextMenuVisible(true);
+      setTextInput('');
+    }
+  };
+  const handleCloseMenu = (): void => {
+    setContextMenuVisible(false);
+  };
+  // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
+  const { confirm } = useAlert();
+
+  const handleAttachmentFilesClick = async (): Promise<void> => {
+    const ok = await confirm({
+      isAttachmentFiles: true,
+    });
+    if (ok) {
+      console.log('textForAttachmentFilesRef.current: ', textForAttachmentFilesRef.current);
+      console.log('attachmentFilesRef.current: ', attachmentFilesRef.current);
+      sendMessage({ content: textForAttachmentFilesRef.current });
+      if (attachmentFilesRef.current && attachmentFilesRef.current.length) {
+        attachmentFilesRef.current.forEach((attachmentFile) => {
+          console.log('attachmentFile: ', attachmentFile);
+          sendMessage({ content: textForAttachmentFilesRef.current, file: attachmentFile });
+        });
+      }
+      clearAttachmentFilesStore();
+      clearTextForAttachmentFilesStore();
+    } else {
+      // отмена — ничего не делаем
+    }
+  };
 
   return (
     <div className={styles.block}>
@@ -90,9 +149,20 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
             />
           )}
           <form className={styles.wrapper} onSubmit={handleSubmitForm}>
-            <span className={styles.clipIcon}>
+            <div
+              className={contextMenuVisible ? clsx(styles.clipIcon, styles.clipIconActive) : styles.clipIcon}
+              ref={clipIconButtonRef}
+              onContextMenu={handleContextMenu}
+            >
+              {contextMenuVisible && (
+                <ContextMenuAttachFile
+                  contextMenuPos={contextMenuPos}
+                  handleCloseMenu={handleCloseMenu}
+                  handleAttachmentFilesClick={handleAttachmentFilesClick}
+                />
+              )}
               <ClipIcon />
-            </span>
+            </div>
             <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
             <span className={styles.micIcon}>
               {textInput ? (
