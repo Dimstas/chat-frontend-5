@@ -15,11 +15,13 @@ import BlockIcon from '../shared/icons/block.svg';
 import ClearIcon from '../shared/icons/clear.svg';
 import DeleteIcon from '../shared/icons/delete-outline.svg';
 import ForwardIcon from '../shared/icons/forward.svg';
+import LeaveIconRed from '../shared/icons/leave-red.svg';
 import LeaveIcon from '../shared/icons/leave.svg';
 import { AddMembersButton } from '../ui/add-members-button';
 import { InfoHeader } from '../ui/info-header';
 import { InfoLayout } from '../ui/info-layout';
 import { AddMemberPanel } from '../widgets/add-member-panel';
+import { ChannelPanel } from '../widgets/channel-panel';
 import { ContactPanel } from '../widgets/contact-panel';
 import { GroupPanel } from '../widgets/group-panel';
 import { SettingsPanel } from '../widgets/settings-panel';
@@ -57,11 +59,11 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     return (): void => {
       exitSettingsMode();
       clearSelection();
-      exitSelectionMode();
     };
   }, [uid, setUid]);
 
   const isGroup = uid.startsWith('group');
+  const isChannel = uid.startsWith('channel');
   const participant = participants?.find((p) => p.uid === currentUid);
 
   const groupMenuItems: DropdownItem[] = [
@@ -80,6 +82,31 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
     });
     groupMenuItems.push({
       label: 'Удалить группу',
+      icon: <DeleteIcon />,
+      variant: 'alert',
+      onClick: openDeleteGroupModal,
+    });
+  }
+
+  const channelMenuItems: DropdownItem[] = [];
+
+  if (isChannel && !participant?.isOwner) {
+    channelMenuItems.push({
+      label: 'Покинуть канал',
+      icon: <LeaveIconRed />,
+      variant: 'alert',
+      onClick: openLeaveGroupModal,
+    });
+  }
+
+  if (isChannel && participant?.isOwner) {
+    channelMenuItems.unshift({
+      label: 'Очистить канал',
+      icon: <ClearIcon />,
+      onClick: openClearModal,
+    });
+    channelMenuItems.push({
+      label: 'Удалить канал',
       icon: <DeleteIcon />,
       variant: 'alert',
       onClick: openDeleteGroupModal,
@@ -177,6 +204,33 @@ export const InfoScreen = ({ uid, wsUrl, currentUid }: InfoScreenProps): JSX.Ele
         onSetting={participant?.isOwner ? enterSettingsMode : undefined}
       />,
       <GroupPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />,
+    );
+  }
+
+  if (isChannel) {
+    if (isAddMembersMode) {
+      return renderWithLayout(
+        <InfoHeader title="Пригласить подписчиков" backProps={{ icon: <BackIcon />, onClick: handleBack }} />,
+        <AddMemberPanel chatKey={uid} />,
+        <AddMembersButton label="Добавить в канал" onClick={handleAddMembers} disabled={selectedIds.size === 0} />,
+      );
+    }
+
+    if (isGroupSettingsMode) {
+      return renderWithLayout(
+        <InfoHeader title="Настройки" backProps={{ icon: <BackArrowIcon />, onClick: handleSettingBack }} />,
+        <SettingsPanel uid={uid} wsUrl={wsUrl} currentUid={currentUid} />,
+      );
+    }
+
+    return renderWithLayout(
+      <InfoHeader
+        menuItems={channelMenuItems}
+        title="Информация о канале"
+        onClose={toggleInfoOpen}
+        onSetting={participant?.isOwner ? enterSettingsMode : undefined}
+      />,
+      <ChannelPanel uid={uid} currentUid={currentUid} wsUrl={wsUrl} />,
     );
   }
 

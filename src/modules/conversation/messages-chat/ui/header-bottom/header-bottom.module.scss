@@ -25,6 +25,9 @@
   left: 0.335rem;
   top: 0.335rem;
 }
+.clipIconActive {
+  color: var(--brand-dark);
+}
 
 .micIcon {
   @include mixins.flex-box();

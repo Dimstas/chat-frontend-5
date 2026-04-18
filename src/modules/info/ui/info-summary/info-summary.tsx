@@ -13,6 +13,7 @@ export const InfoSummary = ({
   about,
   description,
   inviteLink,
+  inviteLinkChannel,
   chatKey,
 }: InfoSummaryProps): JSX.Element => {
   const { openPopup, setIcon, setTitle } = useNotificationStore();
@@ -98,6 +99,21 @@ export const InfoSummary = ({
         <div className={clsx(styles.item)}>
           <div className={styles.content}>
             <div className={styles.label}>Ссылка на приглашение в группу</div>
+            <div className={styles.link}>
+              <a href={inviteLink}>
+                {window.location.origin}/{chatKeys[chatKeys.length - 1]}
+              </a>
+            </div>
+          </div>
+          <button onClick={handleCopyInvitedLink}>
+            <CopyIcon />
+          </button>
+        </div>
+      )}
+      {inviteLinkChannel && (
+        <div className={clsx(styles.item)}>
+          <div className={styles.content}>
+            <div className={styles.label}>Ссылка на приглашение в канал</div>
             <div className={styles.link}>
               <a href={inviteLink}>
                 {window.location.origin}/{chatKeys[chatKeys.length - 1]}

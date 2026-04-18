@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { JSX } from 'react';
 import { ButtonUI } from '../button';
+import { Checkbox } from '../checkbox';
 import styles from './modal.module.scss';
 
 /**
@@ -33,6 +34,9 @@ type ModalProps = {
   icon?: JSX.Element;
   title?: string;
   content: string;
+  checkboxText?: string;
+  toggleCheckBox?: (val: boolean) => void;
+  checked?: boolean;
   firstButtonText?: string;
   secondButtonText?: string;
   onFirstButtonClick?: () => void;
@@ -44,6 +48,9 @@ export const Modal: React.FC<ModalProps> = ({
   icon,
   title,
   content,
+  checkboxText,
+  toggleCheckBox,
+  checked,
   firstButtonText,
   secondButtonText,
   onFirstButtonClick,
@@ -56,7 +63,13 @@ export const Modal: React.FC<ModalProps> = ({
     }
   };
 
+  const handleCheckboxClick = (e: React.MouseEvent): void => {
+    e.preventDefault();
+    toggleCheckBox!(!checked);
+  };
+
   const hasButtons = firstButtonText || secondButtonText;
+  const hasCheckBox = checkboxText && toggleCheckBox;
   const appearance = secondButtonText === 'Заблокировать' || 'Очистить' ? 'warn' : 'secondary';
 
   return (
@@ -77,6 +90,16 @@ export const Modal: React.FC<ModalProps> = ({
 
         {/* контент */}
         <p className={styles.content}>{content}</p>
+
+        {/* чекбокс */}
+        {hasCheckBox && (
+          <div className={styles.checkboxContainer}>
+            <div className={styles.checkbox} onClick={handleCheckboxClick}>
+              <Checkbox selected={checked ?? false} />
+            </div>
+            <span className={styles.checkboxText}>{checkboxText}</span>
+          </div>
+        )}
 
         {/* Кнопки */}
         {hasButtons && (

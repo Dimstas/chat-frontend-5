@@ -36,6 +36,7 @@ export const HeaderTopButtonsBlock = ({
 
   const pathname = usePathname();
   const isGroup = pathname.startsWith('/chats/group');
+  const isChannel = pathname.startsWith('/chats/channel');
 
   const handleAddContact = (): void => {
     if (!!user) {
@@ -59,15 +60,15 @@ export const HeaderTopButtonsBlock = ({
 
   return (
     <div className={styles.wrapper}>
-      {isGroup ? (
+      {isGroup || isChannel ? (
         <>
           {isOwner ? (
             <button className={clsx(styles.buttonsWrapper, styles.addContact)} onClick={handleAddMembers}>
-              Добавить участников
+              {isChannel ? 'Пригласить подписчиков' : 'Добавить участников'}
             </button>
           ) : (
             <button className={clsx(styles.buttonsWrapper, styles.blockContact)} onClick={handleLeaveGroup}>
-              Покинуть группу
+              {isChannel ? 'Покинуть канал' : 'Покинуть группу'}
             </button>
           )}
         </>
