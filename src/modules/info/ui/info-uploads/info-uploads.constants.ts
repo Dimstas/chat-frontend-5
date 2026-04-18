@@ -26,3 +26,11 @@ export const GROUP_TABS = [
   },
   ...TABS,
 ] as Tab[];
+
+export const CHANNEL_TABS = [
+  {
+    id: 'subscribers',
+    title: 'Подписчики',
+  },
+  ...TABS,
+] as Tab[];

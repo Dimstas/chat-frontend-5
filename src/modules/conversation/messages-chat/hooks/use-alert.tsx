@@ -1,6 +1,7 @@
 'use client';
 import React, { JSX, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { AlertAttachmentFiles } from '../ui/alert-components/alert-attachment-files/alert-attachment-files';
 import { AlertDelete } from '../ui/alert-components/alert-delete/alert-delete';
 import { AlertForward } from '../ui/alert-components/alert-forward/alert-forward';
 
@@ -18,6 +19,7 @@ export type AlertOptions = {
   onOk?: () => void;
   onCancel?: () => void;
   isMessageForwarding?: boolean;
+  isAttachmentFiles?: boolean;
 };
 
 type AlertContextValue = {
@@ -175,6 +177,8 @@ export const AlertProvider = ({
               >
                 {a.isMessageForwarding ? (
                   <AlertForward onOk={() => handleOk(a.id)} onCancel={() => handleCancel(a.id)} />
+                ) : a.isAttachmentFiles ? (
+                  <AlertAttachmentFiles onOk={() => handleOk(a.id)} onCancel={() => handleCancel(a.id)} />
                 ) : (
                   <AlertDelete
                     id={a.id}

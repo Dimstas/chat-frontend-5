@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import type { RestMessageApi } from '../model/messages-list';
+import type { Attachment } from '../ui/context-menu/context-menu-attach-file/context-menu-attach-file.props';
+
 export type Msg = RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
 
 type MessagesChatState = {
@@ -303,4 +305,43 @@ export const useHeaderButtonsModalStore = create<HeaderButtonsModalState>((set) 
   isLeaveGroupModalOpen: false,
   openLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: true }),
   closeLeaveGroupModal: (): void => set({ isLeaveGroupModalOpen: false }),
+}));
+
+type AttachmentFilesState = {
+  attachmentFiles: Attachment[];
+  setAttachmentFiles: (value: Attachment[] | ((prev: Attachment[]) => Attachment[])) => void;
+  clearAttachmentFiles: () => void;
+  deleteAttachmentFiles: (id: string) => void;
+};
+
+export const useAttachmentFilesStore = create<AttachmentFilesState>((set) => ({
+  attachmentFiles: [],
+  setAttachmentFiles: (value): void =>
+    set((s) => ({
+      attachmentFiles: typeof value === 'function' ? value(s.attachmentFiles) : value,
+    })),
+  clearAttachmentFiles: (): void => set({ attachmentFiles: [] }),
+  deleteAttachmentFiles: (id: string): void =>
+    set((s) => {
+      const prev = s.attachmentFiles;
+      const exists = prev.find((f) => f.id === id);
+      if (exists) {
+        return {
+          attachmentFiles: prev.filter((f) => f.id !== id),
+        };
+      }
+      return { attachmentFiles: [...prev] };
+    }),
+}));
+
+type TextForAttachmentFilesState = {
+  textForAttachmentFiles: string;
+  setTextForAttachmentFiles: (textForAttachmentFiles: string) => void;
+  clearTextForAttachmentFiles: () => void;
+};
+
+export const useTextForAttachmentFilesStore = create<TextForAttachmentFilesState>((set) => ({
+  textForAttachmentFiles: '',
+  setTextForAttachmentFiles: (textForAttachmentFiles: string): void => set({ textForAttachmentFiles }),
+  clearTextForAttachmentFiles: (): void => set({ textForAttachmentFiles: '' }),
 }));

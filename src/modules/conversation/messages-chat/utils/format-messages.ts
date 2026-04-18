@@ -11,3 +11,14 @@ export const formatMessages = (quantity: number): string => {
   }
   return `${quantity} сообщений`;
 };
+
+export const formatMessagesFile = (quantity: number): string => {
+  quantity = Math.abs(Math.floor(quantity)); // работаем с целым неотрицательным числом
+  if (quantity === 1) {
+    return `${quantity} файл`;
+  }
+  if (quantity >= 2 && quantity <= 4) {
+    return `${quantity} файла`;
+  }
+  return `${quantity} файлов`;
+};

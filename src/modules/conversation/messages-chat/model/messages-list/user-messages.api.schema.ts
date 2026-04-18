@@ -23,8 +23,12 @@ export const messagesUserApiSchema = z.object({
 export const restMessageFileApiSchema = z.object({
   id: z.number(),
   uid: z.string(),
+  download_name: z.string(),
+  media_kind: z.string(),
   file_url: z.string(),
+  file_protected_url: z.string(),
   file_webp_url: z.string(),
+  file_small_url: z.string(),
   file_type: z.string().max(128).optional(),
   created_at: z.string(),
   updated_at: z.string(),
@@ -67,7 +71,7 @@ export const restMessageApiSchema = z.object({
   updated_at: z.number(),
   chat_id: z.number(),
   chat_key: z.string(),
-  chat_type: z.string(),
+  chat_type: z.enum(['chat', 'public-group', 'private-group', 'public-channel', 'private-channel']),
   message_rtc: messageRTCApiSchema.optional(),
 });
 export type RestMessageApi = z.infer<typeof restMessageApiSchema>;

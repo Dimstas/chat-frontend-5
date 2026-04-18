@@ -96,7 +96,6 @@ export const IncomingMessagesCard = ({
   const handleCheckBoxClick = (): void => {
     setSelected(!selected);
     if (selected) {
-      console.log(selected);
       addSelectedMessagesStore(message);
     } else {
       deleteSelectedMessagesStore(message);

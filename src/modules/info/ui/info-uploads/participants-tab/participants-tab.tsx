@@ -16,6 +16,7 @@ export const ParticipantsTab = ({ currentUid, chatKey }: ParticipantsTabProps): 
   const owner = filtered?.find((p) => p.isOwner);
   const members = filtered?.filter((p) => !p.isOwner) ?? [];
   const current = participants?.find((p) => p.uid === currentUid);
+  const isGroup = chatKey.startsWith('group');
 
   const handleAddToGroup = (): void => {
     clearSelection();
@@ -25,7 +26,13 @@ export const ParticipantsTab = ({ currentUid, chatKey }: ParticipantsTabProps): 
 
   return (
     <div className={styles.wrapper}>
-      {current && <ActionButton icon={<AddIcon />} label={'Пригласить в группу'} onClick={handleAddToGroup} />}
+      {current && (
+        <ActionButton
+          icon={<AddIcon />}
+          label={isGroup ? 'Пригласить в группу' : 'Пригласить подписчиков'}
+          onClick={handleAddToGroup}
+        />
+      )}
       <SearchPanel query={query} onChange={setQuery} onClear={clearQuery} />
       {query ? (
         <>
@@ -42,7 +49,7 @@ export const ParticipantsTab = ({ currentUid, chatKey }: ParticipantsTabProps): 
 
           {members.length > 0 && (
             <>
-              <div className={styles.label}>Участники</div>
+              <div className={styles.label}>{isGroup ? 'Участники' : 'Подписчики'}</div>
               <ParticipantsPanel participants={members} />
             </>
           )}

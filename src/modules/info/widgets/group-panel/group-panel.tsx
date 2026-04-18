@@ -1,6 +1,6 @@
 import { useGenerateInviteLinkQuery, useGroupOrChanelQuery } from 'modules/info/api/info.query';
 import { formatParticipants } from 'modules/info/shared/utils/format';
-import { ClearChatModal } from 'modules/info/ui/clear-chat-modal';
+import { ClearGroupModal } from 'modules/info/ui/clear-group-modal';
 import { DeleteGroupModal } from 'modules/info/ui/delete-group-modal';
 import { DeleteMemberModal } from 'modules/info/ui/delete-member-modal';
 import { InfoAvatar } from 'modules/info/ui/info-avatar';
@@ -44,7 +44,7 @@ export const GroupPanel = ({
           <InfoSummary description={profile?.description} />
           <InfoSummary inviteLink={link?.invite_link} chatKey={uid} />
           <InfoUploads uid={uid} tabs={GROUP_TABS} chatKey={uid} currentUid={currentUid} />
-          <ClearChatModal />
+          <ClearGroupModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} />
           <DeleteMemberModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} />
           <LeaveGroupModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} name={name} />
           <DeleteGroupModal wsUrl={wsUrl} chatKey={uid} currentUid={currentUid} name={name} />
