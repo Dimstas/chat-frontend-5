@@ -46,8 +46,11 @@ export const AllSettingsBlock: React.FC<AllSettingsBlockProps> = ({
   };
   const handleDeleteAccount = async (): Promise<void> => {
     try {
-      const response = await deleteProfile(profile.uid);
+      const response = await deleteProfile();
       console.log('Удаление успешно:', response.messages);
+      await fetch('/api/auth/remove-tokens', {
+        method: 'POST',
+      });
       router.push('/auth');
     } catch (error) {
       console.error('Ошибка при удалении аккаунта:', error);
