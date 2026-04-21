@@ -14,23 +14,20 @@ import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../../context-menu/context-menu';
 import { ForvardCard } from '../../forward-card/forward-card';
-import CheckOneIcon from '../../icons/check-one.svg';
-import CheckTwoIcon from '../../icons/check-two.svg';
-import WatchIcon from '../../icons/watch.svg';
 import { MessageCheckBox } from '../../message-checkbox/message-checkbox';
 import { ReplyCard } from '../../reply-card/reply-card';
 import { HighlightedFileName } from '../highlighted-file-name/highlighted-file-name';
-import DeleteFileIcon from '../icons/delete-file-icon.svg';
 import FileIcon from '../icons/file-icon.svg';
-import styles from './outgoing-file-card.module.scss';
-import { OutgoingFileCardProps } from './outgoing-file-card.props';
+import styles from './incoming-file-card.module.scss';
+import { IncomingFileCardProps } from './incoming-file-card.props';
 
-export const OutgoingFileCard = ({
+export const IncomingFileCard = ({
   message,
   sendDeleteMessage,
   search,
+  register,
   isHighlighted,
-}: OutgoingFileCardProps): JSX.Element => {
+}: IncomingFileCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
   const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
@@ -115,19 +112,6 @@ export const OutgoingFileCard = ({
   const isFileImage = fileImage.some((word) =>
     message.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
   );
-  // мгновенно скрывает в DOM карточку файла, отправку которого отменил пользователь
-  const [isDeletedFile, setIsDeletedFile] = useState<boolean>(false);
-  const handleDeleteFileClick = (): void => {
-    setIsDeletedFile(true);
-  };
-  //эффект для удаления незагруженного файла (который имеет статус 'pending' либо 'failed' )
-  useEffect(() => {
-    if (isDeletedFile) {
-      console.log('message:', message);
-      sendDeleteMessage(message, true);
-    }
-  }, [message]);
-
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
@@ -137,6 +121,9 @@ export const OutgoingFileCard = ({
         className={styles.wrapper}
         onContextMenu={!checkBoxsVisibleStore ? handleContextMenu : (): void => {}}
         onMouseLeave={handleCloseMenu}
+        ref={(el) => {
+          register(el, message);
+        }}
       >
         <ContextMenu
           position={contextMenuPos}
@@ -146,47 +133,34 @@ export const OutgoingFileCard = ({
           handleForwardClick={handleForwardClick}
           message={message}
         />
-        {!isDeletedFile && (
-          <div className={styles.item}>
-            {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={false} />}
-            {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
-            <div className={styles.contentBlock}>
-              <div className={styles.fileIcon}>
-                {message.status === 'pending' || message.status === 'failed' ? (
-                  <button onClick={handleDeleteFileClick}>
-                    <DeleteFileIcon />
-                  </button>
-                ) : isFileImage ? (
-                  <Image
-                    key={message.files_list[0].uid}
-                    src={message.files_list[0].file_url}
-                    alt={message.files_list[0].download_name}
-                    width={48}
-                    height={48}
-                  />
-                ) : (
-                  <FileIcon />
-                )}
+        <div className={styles.item}>
+          {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={false} />}
+          {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
+          <div className={styles.contentBlock}>
+            <div className={styles.fileIcon}>
+              {isFileImage ? (
+                <Image
+                  key={message.files_list[0].uid}
+                  src={message.files_list[0].file_url}
+                  alt={message.files_list[0].download_name}
+                  width={48}
+                  height={48}
+                />
+              ) : (
+                <FileIcon />
+              )}
+            </div>
+            <div className={styles.fileInfo}>
+              <div className={styles.fileName}>
+                <HighlightedFileName fileName={message.files_list[0].download_name} search={search} />
               </div>
-              <div className={styles.fileInfo}>
-                <div className={styles.fileName}>
-                  <HighlightedFileName fileName={message.files_list[0].download_name} search={search} />
-                </div>
-                <div className={styles.fileSizeAndMessageTimeBlock}>
-                  <div className={styles.fileSize}>5.2 MБ</div>
-                  <div className={styles.messageTimeAndChatIcons}>
-                    <div className={styles.messageTime}>{getMessageTime(message.created_at)}</div>
-                    <div className={styles.messageChatIcons}>
-                      {message.status === 'sent' && message.new === true && <CheckOneIcon />}
-                      {(message.status === 'pending' || message.status === 'failed') && <WatchIcon />}
-                      {message.new === false && <CheckTwoIcon />}
-                    </div>
-                  </div>
-                </div>
+              <div className={styles.fileSizeAndMessageTimeBlock}>
+                <div className={styles.fileSize}>5.2 MБ</div>
+                <div className={styles.messageTime}>{getMessageTime(message.created_at)}</div>
               </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -7,6 +7,8 @@ import type { RestMessageApi } from '../../model/messages-list';
 import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useToastVisibleStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
+import { IncomingFileCard } from '../message-card/file-card/incoming-file-card/incoming-file-card';
+import { OutgoingFileCard } from '../message-card/file-card/outgoing-file-card/outgoing-file-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
 import { NotificationCopyCard } from '../message-card/notification-copy-card/notification-copy-card';
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
@@ -244,8 +246,25 @@ export const MessagesList = ({
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === currentUserId || message.from_user.uid === '' ? (
-                      <OutgoingMessagesCard
+                      message.files_list.length ? (
+                        <OutgoingFileCard
+                          message={message}
+                          sendDeleteMessage={sendDeleteMessage}
+                          search={searchMessagesStore}
+                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                        />
+                      ) : (
+                        <OutgoingMessagesCard
+                          message={message}
+                          sendDeleteMessage={sendDeleteMessage}
+                          search={searchMessagesStore}
+                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                        />
+                      )
+                    ) : message.files_list.length ? (
+                      <IncomingFileCard
                         message={message}
+                        register={register}
                         sendDeleteMessage={sendDeleteMessage}
                         search={searchMessagesStore}
                         isHighlighted={isSearchMatch && message.uid === targetSearchUid}

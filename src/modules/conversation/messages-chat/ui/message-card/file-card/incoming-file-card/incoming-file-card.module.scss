@@ -19,11 +19,11 @@
   background-color: var(--surface-disabled);
 }
 .wrapper {
-  @include mixins.flex-box($justify: end, $gap: 1rem);
+  @include mixins.flex-box($justify: start, $gap: 1rem);
   width: 100%;
   height: 6.8rem;
-  padding-left: 5.2rem;
-  padding-right: 1.6rem;
+  padding-left: 1.6rem;
+  padding-right: 5.2rem;
   overflow: hidden;
   container-type: inline-size;
 }
@@ -36,9 +36,9 @@
   padding: 1rem 1.2rem;
   border-top-left-radius: 1.6rem;
   border-top-right-radius: 1.6rem;
-  border-bottom-right-radius: 0.4rem;
-  border-bottom-left-radius: 1.6rem;
-  background-color: var(--surfase-message-card);
+  border-bottom-right-radius: 1.6rem;
+  border-bottom-left-radius: 0.4rem;
+  background-color: var(--surface-delete-selected-button);
   overflow: hidden;
   @container (max-width: 360px) {
     .item {
@@ -66,7 +66,7 @@
 .fileInfo {
   @include mixins.flex-box($direction: column, $gap: 0.4rem);
   width: auto;
-  height: 4.3rem;
+  height: 4.2rem;
 }
 .fileName {
   @include mixins.flex-box();
@@ -80,9 +80,9 @@
   overflow: hidden;
 }
 .fileSizeAndMessageTimeBlock {
-  @include mixins.flex-box($justify: space-between, $gap: 0.2rem);
+  @include mixins.flex-box($justify: space-between);
   width: 100%;
-  height: 1.8rem;
+  height: 1.7rem;
 }
 .fileSize {
   @include mixins.flex-box();
@@ -95,11 +95,6 @@
   color: var(--text-primary);
   overflow: hidden;
 }
-.messageTimeAndChatIcons {
-  @include mixins.flex-box($gap: 0.2rem);
-  width: 5.6rem;
-  height: 1.8rem;
-}
 .messageTime {
   @include mixins.flex-box();
   width: 3.6rem;
@@ -111,9 +106,4 @@
   justify-content: right;
   color: var(--text-secondary);
   overflow: hidden;
-}
-.messageChatIcons {
-  @include mixins.flex-box();
-  width: 1.8rem;
-  height: 1.8rem;
 }

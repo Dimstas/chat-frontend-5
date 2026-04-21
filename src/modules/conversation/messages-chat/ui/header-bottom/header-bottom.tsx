@@ -101,12 +101,10 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       isAttachmentFiles: true,
     });
     if (ok) {
-      console.log('textForAttachmentFilesRef.current: ', textForAttachmentFilesRef.current);
-      console.log('attachmentFilesRef.current: ', attachmentFilesRef.current);
       sendMessage({ content: textForAttachmentFilesRef.current });
       if (attachmentFilesRef.current && attachmentFilesRef.current.length) {
         attachmentFilesRef.current.forEach((attachmentFile) => {
-          sendMessage({ content: textForAttachmentFilesRef.current, file: attachmentFile });
+          sendMessage({ content: attachmentFile.fileData.filename, file: attachmentFile });
         });
       }
       clearAttachmentFilesStore();
