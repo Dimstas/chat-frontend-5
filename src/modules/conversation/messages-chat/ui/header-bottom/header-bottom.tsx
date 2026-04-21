@@ -1,6 +1,6 @@
 'use client';
 import clsx from 'clsx';
-import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { useAlert } from '../../hooks/use-alert';
 import {
@@ -79,8 +79,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
   const clipIconButtonRef = useRef<HTMLDivElement | null>(null);
 
-  const handleContextMenu = (event: MouseEvent<HTMLDivElement>): void => {
-    event.preventDefault();
+  const handleContextMenu = (): void => {
     if (clipIconButtonRef.current) {
       const { y, x } = clipIconButtonRef.current.getBoundingClientRect();
       const menuHeight = 108;
@@ -107,7 +106,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       sendMessage({ content: textForAttachmentFilesRef.current });
       if (attachmentFilesRef.current && attachmentFilesRef.current.length) {
         attachmentFilesRef.current.forEach((attachmentFile) => {
-          console.log('attachmentFile: ', attachmentFile);
           sendMessage({ content: textForAttachmentFilesRef.current, file: attachmentFile });
         });
       }
@@ -152,7 +150,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
             <div
               className={contextMenuVisible ? clsx(styles.clipIcon, styles.clipIconActive) : styles.clipIcon}
               ref={clipIconButtonRef}
-              onContextMenu={handleContextMenu}
+              onClick={handleContextMenu}
             >
               {contextMenuVisible && (
                 <ContextMenuAttachFile
