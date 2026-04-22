@@ -81,3 +81,5 @@ export const serializerCallOfferRequestApiSchema = z.object({
   request_uid: z.string().optional(),
   object: SerializerRequestObjectCallOffer,
 });
+
+export type OfferCallRequestAPI = z.infer<typeof serializerCallOfferRequestApiSchema>;

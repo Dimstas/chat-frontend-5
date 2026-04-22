@@ -1,5 +1,5 @@
 import { apiFetch } from 'shared/api';
-import { IceServersApiResponse } from '../model/calls.api.schema';
+import { IceServersApiResponse } from '../model/calls/calls.api.schema';
 
 export const getIceServers = (
   ordering?: string,

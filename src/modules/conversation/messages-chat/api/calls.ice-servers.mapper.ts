@@ -1,5 +1,5 @@
 import { CallConfig, IceServer } from '../entity/calls.entity';
-import { IceServersApiResponse } from '../model/calls.api.schema';
+import { IceServersApiResponse } from '../model/calls/calls.api.schema';
 
 export const mapCallConfigFromApi = (api: IceServersApiResponse): CallConfig => {
   const { ice_servers } = api;

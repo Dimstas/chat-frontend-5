@@ -1,6 +1,7 @@
 'use client';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
+import { useCallsStore } from 'modules/conversation/messages-chat/model/calls/calls.store';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { useNotificationStore } from 'modules/notification/model/notification.store';
 import { JSX, useEffect, useState } from 'react';
@@ -34,6 +35,7 @@ export const HeaderTop = ({
   currentUid: string;
 }): JSX.Element => {
   const { chats } = useChatsScreen();
+  const { toggleCallsOpen } = useCallsStore();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
   const { isBlockModalOpen, isAddModalOpen, isLeaveGroupModalOpen, closeButtonMenu, openButtonMenu } =
@@ -87,7 +89,7 @@ export const HeaderTop = ({
             <div className={styles.icon} onClick={() => setSearchMessagesVisible(true)}>
               <SearchIcon />
             </div>
-            <div className={styles.icon}>
+            <div className={styles.icon} onClick={() => toggleCallsOpen()}>
               <CallIcon />
             </div>
           </>
