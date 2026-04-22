@@ -45,6 +45,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const clearTextForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.clearTextForAttachmentFiles);
   const textForAttachmentFilesRef = useRef<string>(textForAttachmentFilesStore);
   const attachmentFilesRef = useRef<Attachment[]>(attachmentFilesStore);
+
   useEffect(() => {
     textForAttachmentFilesRef.current = textForAttachmentFilesStore;
     attachmentFilesRef.current = attachmentFilesStore;
@@ -69,9 +70,13 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     }
     clearForwardMessageStore();
     clearSelectedUidUserForForwardMessageStore();
-    setTextInput('');
-    clearRepliedMessageStore();
+    if (textInput !== '') {
+      clearRepliedMessageStore();
+      setTextInput('');
+    }
     clearSelectedMessagesStore();
+    clearAttachmentFilesStore();
+    clearTextForAttachmentFilesStore();
   };
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
   const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
@@ -95,18 +100,26 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   };
   // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
   const { confirm } = useAlert();
-
   const handleAttachmentFilesClick = async (): Promise<void> => {
     const ok = await confirm({
       isAttachmentFiles: true,
     });
     if (ok) {
-      sendMessage({ content: textForAttachmentFilesRef.current });
+      sendMessage({ content: textForAttachmentFilesRef.current, repliedMessage: repliedMessageStore });
       if (attachmentFilesRef.current && attachmentFilesRef.current.length) {
         attachmentFilesRef.current.forEach((attachmentFile) => {
-          sendMessage({ content: attachmentFile.fileData.filename, file: attachmentFile });
+          sendMessage({
+            content: attachmentFile.fileData.filename,
+            repliedMessage: repliedMessageStore,
+            file: attachmentFile,
+          });
         });
       }
+      clearForwardMessageStore();
+      clearSelectedUidUserForForwardMessageStore();
+      clearRepliedMessageStore();
+      setTextInput('');
+      clearSelectedMessagesStore();
       clearAttachmentFilesStore();
       clearTextForAttachmentFilesStore();
     } else {

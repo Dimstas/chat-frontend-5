@@ -375,6 +375,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         },
         status: 'pending',
       };
+
       if (repliedMessage) {
         tempMessage.replied_messages = [
           {
@@ -385,7 +386,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
             first_name: repliedMessage.from_user.first_name ?? '',
             last_name: repliedMessage.from_user.last_name ?? '',
             content: repliedMessage.content,
-            files_list: [],
+            files_list: [...repliedMessage.files_list],
           },
         ];
       }
