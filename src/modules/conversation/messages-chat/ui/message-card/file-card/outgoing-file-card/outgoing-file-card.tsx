@@ -122,8 +122,7 @@ export const OutgoingFileCard = ({
   };
   //эффект для удаления незагруженного файла (который имеет статус 'pending' либо 'failed' )
   useEffect(() => {
-    if (isDeletedFile) {
-      console.log('message:', message);
+    if (isDeletedFile && message.status === 'sent') {
       sendDeleteMessage(message, true);
     }
   }, [message]);
