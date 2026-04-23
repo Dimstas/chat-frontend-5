@@ -252,6 +252,7 @@ export const MessagesList = ({
                           sendDeleteMessage={sendDeleteMessage}
                           search={searchMessagesStore}
                           isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                          currentUserId={currentUserId}
                         />
                       ) : (
                         <OutgoingMessagesCard
@@ -259,6 +260,7 @@ export const MessagesList = ({
                           sendDeleteMessage={sendDeleteMessage}
                           search={searchMessagesStore}
                           isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                          currentUserId={currentUserId}
                         />
                       )
                     ) : message.files_list.length || message.forwarded_messages[0]?.files_list.length ? (
@@ -268,6 +270,7 @@ export const MessagesList = ({
                         sendDeleteMessage={sendDeleteMessage}
                         search={searchMessagesStore}
                         isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                        currentUserId={currentUserId}
                       />
                     ) : (
                       <IncomingMessagesCard
@@ -276,6 +279,7 @@ export const MessagesList = ({
                         sendDeleteMessage={sendDeleteMessage}
                         search={searchMessagesStore}
                         isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                        currentUserId={currentUserId}
                       />
                     )}
                   </div>

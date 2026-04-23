@@ -11,4 +11,5 @@ export type IncomingMessageCardProps = {
   ) => void;
   search: string;
   isHighlighted: boolean | string;
+  currentUserId: string;
 };

@@ -9,4 +9,5 @@ export type IncomingFileCardProps = {
   register: (el: Element | null, message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   search: string;
   isHighlighted: boolean | string;
+  currentUserId: string;
 };

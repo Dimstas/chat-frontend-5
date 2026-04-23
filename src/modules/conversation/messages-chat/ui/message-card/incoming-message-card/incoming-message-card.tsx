@@ -23,6 +23,7 @@ export const IncomingMessagesCard = ({
   sendDeleteMessage,
   search,
   isHighlighted,
+  currentUserId,
 }: IncomingMessageCardProps): JSX.Element => {
   const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
@@ -127,7 +128,7 @@ export const IncomingMessagesCard = ({
         />
         <div className={styles.item}>
           {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
-          {message.forwarded_messages.length > 0 && <ForvardCard message={message} />}
+          {message.forwarded_messages.length > 0 && <ForvardCard message={message} currentUserId={currentUserId} />}
           <div className={styles.message}>
             <span className={styles.messageText}>
               <HighlightedMessage text={message.content ?? ''} search={search} />

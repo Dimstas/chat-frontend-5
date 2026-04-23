@@ -8,4 +8,5 @@ export type OutgoingMessagesCardProps = {
   ) => void;
   search: string;
   isHighlighted: boolean | string;
+  currentUserId: string;
 };

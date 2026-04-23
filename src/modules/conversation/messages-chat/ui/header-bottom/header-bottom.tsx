@@ -98,7 +98,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
-  console.log('selectedMessagesStore: ', selectedMessagesStore);
   // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
   const { confirm } = useAlert();
   const handleAttachmentFilesClick = async (): Promise<void> => {
