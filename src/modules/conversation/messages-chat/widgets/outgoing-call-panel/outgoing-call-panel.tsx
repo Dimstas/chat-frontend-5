@@ -1,7 +1,5 @@
 import clsx from 'clsx';
-import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
 import { useCallsStore } from 'modules/conversation/messages-chat/model/calls/calls.store';
-import { usePathname } from 'next/navigation';
 import { JSX } from 'react';
 import { ImageUI } from 'shared/ui';
 import CallEndIcon from '../../shared/icons/close.svg';
@@ -11,14 +9,13 @@ import MicroIcon from '../../shared/icons/micro.svg';
 import VideoIcon from '../../shared/icons/video.svg';
 import styles from './outgoing-call-panel.module.scss';
 
-export const OutgoingCallPanel = (): JSX.Element | null => {
+type OutgoingCallPanelProps = {
+  avatarUrl?: string;
+  contact: string;
+};
+
+export const OutgoingCallPanel = ({ avatarUrl, contact }: OutgoingCallPanelProps): JSX.Element | null => {
   const { isFullScreen, toggleFullScreen, toggleCallsOpen } = useCallsStore();
-  const { chats } = useChatsScreen();
-  const pathname = usePathname();
-  const arr = pathname.split('/');
-  const uid = arr[arr.length - 1];
-  const chat = chats.find((c) => c.peer.uid === uid);
-  const { avatarUrl, firstName, lastName } = chat?.peer ?? {};
 
   const URL_DEFAULT_AVATAR = '/images/profile/default.png';
 
@@ -37,12 +34,19 @@ export const OutgoingCallPanel = (): JSX.Element | null => {
           src={avatarUrl ?? URL_DEFAULT_AVATAR}
           width={160}
           height={160}
-          alt={chat?.chat.name ?? ''}
+          alt={contact}
           className={styles.avatar}
         />
         <div className={styles.description}>
-          <div className={styles.contact}>{`${firstName} ${lastName}`}</div>
-          <div className={styles.state}>Звонок...</div>
+          <div className={styles.contact}>{contact}</div>
+          <div className={styles.state}>
+            <p>Звонок</p>
+            <div className={styles.callAnimation}>
+              <div className={styles.dot}></div>
+              <div className={styles.dot}></div>
+              <div className={styles.dot}></div>
+            </div>
+          </div>
         </div>
       </div>
       <div className={styles.footerButtons}>

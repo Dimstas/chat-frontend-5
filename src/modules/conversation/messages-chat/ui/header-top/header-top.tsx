@@ -8,6 +8,8 @@ import { JSX, useEffect, useState } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { NotificationModal } from '../../../../notification/ui/notification-modal';
+import { IncomingCallPanel } from '../../widgets/incoming-call-panel';
+import { OutgoingCallPanel } from '../../widgets/outgoing-call-panel';
 import {
   useHeaderButtonsModalStore,
   useSearchIndicatorStore,
@@ -35,7 +37,7 @@ export const HeaderTop = ({
   currentUid: string;
 }): JSX.Element => {
   const { chats } = useChatsScreen();
-  const { toggleCallsOpen } = useCallsStore();
+  const { isCallModalOpen, isIncomingModalOpen, toggleCallsOpen } = useCallsStore();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
   const { isBlockModalOpen, isAddModalOpen, isLeaveGroupModalOpen, closeButtonMenu, openButtonMenu } =
@@ -45,6 +47,7 @@ export const HeaderTop = ({
   const chat = isGroupOrChannel
     ? chats.find((c) => c.chat.chatKey === user_uid)
     : chats.find((c) => c.peer.uid === user_uid);
+
   const {
     avatarUrl = '',
     firstName = '',
@@ -68,55 +71,59 @@ export const HeaderTop = ({
   const { contacts } = useContactsScreen();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.contactWrapper}>
-        <ImageUI
-          src={avatarUrl ? avatarUrl : URL_DEFAULT_Avatar}
-          alt={firstName}
-          width={40}
-          height={40}
-          className={styles.image}
-          onClick={() => toggleInfoOpen()}
-        />
-        {searchMessagesVisible ? (
-          <SearchMessages setSearchMessagesVisible={setSearchMessagesVisible} />
-        ) : (
-          <>
-            <div className={styles.info} onClick={() => toggleInfoOpen()}>
-              <span className={styles.name}>{isGroupOrChannel ? chat?.chat.name : `${firstName} ${lastName}`}</span>
-              <span className={styles.status}>{status}</span>
-            </div>
-            <div className={styles.icon} onClick={() => setSearchMessagesVisible(true)}>
-              <SearchIcon />
-            </div>
-            <div className={styles.icon} onClick={() => toggleCallsOpen()}>
-              <CallIcon />
-            </div>
-          </>
+    <>
+      <div className={styles.wrapper}>
+        <div className={styles.contactWrapper}>
+          <ImageUI
+            src={avatarUrl ? avatarUrl : URL_DEFAULT_Avatar}
+            alt={firstName}
+            width={40}
+            height={40}
+            className={styles.image}
+            onClick={() => toggleInfoOpen()}
+          />
+          {searchMessagesVisible ? (
+            <SearchMessages setSearchMessagesVisible={setSearchMessagesVisible} />
+          ) : (
+            <>
+              <div className={styles.info} onClick={() => toggleInfoOpen()}>
+                <span className={styles.name}>{isGroupOrChannel ? chat?.chat.name : `${firstName} ${lastName}`}</span>
+                <span className={styles.status}>{status}</span>
+              </div>
+              <div className={styles.icon} onClick={() => setSearchMessagesVisible(true)}>
+                <SearchIcon />
+              </div>
+              <div className={styles.icon} onClick={() => toggleCallsOpen()}>
+                <CallIcon />
+              </div>
+            </>
+          )}
+        </div>
+        {searchMessagesStore && (
+          <SearchResultCard
+            currentSearchIndex={searchIndicatorStore?.currentSearchIndex ?? 0}
+            lastSearchIndex={searchIndicatorStore?.lastSearchIndex ?? 0}
+          />
+        )}
+        {!contacts?.some((c) => c.uid === user_uid) && (
+          <HeaderTopButtonsBlock
+            wsUrl={wsUrl}
+            nickname={nickname ?? ''}
+            currentUid={currentUid}
+            chatKey={user_uid}
+            isBlocked={isBlocked}
+            isInContact={isInContacts}
+          />
+        )}
+        {isModalOpen && <NotificationModal />}
+        {isBlockModalOpen && <BlockModal />}
+        {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}
+        {isLeaveGroupModalOpen && (
+          <LeaveGroupModal wsUrl={wsUrl} chatKey={user_uid} currentUid={currentUid} name={nickname} />
         )}
       </div>
-      {searchMessagesStore && (
-        <SearchResultCard
-          currentSearchIndex={searchIndicatorStore?.currentSearchIndex ?? 0}
-          lastSearchIndex={searchIndicatorStore?.lastSearchIndex ?? 0}
-        />
-      )}
-      {!contacts?.some((c) => c.uid === user_uid) && (
-        <HeaderTopButtonsBlock
-          wsUrl={wsUrl}
-          nickname={nickname ?? ''}
-          currentUid={currentUid}
-          chatKey={user_uid}
-          isBlocked={isBlocked}
-          isInContact={isInContacts}
-        />
-      )}
-      {isModalOpen && <NotificationModal />}
-      {isBlockModalOpen && <BlockModal />}
-      {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}
-      {isLeaveGroupModalOpen && (
-        <LeaveGroupModal wsUrl={wsUrl} chatKey={user_uid} currentUid={currentUid} name={nickname} />
-      )}
-    </div>
+      {isCallModalOpen && <OutgoingCallPanel avatarUrl={avatarUrl} contact={`${firstName} ${lastName}`} />}
+      {isIncomingModalOpen && <IncomingCallPanel contactFio={'test'} onReject={() => {}} onAccept={() => {}} />}
+    </>
   );
 };
