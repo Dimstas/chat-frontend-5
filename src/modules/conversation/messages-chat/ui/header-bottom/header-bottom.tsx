@@ -72,9 +72,9 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     if (document.activeElement === inputRef.current) {
       clearRepliedMessageStore();
       clearForwardMessageStore();
+      clearSelectedMessagesStore();
       setTextInput('');
     }
-    clearSelectedMessagesStore();
     clearAttachmentFilesStore();
     clearTextForAttachmentFilesStore();
   };
@@ -98,7 +98,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
-  console.log('forwardMessageStore: ', forwardMessageStore);
+  console.log('selectedMessagesStore: ', selectedMessagesStore);
   // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
   const { confirm } = useAlert();
   const handleAttachmentFilesClick = async (): Promise<void> => {
@@ -120,6 +120,11 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       }
       if (forwardMessageStore) {
         sendMessage({ content: forwardMessageStore?.content ?? '', forwardMessage: forwardMessageStore });
+      }
+      if (selectedMessagesStore) {
+        selectedMessagesStore.forEach((msg) => {
+          sendMessage({ content: msg.content ?? '', forwardMessage: msg });
+        });
       }
       clearForwardMessageStore();
       clearSelectedUidUserForForwardMessageStore();
