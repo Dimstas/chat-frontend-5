@@ -246,7 +246,7 @@ export const MessagesList = ({
                       <div className={styles.text}>непрочитанные сообщения</div>
                     )}
                     {message.from_user.uid === currentUserId || message.from_user.uid === '' ? (
-                      message.files_list.length ? (
+                      message.files_list.length || message.forwarded_messages[0]?.files_list.length ? (
                         <OutgoingFileCard
                           message={message}
                           sendDeleteMessage={sendDeleteMessage}
@@ -261,7 +261,7 @@ export const MessagesList = ({
                           isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                         />
                       )
-                    ) : message.files_list.length ? (
+                    ) : message.files_list.length || message.forwarded_messages[0]?.files_list.length ? (
                       <IncomingFileCard
                         message={message}
                         register={register}

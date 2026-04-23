@@ -68,10 +68,10 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
         sendMessage({ content: msg.content ?? '', forwardMessage: msg });
       });
     }
-    clearForwardMessageStore();
     clearSelectedUidUserForForwardMessageStore();
-    if (textInput !== '') {
+    if (document.activeElement === inputRef.current) {
       clearRepliedMessageStore();
+      clearForwardMessageStore();
       setTextInput('');
     }
     clearSelectedMessagesStore();
@@ -98,6 +98,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
+  console.log('forwardMessageStore: ', forwardMessageStore);
   // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
   const { confirm } = useAlert();
   const handleAttachmentFilesClick = async (): Promise<void> => {
@@ -105,7 +106,9 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       isAttachmentFiles: true,
     });
     if (ok) {
-      sendMessage({ content: textForAttachmentFilesRef.current, repliedMessage: repliedMessageStore });
+      sendMessage({
+        content: textForAttachmentFilesRef.current,
+      });
       if (attachmentFilesRef.current && attachmentFilesRef.current.length) {
         attachmentFilesRef.current.forEach((attachmentFile) => {
           sendMessage({
@@ -114,6 +117,9 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
             file: attachmentFile,
           });
         });
+      }
+      if (forwardMessageStore) {
+        sendMessage({ content: forwardMessageStore?.content ?? '', forwardMessage: forwardMessageStore });
       }
       clearForwardMessageStore();
       clearSelectedUidUserForForwardMessageStore();

@@ -112,9 +112,16 @@ export const OutgoingFileCard = ({
 
   //выясняем картинка это или файл по расширению в названии файла (если true - картинка)
   const fileImage = ['.jpeg', '.png', '.gif', '.webp', '.jpg'];
-  const isFileImage = fileImage.some((word) =>
-    message.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
-  );
+  let isFileImage: boolean | null = null;
+  if (message.files_list.length) {
+    isFileImage = fileImage.some((word) =>
+      message.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+    );
+  } else {
+    isFileImage = fileImage.some((word) =>
+      message.forwarded_messages[0].files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+    );
+  }
   // мгновенно скрывает в DOM карточку файла, отправку которого отменил пользователь
   const [isDeletedFile, setIsDeletedFile] = useState<boolean>(false);
   const handleDeleteFileClick = (): void => {
@@ -157,9 +164,21 @@ export const OutgoingFileCard = ({
                   </button>
                 ) : isFileImage ? (
                   <Image
-                    key={message.files_list[0].uid}
-                    src={message.files_list[0].file_url}
-                    alt={message.files_list[0].download_name}
+                    key={
+                      message.files_list.length
+                        ? message.files_list[0].uid
+                        : message.forwarded_messages[0].files_list[0].id
+                    }
+                    src={
+                      message.files_list.length
+                        ? message.files_list[0].file_url
+                        : message.forwarded_messages[0].files_list[0].file_url
+                    }
+                    alt={
+                      message.files_list.length
+                        ? message.files_list[0].download_name
+                        : message.forwarded_messages[0].files_list[0].download_name
+                    }
                     width={48}
                     height={48}
                   />
@@ -169,7 +188,14 @@ export const OutgoingFileCard = ({
               </div>
               <div className={styles.fileInfo}>
                 <div className={styles.fileName}>
-                  <HighlightedFileName fileName={message.files_list[0].download_name} search={search} />
+                  <HighlightedFileName
+                    fileName={
+                      message.files_list.length
+                        ? message.files_list[0].download_name
+                        : message.forwarded_messages[0].files_list[0].download_name
+                    }
+                    search={search}
+                  />
                 </div>
                 <div className={styles.fileSizeAndMessageTimeBlock}>
                   <div className={styles.fileSize}>5.2 MБ</div>

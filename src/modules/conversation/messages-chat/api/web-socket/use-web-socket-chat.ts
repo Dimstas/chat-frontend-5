@@ -400,7 +400,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
             first_name: forwardMessage.from_user.first_name ?? '',
             last_name: forwardMessage.from_user.last_name ?? '',
             content: forwardMessage.content,
-            files_list: [],
+            files_list: [...forwardMessage.files_list],
             avatar_webp_url: forwardMessage.from_user.avatar_webp_url,
           },
         ];
