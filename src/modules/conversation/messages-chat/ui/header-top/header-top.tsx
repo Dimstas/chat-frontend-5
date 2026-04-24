@@ -70,6 +70,21 @@ export const HeaderTop = ({
   }, [closeButtonMenu, openButtonMenu, isBlocked, isInContacts, user_uid]);
   const { contacts } = useContactsScreen();
 
+  const handleCall = async (): Promise<void> => {
+    if (!isCallModalOpen) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+        });
+
+        stream.getTracks().forEach((track) => track.stop());
+      } catch {
+        alert('Нет доступа к микрофону');
+      }
+    }
+    toggleCallsOpen();
+  };
+
   return (
     <>
       <div className={styles.wrapper}>
@@ -93,7 +108,7 @@ export const HeaderTop = ({
               <div className={styles.icon} onClick={() => setSearchMessagesVisible(true)}>
                 <SearchIcon />
               </div>
-              <div className={styles.icon} onClick={() => toggleCallsOpen()}>
+              <div className={styles.icon} onClick={handleCall}>
                 <CallIcon />
               </div>
             </>
