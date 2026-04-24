@@ -14,7 +14,7 @@ export const useDownloadMessageFile = (
   const downloadControllerRef = useRef<AbortController | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownloadMessageFileClick = async () => {
+  const handleDownloadMessageFileClick = async (): Promise<void> => {
     // Если уже идёт загрузка — отменяем предыдущую
     if (downloadControllerRef.current) {
       downloadControllerRef.current.abort();
@@ -39,42 +39,7 @@ export const useDownloadMessageFile = (
         method: 'GET',
         signal: controller.signal,
       });
-
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-      let blob: Blob;
-      const contentType = response.headers.get('content-type') || '';
-
-      if (contentType.startsWith('application/json')) {
-        const json = await response.json();
-        const base64String = typeof json === 'string' ? json : json.data;
-        if (!base64String) throw new Error('Нет base64 в ответе');
-        const pureBase64 = base64String.replace(/^data:[^;]+;base64,/, '').replace(/\s/g, '');
-        const binaryString = atob(pureBase64);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        const ext = file.download_name.split('.').pop()?.toLowerCase() || '';
-        const mimeMap: Record<string, string> = {
-          jpg: 'image/jpeg',
-          jpeg: 'image/jpeg',
-          png: 'image/png',
-          gif: 'image/gif',
-          webp: 'image/webp',
-          xls: 'application/vnd.ms-excel',
-          xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-          doc: 'application/msword',
-          docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          pdf: 'application/pdf',
-          zip: 'application/zip',
-        };
-        const mime = mimeMap[ext] || 'application/octet-stream';
-        blob = new Blob([bytes], { type: mime });
-      } else {
-        blob = await response.blob();
-      }
-
+      const blob = await response.blob();
       // Сохранение файла
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -96,7 +61,7 @@ export const useDownloadMessageFile = (
     }
   };
 
-  const handleStopDownloadMessageFileClick = () => {
+  const handleStopDownloadMessageFileClick = (): void => {
     if (downloadControllerRef.current) {
       downloadControllerRef.current.abort();
       downloadControllerRef.current = null;

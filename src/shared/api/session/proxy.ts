@@ -244,18 +244,28 @@ export const route = async (req: NextRequest, path: string[]): Promise<NextRespo
 
     const status = backendResponse.status;
     const headers = filterBackendHeaders(backendResponse.headers);
-
     if (status === 204 || status === 205 || status === 304) {
       return new NextResponse(null, { status, headers });
     }
-
-    const responseData = await backendResponse.text();
-    let response = new NextResponse(responseData, { status, headers });
-
+    const contentType = backendResponse.headers.get('content-type') || '';
+    const isJson = contentType.includes('application/json') || contentType.includes('application/problem+json');
+    const isText =
+      contentType.startsWith('text/') ||
+      contentType.includes('application/xml') ||
+      contentType.includes('application/x-www-form-urlencoded');
+    let response: NextResponse;
+    if (isJson || isText) {
+      // в случае если ответ в виде текста (UTF‑16/UTF‑8) в формате JSON
+      const responseData = await backendResponse.text();
+      response = new NextResponse(responseData, { status, headers });
+    } else {
+      // в случае бинарного ответа (image/*, application/pdf, docx, zip...) читаем как arrayBuffer
+      const ab = await backendResponse.arrayBuffer();
+      response = new NextResponse(ab, { status, headers });
+    }
     if (!isPublic && status === 401) {
       response = clearAuthCookies(response);
     }
-
     return response;
   } catch (error) {
     console.error('Proxy route error:', error);
