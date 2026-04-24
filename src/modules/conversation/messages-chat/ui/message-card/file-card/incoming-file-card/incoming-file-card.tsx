@@ -154,7 +154,7 @@ export const IncomingFileCard = ({
             <div className={styles.fileIcon}>
               {isFileImage ? (
                 isDownloading ? (
-                  <button onClick={handleStopDownloadMessageFileClick}>
+                  <button onClick={handleStopDownloadMessageFileClick} className={styles.deleteFileIcon}>
                     <DeleteFileIcon />
                   </button>
                 ) : (
@@ -181,7 +181,7 @@ export const IncomingFileCard = ({
                   </button>
                 )
               ) : isDownloading ? (
-                <button onClick={handleStopDownloadMessageFileClick}>
+                <button onClick={handleStopDownloadMessageFileClick} className={styles.deleteFileIcon}>
                   <DeleteFileIcon />
                 </button>
               ) : (

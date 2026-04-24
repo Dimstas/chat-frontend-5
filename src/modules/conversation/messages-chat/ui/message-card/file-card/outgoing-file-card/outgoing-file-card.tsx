@@ -164,12 +164,12 @@ export const OutgoingFileCard = ({
             <div className={styles.contentBlock}>
               <div className={styles.fileIcon}>
                 {message.status === 'pending' || message.status === 'failed' ? (
-                  <button onClick={handleDeleteFileClick}>
+                  <button onClick={handleDeleteFileClick} className={styles.deleteFileIcon}>
                     <DeleteFileIcon />
                   </button>
                 ) : isFileImage ? (
                   isDownloading ? (
-                    <button onClick={handleStopDownloadMessageFileClick}>
+                    <button onClick={handleStopDownloadMessageFileClick} className={styles.deleteFileIcon}>
                       <DeleteFileIcon />
                     </button>
                   ) : (
@@ -196,7 +196,7 @@ export const OutgoingFileCard = ({
                     </button>
                   )
                 ) : isDownloading ? (
-                  <button onClick={handleStopDownloadMessageFileClick}>
+                  <button onClick={handleStopDownloadMessageFileClick} className={styles.deleteFileIcon}>
                     <DeleteFileIcon />
                   </button>
                 ) : (
