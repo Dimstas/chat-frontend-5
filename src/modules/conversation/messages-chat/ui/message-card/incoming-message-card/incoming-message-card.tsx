@@ -6,7 +6,9 @@ import {
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
+  useUserIdStore,
 } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { JSX, MouseEvent, useEffect, useRef, useState } from 'react';
 import { ContextMenu } from '../../context-menu/context-menu';
@@ -105,6 +107,11 @@ export const IncomingMessagesCard = ({
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
 
+  // прописываем в компоненте актуальный user_uid открытого чата из store
+  const userId = useUserIdStore((s) => s.userId);
+  // выясняем это простой чат либо группа (если true то группа)
+  const hasGroup = userId.includes('group_');
+
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
@@ -126,15 +133,35 @@ export const IncomingMessagesCard = ({
           handleForwardClick={handleForwardClick}
           message={message}
         />
+        {hasGroup && (
+          <div className={styles.avatar}>
+            {message.from_user.avatar_webp_url ? (
+              <Image
+                key={message.from_user.uid}
+                src={message.from_user.avatar_webp_url}
+                alt={message.from_user.username}
+                width={32}
+                height={32}
+              />
+            ) : (
+              <Image src="/images/messages-chats/default-avatar.svg" alt="Дефолтный Аватар" width={32} height={32} />
+            )}
+          </div>
+        )}
         <div className={styles.item}>
-          {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
-          {message.forwarded_messages.length > 0 && <ForvardCard message={message} currentUserId={currentUserId} />}
-          <div className={styles.message}>
-            <span className={styles.messageText}>
-              <HighlightedMessage text={message.content ?? ''} search={search} />
-            </span>
-            <div className={styles.messageSentTime}>
-              <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
+          <div className={styles.box}>
+            {hasGroup && (
+              <div className={styles.name}> {`${message.from_user.first_name} ${message.from_user.last_name}`}</div>
+            )}
+            {message.replied_messages.length > 0 && <ReplyCard message={message} isIncomingMessage={true} />}
+            {message.forwarded_messages.length > 0 && <ForvardCard message={message} currentUserId={currentUserId} />}
+            <div className={styles.message}>
+              <span className={styles.messageText}>
+                <HighlightedMessage text={message.content ?? ''} search={search} />
+              </span>
+              <div className={styles.messageSentTime}>
+                <div className={styles.messageTime}> {getMessageTime(message.created_at)} </div>
+              </div>
             </div>
           </div>
         </div>

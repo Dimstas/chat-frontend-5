@@ -19,7 +19,7 @@
   background-color: var(--surface-disabled);
 }
 .wrapper {
-  @include mixins.flex-box($justify: start, $gap: 1rem);
+  @include mixins.flex-box($justify: start, $align: end, $gap: 1rem);
   width: 100%;
   height: auto;
   padding-left: 1.6rem;
@@ -27,7 +27,18 @@
   overflow: hidden;
   container-type: inline-size;
 }
-
+.avatar {
+  @include mixins.flex-box();
+  width: 3.2rem;
+  height: 3.2rem;
+  flex-shrink: 0;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+}
 .item {
   @include mixins.flex-box($direction: column, $align: start, $gap: 0.6rem);
   max-width: 32.5rem;
@@ -45,6 +56,19 @@
       max-width: 26rem;
     }
   }
+}
+.name {
+  @include mixins.flex-box($justify: start);
+  width: 100%;
+  height: 1.8rem;
+  max-width: 43.2rem;
+  line-height: 1.3;
+  font-style: bold;
+  font-size: 1.4rem;
+  letter-spacing: 0;
+  font-weight: 700;
+  color: var(--brand-primary);
+  overflow: hidden;
 }
 .contentBlock {
   @include mixins.flex-box($gap: 1.2rem);
