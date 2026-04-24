@@ -1,7 +1,10 @@
 import clsx from 'clsx';
 import { useCallsStore } from 'modules/conversation/messages-chat/model/calls/calls.store';
+import { CallAnimation } from 'modules/conversation/shared/ui/call-animation';
 import { JSX } from 'react';
 import { ImageUI } from 'shared/ui';
+import { getDurationTime } from '../../lib/get-duration-time';
+import CallActiveIcon from '../../shared/icons/call-active.svg';
 import CallEndIcon from '../../shared/icons/close.svg';
 import CloseScreenIcon from '../../shared/icons/closescreen.svg';
 import FullScreenIcon from '../../shared/icons/fullscreen.svg';
@@ -15,7 +18,7 @@ type OutgoingCallPanelProps = {
 };
 
 export const OutgoingCallPanel = ({ avatarUrl, contact }: OutgoingCallPanelProps): JSX.Element | null => {
-  const { isFullScreen, toggleFullScreen, toggleCallsOpen } = useCallsStore();
+  const { isFullScreen, state, duration, toggleFullScreen, toggleCallsOpen } = useCallsStore();
 
   const URL_DEFAULT_AVATAR = '/images/profile/default.png';
 
@@ -40,12 +43,27 @@ export const OutgoingCallPanel = ({ avatarUrl, contact }: OutgoingCallPanelProps
         <div className={styles.description}>
           <div className={styles.contact}>{contact}</div>
           <div className={styles.state}>
-            <p>Звонок</p>
-            <div className={styles.callAnimation}>
-              <div className={styles.dot}></div>
-              <div className={styles.dot}></div>
-              <div className={styles.dot}></div>
-            </div>
+            {state === 'call' && (
+              <>
+                <p>Звонок</p>
+                <CallAnimation />
+              </>
+            )}
+            {(state === 'connected' || state === 'end') && (
+              <>
+                <CallActiveIcon />
+                <p>{getDurationTime(duration)}</p>
+              </>
+            )}
+            {state === 'connecting' && (
+              <>
+                <p>Соединение</p>
+                <CallAnimation />
+              </>
+            )}
+            {state === 'error' && <p>Ошибка соединения</p>}
+            {state === 'rejected' && <p>Звонок отклонен</p>}
+            {state === 'unreceived' && <p>Не отвечает</p>}
           </div>
         </div>
       </div>
