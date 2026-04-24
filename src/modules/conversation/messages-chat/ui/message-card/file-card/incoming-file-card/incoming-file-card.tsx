@@ -1,6 +1,7 @@
 'use client';
 
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
+import { useDownloadMessageFile } from 'modules/conversation/messages-chat/hooks/use-download-message-file';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
 import {
   useForAllDeleteStore,
@@ -17,6 +18,7 @@ import { ForvardCard } from '../../forward-card/forward-card';
 import { MessageCheckBox } from '../../message-checkbox/message-checkbox';
 import { ReplyCard } from '../../reply-card/reply-card';
 import { HighlightedFileName } from '../highlighted-file-name/highlighted-file-name';
+import DeleteFileIcon from '../icons/delete-file-icon.svg';
 import FileIcon from '../icons/file-icon.svg';
 import styles from './incoming-file-card.module.scss';
 import { IncomingFileCardProps } from './incoming-file-card.props';
@@ -120,6 +122,10 @@ export const IncomingFileCard = ({
       message.forwarded_messages[0].files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
     );
   }
+  //хук для загрузки файла находящегося в сообщении
+  const { handleDownloadMessageFileClick, handleStopDownloadMessageFileClick, isDownloading } =
+    useDownloadMessageFile(message);
+
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
@@ -147,27 +153,41 @@ export const IncomingFileCard = ({
           <div className={styles.contentBlock}>
             <div className={styles.fileIcon}>
               {isFileImage ? (
-                <Image
-                  key={
-                    message.files_list.length
-                      ? message.files_list[0].uid
-                      : message.forwarded_messages[0].files_list[0].id
-                  }
-                  src={
-                    message.files_list.length
-                      ? message.files_list[0].file_url
-                      : message.forwarded_messages[0].files_list[0].file_url
-                  }
-                  alt={
-                    message.files_list.length
-                      ? message.files_list[0].download_name
-                      : message.forwarded_messages[0].files_list[0].download_name
-                  }
-                  width={48}
-                  height={48}
-                />
+                isDownloading ? (
+                  <button onClick={handleStopDownloadMessageFileClick}>
+                    <DeleteFileIcon />
+                  </button>
+                ) : (
+                  <button onClick={handleDownloadMessageFileClick} className={styles.fileIcon}>
+                    <Image
+                      key={
+                        message.files_list.length
+                          ? message.files_list[0].uid
+                          : message.forwarded_messages[0].files_list[0].id
+                      }
+                      src={
+                        message.files_list.length
+                          ? message.files_list[0].file_url
+                          : message.forwarded_messages[0].files_list[0].file_url
+                      }
+                      alt={
+                        message.files_list.length
+                          ? message.files_list[0].download_name
+                          : message.forwarded_messages[0].files_list[0].download_name
+                      }
+                      width={48}
+                      height={48}
+                    />
+                  </button>
+                )
+              ) : isDownloading ? (
+                <button onClick={handleStopDownloadMessageFileClick}>
+                  <DeleteFileIcon />
+                </button>
               ) : (
-                <FileIcon />
+                <button onClick={handleDownloadMessageFileClick}>
+                  <FileIcon />
+                </button>
               )}
             </div>
             <div className={styles.fileInfo}>

@@ -33,6 +33,7 @@ export const restMessageFileApiSchema = z.object({
   created_at: z.string(),
   updated_at: z.string(),
 });
+export type RestMessageFileApi = z.infer<typeof restMessageFileApiSchema>;
 
 export const restFlatMessageApiSchema = z.object({
   id: z.number(),

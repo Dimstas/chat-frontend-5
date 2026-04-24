@@ -201,8 +201,11 @@ export const route = async (req: NextRequest, path: string[]): Promise<NextRespo
   const accessToken = !isPublic ? cookieStore.get('access')?.value : undefined;
   const refreshToken = !isPublic ? cookieStore.get('refresh')?.value : undefined;
 
-  const targetUrl = `${BACKEND}/${path.join('/')}/${req.nextUrl.search}`;
-
+  let targetUrl = `${BACKEND}/${path.join('/')}/${req.nextUrl.search}`;
+  // Проверяем, заканчивается ли URL на .расширение файла/
+  if (/\.\w{2,4}\/$/i.test(targetUrl)) {
+    targetUrl = targetUrl.slice(0, -1);
+  }
   const makeBackendRequest = async (token?: string, body?: BodyInit | null): Promise<Response> => {
     const headers = prepareRequestHeaders(req, token, body);
     return fetch(targetUrl, {
