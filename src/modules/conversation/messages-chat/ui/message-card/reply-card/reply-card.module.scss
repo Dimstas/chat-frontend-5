@@ -1,10 +1,10 @@
 @use 'shared/styles/03_mixins' as mixins;
 
 .wrapper {
-  @include mixins.flex-box($direction: column, $gap: 0.2);
+  @include mixins.flex-box($gap: 0.2rem);
   width: 100%;
   max-width: 47.6rem;
-  height: 4.4rem;
+  height: 4.5rem;
   border-radius: 0.4rem;
   border-left: 0.4rem solid var(--brand-secondary);
   padding: 0.4rem 1rem;
@@ -16,6 +16,25 @@
   background-color: rgba(255, 255, 255, 0.5);
 }
 
+.fileIcon {
+  @include mixins.flex-box($gap: 1.2rem);
+  width: 3.7rem;
+  height: 3.7rem;
+  flex-shrink: 0;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.4rem;
+  }
+}
+.textBlock {
+  @include mixins.flex-box($direction: column, $gap: 0.2rem);
+  width: 100%;
+  height: 3.6rem;
+  max-width: 47.6rem;
+  overflow: hidden;
+}
 .text1 {
   @include mixins.flex-box($justify: start);
   width: 100%;

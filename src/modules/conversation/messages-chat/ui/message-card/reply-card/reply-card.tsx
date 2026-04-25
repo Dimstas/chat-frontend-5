@@ -1,16 +1,40 @@
 'use client';
 import clsx from 'clsx';
+import Image from 'next/image';
 import { JSX } from 'react';
+import FileIcon from '../icons/file.svg';
 import styles from './reply-card.module.scss';
 import type { ReplyCardProps } from './reply-card.props';
 
 export const ReplyCard = ({ message, isIncomingMessage }: ReplyCardProps): JSX.Element => {
+  //выясняем картинка это или файл по расширению в названии файла (если true - картинка)
+  const fileImage = ['.jpeg', '.png', '.gif', '.webp', '.jpg'];
+
   return (
     <div className={clsx(styles.wrapper, isIncomingMessage ? styles.incomingWrapper : styles.outgoingWrapper)}>
-      <div className={styles.text1}>
-        {` ${message?.replied_messages[0].first_name} ${message?.replied_messages[0].last_name}`}
+      {!!message?.replied_messages[0].files_list.length && (
+        <div className={styles.fileIcon}>
+          {fileImage.some((word) =>
+            message?.replied_messages[0].files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+          ) ? (
+            <Image
+              key={message?.replied_messages[0].files_list[0].uid}
+              src={message?.replied_messages[0].files_list[0].file_url}
+              alt={message?.replied_messages[0].files_list[0].download_name}
+              width={37}
+              height={37}
+            />
+          ) : (
+            <FileIcon />
+          )}
+        </div>
+      )}
+      <div className={styles.textBlock}>
+        <div className={styles.text1}>
+          {` ${message?.replied_messages[0].first_name} ${message?.replied_messages[0].last_name}`}
+        </div>
+        <div className={styles.text2}> {message?.replied_messages[0].content} </div>
       </div>
-      <div className={styles.text2}> {message?.replied_messages[0].content} </div>
     </div>
   );
 };

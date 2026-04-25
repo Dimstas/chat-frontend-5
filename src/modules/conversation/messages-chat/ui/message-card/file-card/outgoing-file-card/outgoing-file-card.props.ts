@@ -8,4 +8,5 @@ export type OutgoingFileCardProps = {
   ) => void;
   search: string;
   isHighlighted: boolean | string;
+  currentUserId: string;
 };

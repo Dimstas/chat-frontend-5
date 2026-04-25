@@ -29,7 +29,7 @@
 }
 
 .item {
-  @include mixins.flex-box($direction: column, $gap: 0.6rem);
+  @include mixins.flex-box($direction: column, $align: start, $gap: 0.6rem);
   max-width: 50rem;
   height: auto;
   padding: 1rem 1.2rem;

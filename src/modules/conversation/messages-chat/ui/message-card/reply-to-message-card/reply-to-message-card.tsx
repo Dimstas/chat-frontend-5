@@ -1,7 +1,9 @@
 'use client';
 import { useUserIdStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import Image from 'next/image';
 import { JSX, useEffect, useRef } from 'react';
 import Close from '../icons/close.svg';
+import FileIcon from '../icons/file.svg';
 import styles from './reply-to-message-card.module.scss';
 import type { ReplyToMessageCardProps } from './reply-to-message-card.props';
 
@@ -22,17 +24,39 @@ export const ReplyToMessageCard = ({
   const handleCloseClick = (): void => {
     clearRepliedMessageStore();
   };
+  //выясняем картинка это или файл по расширению в названии файла (если true - картинка)
+  const fileImage = ['.jpeg', '.png', '.gif', '.webp', '.jpg'];
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.forwardBlock}>
-        <div className={styles.textBlock}>
-          <div className={styles.text1}>
-            В ответ
-            <span className={styles.text11}>
-              {` ${repliedMessageStore?.from_user.first_name} ${repliedMessageStore?.from_user.last_name}`}
-            </span>
+        <div className={styles.fileIconAndText}>
+          {!!repliedMessageStore?.files_list.length && (
+            <div className={styles.fileIcon}>
+              {fileImage.some((word) =>
+                repliedMessageStore?.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+              ) ? (
+                <Image
+                  key={repliedMessageStore?.files_list[0].uid}
+                  src={repliedMessageStore?.files_list[0].file_url}
+                  alt={repliedMessageStore?.files_list[0].download_name}
+                  width={37}
+                  height={37}
+                />
+              ) : (
+                <FileIcon />
+              )}
+            </div>
+          )}
+          <div className={styles.textBlock}>
+            <div className={styles.text1}>
+              В ответ
+              <span className={styles.text11}>
+                {` ${repliedMessageStore?.from_user.first_name} ${repliedMessageStore?.from_user.last_name}`}
+              </span>
+            </div>
+            <div className={styles.text2}> {repliedMessageStore?.content} </div>
           </div>
-          <div className={styles.text2}> {repliedMessageStore?.content} </div>
         </div>
         <div className={styles.icon}>
           <button onClick={handleCloseClick}>
