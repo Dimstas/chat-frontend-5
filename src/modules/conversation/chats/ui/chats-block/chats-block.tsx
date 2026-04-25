@@ -3,11 +3,17 @@
 import { ChatCard } from 'modules/conversation/chats/entity/ui';
 import { DeleteSelectedContactsButton } from 'modules/conversation/contacts/features/contacts-selection';
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
+import { useRouter } from 'next/navigation';
 import { JSX } from 'react';
+import { Dropdown } from 'shared/ui/dropdown';
+import { DropdownItem } from 'shared/ui/dropdown/dropdown.props';
 import { useChatsScreen } from '../../screens/use-chats-screen';
 import { AddContactModal } from '../add-contact-modal';
 import { DeleteChatModal } from '../delete-chat-modal';
-
+import classes from './chat-block.module.scss';
+import CreateChannelIcon from './icons/CreateChannelIcon.svg';
+import CreateGroupIcon from './icons/CreateGroupIcon.svg';
+import CreateGropOrChannelIcon from './icons/CreateGroupOrChannelIcon.svg';
 // const chats = mockChatListApiResponse.results.map((r) => mapChatFromApi(r));
 
 export const ChatsBlock = (): JSX.Element => {
@@ -26,10 +32,32 @@ export const ChatsBlock = (): JSX.Element => {
     setIsFavorite,
     chats,
   } = useChatsScreen();
+  const router = useRouter();
+  const contactMenuItems: DropdownItem[] = [
+    {
+      label: 'Создать группу',
+      icon: <CreateGroupIcon />,
+      onClick: (): void => {
+        router.push('/new-group');
+      },
+    },
+    {
+      label: 'Создать канал',
+      icon: <CreateChannelIcon />,
+      onClick: (): void => {
+        router.push('/new-channel');
+      },
+    },
+  ];
   return (
     <>
       <ConversationLayout
-        header={<SearchInput query={search} onChange={setSearch} />}
+        header={
+          <div className={classes.searchInputContainer}>
+            <SearchInput query={search} onChange={setSearch} />
+            <Dropdown trigger={<CreateGropOrChannelIcon />} items={contactMenuItems} />
+          </div>
+        }
         footer={<DeleteSelectedContactsButton />}
       >
         <>

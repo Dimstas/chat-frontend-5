@@ -6,7 +6,7 @@ import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui'
 import { useWebSocketCreateGroup } from 'modules/new-group/api/web-socket/use-web-socket-create-group';
 import { useNewGroupStore } from 'modules/new-group/model/new-group-store';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { JSX, useEffect } from 'react';
 import { ButtonUI } from 'shared/ui';
 import { InviteMembersPanel } from '../invite-members-panel';
@@ -17,28 +17,43 @@ type InviteMembersBlockProps = {
 };
 
 export const InviteMembersBlock = ({ wsUrl }: InviteMembersBlockProps): JSX.Element => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  // Определяем режим по пути
+  const mode = pathname.includes('/new-channel') ? 'channel' : 'group';
+
   const { query, setQuery, clearQuery, contacts } = useContactsScreen();
   const enterSelectionMode = useContactsSelectionStore((s) => s.enterSelectionMode);
   const selectedUids = useContactsSelectionStore((s) => s.selectedIds);
-  const { name, description, chatType, avatarUid, resetGroup } = useNewGroupStore();
+  const { name, description, chatType, avatarUid, resetGroup, setMode } = useNewGroupStore();
   const { createGroup } = useWebSocketCreateGroup(wsUrl);
   const exitSelectionMode = useContactsSelectionStore((s) => s.exitSelectionMode);
-  const router = useRouter();
+
+  // Устанавливаем режим
+  useEffect(() => {
+    setMode(mode);
+  }, [mode, setMode]);
 
   useEffect(() => {
     enterSelectionMode();
   }, [enterSelectionMode]);
 
-  const handleCreateGroup = async (): Promise<void> => {
+  const title = 'Пригласить участников';
+  const backPath = mode === 'group' ? '/new-group' : '/new-channel';
+  const successPath = mode === 'group' ? '/new-group' : '/new-channel';
+  const buttonLabel = 'Создать';
+
+  const handleCreate = async (): Promise<void> => {
     if (!name.trim()) {
-      alert('Введите название группы');
-      router.push('/new-group');
+      alert(`Введите название ${mode === 'group' ? 'группы' : 'канала'}`);
+      router.push(backPath);
       return;
     }
 
     const usersArray = Array.isArray(selectedUids) ? selectedUids : Array.from(selectedUids);
 
-    if (usersArray.length === 0) {
+    if (mode === 'group' && usersArray.length === 0) {
       alert('Выберите хотя бы одного участника');
       return;
     }
@@ -49,24 +64,25 @@ export const InviteMembersBlock = ({ wsUrl }: InviteMembersBlockProps): JSX.Elem
         chatType,
         uidUsersList: usersArray,
         description: description || undefined,
-        avatarUid,
+        avatarUid: avatarUid || undefined,
       });
 
       resetGroup();
       exitSelectionMode();
-      console.log('созданная группа', result);
-      router.push(`/new-group`);
+      console.log(`Создан ${mode === 'group' ? 'группа' : 'канал'}:`, result);
+      router.push(successPath);
     } catch (error) {
-      console.error('Ошибка создания группы:', error);
-      alert('Не удалось создать группу. Попробуйте позже.');
+      console.error(`Ошибка создания ${mode === 'group' ? 'группы' : 'канала'}:`, error);
+      alert(`Не удалось создать ${mode === 'group' ? 'группу' : 'канал'}. Попробуйте позже.`);
     }
   };
 
-  const hasSelected = Array.isArray(selectedUids) ? selectedUids.length > 0 : selectedUids.size > 0;
+  const hasSelected =
+    mode === 'group' ? (Array.isArray(selectedUids) ? selectedUids.length > 0 : selectedUids.size > 0) : true; // Для канала выбор участников опционален
 
   return (
     <div className={styles.container}>
-      <button type="button" className={styles.returnButton} onClick={() => router.push('/new-group')}>
+      <button type="button" className={styles.returnButton} onClick={() => router.push(backPath)}>
         <div className={styles.iconAndLabelContainer}>
           <Image
             src="/images/settings/returnArrowIcon.svg"
@@ -75,7 +91,7 @@ export const InviteMembersBlock = ({ wsUrl }: InviteMembersBlockProps): JSX.Elem
             height={21}
             className={styles.returnIcon}
           />
-          <span className={styles.labelText}>Пригласить участников</span>
+          <span className={styles.labelText}>{title}</span>
         </div>
       </button>
 
@@ -86,10 +102,10 @@ export const InviteMembersBlock = ({ wsUrl }: InviteMembersBlockProps): JSX.Elem
             <ButtonUI
               variant="general"
               appearance="primary"
-              label="Создать"
+              label={buttonLabel}
               type="button"
               disabled={!hasSelected}
-              onClick={handleCreateGroup}
+              onClick={handleCreate}
             />
           </div>
         }
