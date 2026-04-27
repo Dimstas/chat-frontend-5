@@ -21,7 +21,7 @@
 .wrapper {
   @include mixins.flex-box($justify: end, $gap: 1rem);
   width: 100%;
-  height: 6.8rem;
+  height: auto;
   padding-left: 5.2rem;
   padding-right: 1.6rem;
   overflow: hidden;
@@ -29,10 +29,10 @@
 }
 
 .item {
-  @include mixins.flex-box($direction: column, $gap: 0.6rem);
+  @include mixins.flex-box($direction: column, $align: start, $gap: 0.6rem);
   max-width: 32.5rem;
   width: auto;
-  height: 6.8rem;
+  height: auto;
   padding: 1rem 1.2rem;
   border-top-left-radius: 1.6rem;
   border-top-right-radius: 1.6rem;
@@ -55,7 +55,24 @@
   @include mixins.flex-box($gap: 1.2rem);
   width: 4.8rem;
   height: 4.8rem;
-  border-radius: 0.4rem;
+  flex-shrink: 0;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.4rem;
+  }
+}
+.deleteFileIcon :global([class$='__white-segment']) {
+  display: block;
+  transform-origin: 24px 24px;
+  animation: rotateSegment 2s linear infinite;
+}
+
+@keyframes rotateSegment {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 .fileInfo {
   @include mixins.flex-box($direction: column, $gap: 0.4rem);
@@ -75,14 +92,13 @@
 }
 .fileSizeAndMessageTimeBlock {
   @include mixins.flex-box($justify: space-between, $gap: 0.2rem);
-  width: auto;
+  width: 100%;
   height: 1.8rem;
 }
 .fileSize {
   @include mixins.flex-box();
   width: auto;
   height: 1.7rem;
-  height: 2.1rem;
   line-height: 1.2;
   font-size: 1.4rem;
   letter-spacing: 0.01;

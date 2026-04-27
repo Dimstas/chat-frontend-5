@@ -89,6 +89,10 @@ const AlertMessageInput = ({ textInput, setTextInput }: AlertMessageInputProps):
   const recentEmojisStore = useRecentEmojiStore((s) => s.recentEmojis);
   const setRecentEmojisStore = useRecentEmojiStore((s) => s.setRecentEmojis);
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   const handleEmojiSelect = (emoji: string): void => {
     setShowEmojiPicker(false);
     setRecentEmojisStore(addRecentEmodji(emoji));
