@@ -14,6 +14,18 @@ import {
   serializerRequestLeaveGroupApiSchema,
 } from 'modules/info/model/info.web-socket.api.schema';
 import { useCallback, useEffect, useRef } from 'react';
+import { AnswerCallRequestAPI } from '../../model/calls';
+import {
+  CallCompleteRequestAPI,
+  CallStateRequestAPI,
+  IceCandidateRequestAPI,
+  OfferCallRequestAPI,
+  serializerAnswerRequestApiSchema,
+  serializerCallCompleteRequestApiSchema,
+  serializerCallOfferRequestApiSchema,
+  serializerCallStateRequestApiSchema,
+  serializerIceCandidateRequestApiSchema,
+} from '../../model/calls/calls.web-socket.api.schema';
 import type {
   ChangeStatusReadMessageAPI,
   CreateTextMessageAPI,
@@ -46,6 +58,11 @@ type UseWebSocketChat = {
   sendDeleteGroup: (payload: DeleteGroupRequestAPI) => void;
   sendEditGroup: (payload: EditChatRequestAPI) => void;
   sendClearGroup: (payload: ClearGroupRequestAPI) => void;
+  sendAnswerCall: (payload: AnswerCallRequestAPI) => void;
+  sendCallCompletion: (payload: CallCompleteRequestAPI) => void;
+  sendCallStateUpdate: (payload: CallStateRequestAPI) => void;
+  sendIceCandidate: (payload: IceCandidateRequestAPI) => void;
+  sendOfferCall: (payload: OfferCallRequestAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
@@ -543,6 +560,61 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     }
   };
 
+  // Отправляет ответ на входящий WebRTC вызов с SDP answer.
+  const sendAnswerCall = (payload: AnswerCallRequestAPI): void => {
+    const resultZod = serializerAnswerRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send answer to call: ', payload);
+    }
+  };
+
+  // Для изменения сообщения о статусе звонка.
+  const sendCallCompletion = (payload: CallCompleteRequestAPI): void => {
+    const resultZod = serializerCallCompleteRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send complete call: ', payload);
+    }
+  };
+
+  // Для передачи состояния WebRTC соединения.
+  const sendCallStateUpdate = (payload: CallStateRequestAPI): void => {
+    const resultZod = serializerCallStateRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send call state: ', payload);
+    }
+  };
+
+  // Пересылает ICE кандидаты для установления WebRTC соединения.
+  const sendIceCandidate = (payload: IceCandidateRequestAPI): void => {
+    const resultZod = serializerIceCandidateRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send ice candidate: ', payload);
+    }
+  };
+
+  // Инициирует голосовой или видеовызов между пользователями
+  const sendOfferCall = (payload: OfferCallRequestAPI): void => {
+    const resultZod = serializerCallOfferRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send offer call: ', payload);
+    }
+  };
+
   // Функция отправки сообщения на изменение статуса прочитки входящего сообщения
   const sendChangeStatusReadMessage = useCallback(
     (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
@@ -641,6 +713,11 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     sendDeleteGroup,
     sendEditGroup,
     sendClearGroup,
+    sendAnswerCall,
+    sendCallCompletion,
+    sendCallStateUpdate,
+    sendIceCandidate,
+    sendOfferCall,
     sendChangeStatusReadMessage,
     sendDeleteMessage,
   };
