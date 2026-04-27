@@ -9,9 +9,7 @@ import { InfoAvatarUploader } from 'modules/info/ui/info-avatar-uploader';
 import { InfoGroupInviteLink } from 'modules/info/ui/info-group-invite-link';
 import { InfoGroupSettingsSaveButton } from 'modules/info/ui/info-group-settings-save-button';
 import { InfoGroupSummaryEdit } from 'modules/info/ui/info-group-summary-edit';
-import { InfoGroupTypeSelect } from 'modules/info/ui/info-group-type-select';
 import { InfoNotification } from 'modules/info/ui/info-notification';
-import { GroupType } from 'modules/new-group/lib/group-type-select/use-groupe-type-select';
 import { JSX, useEffect } from 'react';
 
 export const SettingsPanel = ({
