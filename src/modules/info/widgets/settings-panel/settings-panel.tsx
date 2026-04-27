@@ -92,7 +92,7 @@ export const SettingsPanel = ({
           <InfoAvatarUploader avatarHref={profile?.avatar} />
           <InfoNotification chatId={profile?.id} />
           <InfoGroupSummaryEdit />
-          <InfoGroupTypeSelect chatType={profile?.chatType as GroupType} />
+          {/* <InfoGroupTypeSelect onChange={}chatType={profile?.chatType as GroupType} /> */}
           <InfoGroupInviteLink inviteLink={link?.invite_link ?? ''} chatKey={uid} />
           <InfoGroupSettingsSaveButton label={'Сохранить'} onClick={handleSave} disabled={!hasChanges} />
           <EditChatModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} />
