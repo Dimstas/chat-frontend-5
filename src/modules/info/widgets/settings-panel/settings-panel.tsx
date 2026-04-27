@@ -9,9 +9,7 @@ import { InfoAvatarUploader } from 'modules/info/ui/info-avatar-uploader';
 import { InfoGroupInviteLink } from 'modules/info/ui/info-group-invite-link';
 import { InfoGroupSettingsSaveButton } from 'modules/info/ui/info-group-settings-save-button';
 import { InfoGroupSummaryEdit } from 'modules/info/ui/info-group-summary-edit';
-import { InfoGroupTypeSelect } from 'modules/info/ui/info-group-type-select';
 import { InfoNotification } from 'modules/info/ui/info-notification';
-import { GroupType } from 'modules/new-group/lib/group-type-select/use-groupe-type-select';
 import { JSX, useEffect } from 'react';
 
 export const SettingsPanel = ({
@@ -92,7 +90,7 @@ export const SettingsPanel = ({
           <InfoAvatarUploader avatarHref={profile?.avatar} />
           <InfoNotification chatId={profile?.id} />
           <InfoGroupSummaryEdit />
-          <InfoGroupTypeSelect chatType={profile?.chatType as GroupType} />
+          {/* <InfoGroupTypeSelect onChange={}chatType={profile?.chatType as GroupType} /> */}
           <InfoGroupInviteLink inviteLink={link?.invite_link ?? ''} chatKey={uid} />
           <InfoGroupSettingsSaveButton label={'Сохранить'} onClick={handleSave} disabled={!hasChanges} />
           <EditChatModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} />

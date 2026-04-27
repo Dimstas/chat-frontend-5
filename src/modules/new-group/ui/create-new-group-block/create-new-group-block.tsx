@@ -4,7 +4,7 @@ import { useNewGroupStore } from 'modules/new-group/model/new-group-store';
 import { useImageUpload } from 'modules/settings/lib/edit-profile-block/use-image-upload';
 import { ImageCropperModal } from 'modules/settings/ui/image-cropper/image-cropper-modal';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { JSX, useEffect, useState } from 'react';
 import { ButtonUI } from 'shared/ui';
 import DualInput from '../dual-input/dual-input';
@@ -12,8 +12,12 @@ import GroupTypeSelect from '../group-type-select/group-type-select';
 import styles from './create-new-group-block.module.scss';
 
 export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
-  const { setGroupData } = useNewGroupStore();
+  const { setGroupData, setMode, resetGroup } = useNewGroupStore();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Определяем режим по пути
+  const mode = pathname.includes('/new-channel') ? 'channel' : 'group';
 
   const {
     selectedFile,
@@ -29,10 +33,16 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
   const [croppedZoom, setCroppedZoom] = useState<number | null>(null);
   const [groupName, setGroupName] = useState('');
   const [groupDescription, setGroupDescription] = useState('');
-  const [groupType, setGroupType] = useState<'public-group' | 'private-group' | 'public-channel' | 'private-channel'>(
-    'private-group',
+  const [chatType, setChatType] = useState<'public-group' | 'private-group' | 'public-channel' | 'private-channel'>(
+    mode === 'group' ? 'public-group' : 'public-channel',
   );
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  // Устанавливаем режим при монтировании
+  useEffect(() => {
+    setMode(mode);
+    resetGroup();
+  }, [mode, setMode, resetGroup]);
 
   useEffect(() => {
     if (previewUrl) {
@@ -50,8 +60,8 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
     setGroupData({ description: val });
   };
 
-  const handleTypeChange = (type: typeof groupType): void => {
-    setGroupType(type);
+  const handleTypeChange = (type: typeof chatType): void => {
+    setChatType(type);
     setGroupData({ chatType: type });
   };
 
@@ -86,12 +96,18 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
 
   const next = (): void => {
     if (!groupName.trim()) {
-      alert('Введите название группы');
+      alert('Введите название');
       return;
     }
-    router.push('/new-group/invite-members');
+    // Разные пути для группы и канала
+    if (mode === 'group') {
+      router.push('/new-group/invite-members');
+    } else {
+      router.push('/new-channel/invite-members');
+    }
   };
 
+  const title = mode === 'group' ? 'Создать группу' : 'Создать канал';
   const avatarSrc = previewUrl || '/images/settings/noAvatarIcon.svg';
   const avatarStyle: React.CSSProperties = {};
   if (croppedZoom !== null && previewUrl) {
@@ -111,13 +127,13 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
               height={21}
               className={styles.returnIcon}
             />
-            <span className={styles.labelText}>Создать группу</span>
+            <span className={styles.labelText}>{title}</span>
           </div>
         </button>
 
         <div className={styles.imageContainer}>
           <div className={styles.avatar}>
-            <Image src={avatarSrc} alt="Аватар группы" width={200} height={200} className="" style={avatarStyle} />
+            <Image src={avatarSrc} alt="Аватар" width={200} height={200} className="" style={avatarStyle} />
           </div>
           <button type="button" className={styles.selectImage} onClick={triggerFileSelect} disabled={isUploadingAvatar}>
             {isUploadingAvatar ? 'Загрузка...' : 'Выбрать фотографию'}
@@ -144,7 +160,7 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
             onChangeSecond={handleDescChange}
           />
 
-          <GroupTypeSelect initial={groupType} onChange={handleTypeChange} />
+          <GroupTypeSelect mode={mode} initial={chatType} onChange={handleTypeChange} />
 
           <ButtonUI
             variant="general"

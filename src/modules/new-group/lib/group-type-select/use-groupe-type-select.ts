@@ -1,25 +1,41 @@
 import { useState } from 'react';
 
-export type GroupType = 'private-group' | 'public-group' | 'public-channel' | 'private-channel';
+// Общий тип для групп и каналов
+export type GroupType = 'private-group' | 'public-group';
+export type ChannelType = 'private-channel' | 'public-channel';
+export type ChatType = GroupType | ChannelType;
 
 type UseGroupTypeSelectProps = {
-  initial?: GroupType;
+  mode?: 'group' | 'channel';
+  initial?: ChatType;
 };
 
 type UseGroupTypeSelectReturn = {
-  selected: GroupType;
+  selected: ChatType;
   selectClosed: () => void;
   selectOpen: () => void;
-  setSelected: (value: GroupType) => void;
+  setSelected: (value: ChatType) => void;
 };
 
 export const useGroupTypeSelect = ({
-  initial = 'private-group',
+  mode = 'group',
+  initial,
 }: UseGroupTypeSelectProps = {}): UseGroupTypeSelectReturn => {
-  const [selected, setSelected] = useState<GroupType>(initial);
+  // Значения по умолчанию в зависимости от режима
+  const getDefaultInitial = (): ChatType => {
+    if (initial) return initial;
+    return mode === 'group' ? 'public-group' : 'public-channel';
+  };
 
-  const selectClosed = (): void => setSelected('private-group');
-  const selectOpen = (): void => setSelected('public-group');
+  const [selected, setSelected] = useState<ChatType>(getDefaultInitial);
+
+  const selectClosed = (): void => {
+    setSelected(mode === 'group' ? 'private-group' : 'private-channel');
+  };
+
+  const selectOpen = (): void => {
+    setSelected(mode === 'group' ? 'public-group' : 'public-channel');
+  };
 
   return {
     selected,
