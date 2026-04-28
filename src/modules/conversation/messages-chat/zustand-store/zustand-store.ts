@@ -345,3 +345,15 @@ export const useTextForAttachmentFilesStore = create<TextForAttachmentFilesState
   setTextForAttachmentFiles: (textForAttachmentFiles: string): void => set({ textForAttachmentFiles }),
   clearTextForAttachmentFiles: (): void => set({ textForAttachmentFiles: '' }),
 }));
+
+type AudioFilesState = {
+  audioFiles: Attachment[];
+  setAudioFiles: (value: Attachment[]) => void;
+  clearAudioFiles: () => void;
+};
+
+export const useAudioFilesStore = create<AudioFilesState>((set) => ({
+  audioFiles: [],
+  setAudioFiles: (audioFiles): void => set({ audioFiles }),
+  clearAudioFiles: (): void => set({ audioFiles: [] }),
+}));

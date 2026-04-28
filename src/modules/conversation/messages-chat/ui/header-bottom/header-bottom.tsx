@@ -5,6 +5,7 @@ import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { useAlert } from '../../hooks/use-alert';
 import {
   useAttachmentFilesStore,
+  useAudioFilesStore,
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
@@ -19,6 +20,7 @@ import { ForwardMessageCard } from '../message-card/forward-message-card/forward
 import { ForwardMessagesCard } from '../message-card/forward-messages-card/forward-messages-card';
 import { ReplyToMessageCard } from '../message-card/reply-to-message-card/reply-to-message-card';
 import { MessageInput } from '../message-input/message-input';
+import { AudioRecorderHeader } from './audio-recorder-header/audio-recorder-header';
 import styles from './header-bottom.module.scss';
 import type { HeaderBottomProps } from './header-bottom.props';
 import ClipIcon from './icon/clip.svg';
@@ -45,7 +47,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const clearTextForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.clearTextForAttachmentFiles);
   const textForAttachmentFilesRef = useRef<string>(textForAttachmentFilesStore);
   const attachmentFilesRef = useRef<Attachment[]>(attachmentFilesStore);
-
+  const audioFilesStore = useAudioFilesStore((s) => s.audioFiles);
   useEffect(() => {
     textForAttachmentFilesRef.current = textForAttachmentFilesStore;
     attachmentFilesRef.current = attachmentFilesStore;
@@ -55,7 +57,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
     }
-  }, [repliedMessageStore, forwardMessageStore, selectedMessagesStore, userIdStore]);
+  }, [repliedMessageStore, forwardMessageStore, selectedMessagesStore, userIdStore, audioFilesStore]);
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
@@ -136,65 +138,74 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       // отмена — ничего не делаем
     }
   };
-
+  //состояние для записи аудиосообщения
+  const [isRecordingMessage, setIsRecordingMessage] = useState<boolean>(false);
   return (
-    <div className={styles.block}>
-      {checkBoxsVisibleStore ? (
-        <ChooseMessagesCard
-          setCheckBoxsVisibleStore={setCheckBoxsVisibleStore}
-          selectedMessagesStore={selectedMessagesStore}
-          clearSelectedMessagesStore={clearSelectedMessagesStore}
-          sendDeleteMessage={sendDeleteMessage}
-        />
+    <>
+      {isRecordingMessage ? (
+        <AudioRecorderHeader setIsRecordingMessage={setIsRecordingMessage} sendMessage={sendMessage} />
       ) : (
-        <>
-          {repliedMessageStore && (
-            <ReplyToMessageCard
-              repliedMessageStore={repliedMessageStore}
-              clearRepliedMessageStore={clearRepliedMessageStore}
-            />
-          )}
-          {forwardMessageStore && (
-            <ForwardMessageCard
-              forwardMessageStore={forwardMessageStore}
-              clearForwardMessageStore={clearForwardMessageStore}
-            />
-          )}
-          {!!selectedMessagesStore?.length && (
-            <ForwardMessagesCard
+        <div className={styles.block}>
+          {checkBoxsVisibleStore ? (
+            <ChooseMessagesCard
+              setCheckBoxsVisibleStore={setCheckBoxsVisibleStore}
               selectedMessagesStore={selectedMessagesStore}
               clearSelectedMessagesStore={clearSelectedMessagesStore}
-              currentUserId={currentUserId}
+              sendDeleteMessage={sendDeleteMessage}
             />
-          )}
-          <form className={styles.wrapper} onSubmit={handleSubmitForm}>
-            <div
-              className={contextMenuVisible ? clsx(styles.clipIcon, styles.clipIconActive) : styles.clipIcon}
-              ref={clipIconButtonRef}
-              onClick={handleContextMenu}
-            >
-              {contextMenuVisible && (
-                <ContextMenuAttachFile
-                  contextMenuPos={contextMenuPos}
-                  handleCloseMenu={handleCloseMenu}
-                  handleAttachmentFilesClick={handleAttachmentFilesClick}
+          ) : (
+            <>
+              {repliedMessageStore && (
+                <ReplyToMessageCard
+                  repliedMessageStore={repliedMessageStore}
+                  clearRepliedMessageStore={clearRepliedMessageStore}
                 />
               )}
-              <ClipIcon />
-            </div>
-            <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
-            <span className={styles.micIcon}>
-              {textInput ? (
-                <button type="submit" style={{ width: '5rem', height: '5rem' }}>
-                  <Submit />
-                </button>
-              ) : (
-                <MicIcon />
+              {forwardMessageStore && (
+                <ForwardMessageCard
+                  forwardMessageStore={forwardMessageStore}
+                  clearForwardMessageStore={clearForwardMessageStore}
+                />
               )}
-            </span>
-          </form>
-        </>
+              {!!selectedMessagesStore?.length && (
+                <ForwardMessagesCard
+                  selectedMessagesStore={selectedMessagesStore}
+                  clearSelectedMessagesStore={clearSelectedMessagesStore}
+                  currentUserId={currentUserId}
+                />
+              )}
+              <form className={styles.wrapper} onSubmit={handleSubmitForm}>
+                <div
+                  className={contextMenuVisible ? clsx(styles.clipIcon, styles.clipIconActive) : styles.clipIcon}
+                  ref={clipIconButtonRef}
+                  onClick={handleContextMenu}
+                >
+                  {contextMenuVisible && (
+                    <ContextMenuAttachFile
+                      contextMenuPos={contextMenuPos}
+                      handleCloseMenu={handleCloseMenu}
+                      handleAttachmentFilesClick={handleAttachmentFilesClick}
+                    />
+                  )}
+                  <ClipIcon />
+                </div>
+                <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
+                <span className={styles.micIcon}>
+                  {textInput ? (
+                    <button type="submit" style={{ width: '5rem', height: '5rem' }}>
+                      <Submit />
+                    </button>
+                  ) : (
+                    <button onClick={() => setIsRecordingMessage(true)}>
+                      <MicIcon />
+                    </button>
+                  )}
+                </span>
+              </form>
+            </>
+          )}
+        </div>
       )}
-    </div>
+    </>
   );
 };
