@@ -49,7 +49,7 @@
 .contentBlock {
   @include mixins.flex-box($gap: 1.2rem);
   width: auto;
-  height: 4.8rem;
+  height: auto;
 }
 .fileIcon {
   @include mixins.flex-box($gap: 1.2rem);
@@ -77,7 +77,7 @@
 .fileInfo {
   @include mixins.flex-box($direction: column, $gap: 0.4rem);
   width: auto;
-  height: 4.3rem;
+  height: auto;
 }
 .fileName {
   @include mixins.flex-box();
@@ -91,12 +91,12 @@
   overflow: hidden;
 }
 .voiceLine {
-  @include mixins.flex-box($gap: 0.2rem);
-  width: auto;
-  height: 2rem;
   padding-top: 0.6rem;
-  overflow: hidden;
+  width: 100%;
+  height: auto;
+  cursor: pointer;
 }
+
 .fileSizeAndMessageTimeBlock {
   @include mixins.flex-box($justify: space-between, $gap: 0.2rem);
   width: 100%;

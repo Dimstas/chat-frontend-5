@@ -1,8 +1,9 @@
 'use client';
 
 import { useAlert } from 'modules/conversation/messages-chat/hooks/use-alert';
-import { useDownloadMessageFile } from 'modules/conversation/messages-chat/hooks/use-download-message-file';
+import { useAudioPlayer } from 'modules/conversation/messages-chat/hooks/use-audio-player';
 import { getMessageTime } from 'modules/conversation/messages-chat/lib/get-message-time';
+import { formatTime } from 'modules/conversation/messages-chat/utils/format-cecond';
 import {
   useForAllDeleteStore,
   useForwardMessageStore,
@@ -21,6 +22,7 @@ import { ForvardCard } from '../../forward-card/forward-card';
 import { MessageCheckBox } from '../../message-checkbox/message-checkbox';
 import { ReplyCard } from '../../reply-card/reply-card';
 import AudioPlayIcon from '../icon/audio-play.svg';
+import AudioStopIcon from '../icon/audio-stop.svg';
 import styles from './incoming-audio-card.module.scss';
 import { IncomingAudioCardProps } from './incoming-audio-card.props';
 
@@ -110,14 +112,12 @@ export const IncomingAudioCard = ({
   };
   // показывать компоненты <MessageCheckBox/> в DOM либо нет
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
-
-  //хук для загрузки файла находящегося в сообщении
-  const { handleDownloadMessageFileClick, handleStopDownloadMessageFileClick, isDownloading } =
-    useDownloadMessageFile(message);
   // прописываем в компоненте актуальный user_uid открытого чата из store
   const userId = useUserIdStore((s) => s.userId);
   // выясняем это простой чат либо группа (если true то группа)
   const hasGroup = userId.includes('group_');
+  // хук для прослушивания аудиосообщения
+  const { handlePlayPause, currentTime, totalDuration, waveformRef, isPlaying, isLoading } = useAudioPlayer(message);
 
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
@@ -163,13 +163,11 @@ export const IncomingAudioCard = ({
           {message.forwarded_messages.length > 0 && <ForvardCard message={message} currentUserId={currentUserId} />}
           <div className={styles.contentBlock}>
             <div className={styles.fileIcon}>
-              {isDownloading ? (
-                <button onClick={handleStopDownloadMessageFileClick} className={styles.deleteFileIcon}>
-                  <DeleteFileIcon />
-                </button>
+              {isLoading ? (
+                <DeleteFileIcon />
               ) : (
-                <button onClick={handleDownloadMessageFileClick} className={styles.fileIcon}>
-                  <AudioPlayIcon />
+                <button onClick={handlePlayPause} className={styles.fileIcon}>
+                  {isPlaying ? <AudioStopIcon /> : <AudioPlayIcon />}
                 </button>
               )}
             </div>
@@ -184,8 +182,11 @@ export const IncomingAudioCard = ({
                   search={search}
                 />
               </div>
+              <div className={styles.voiceLine} ref={waveformRef} />
               <div className={styles.fileSizeAndMessageTimeBlock}>
-                <div className={styles.fileSize}>0:12</div>
+                <div className={styles.fileSize}>
+                  {currentTime ? formatTime(currentTime) : formatTime(totalDuration)}
+                </div>
                 <div className={styles.messageTime}>{getMessageTime(message.created_at)}</div>
               </div>
             </div>

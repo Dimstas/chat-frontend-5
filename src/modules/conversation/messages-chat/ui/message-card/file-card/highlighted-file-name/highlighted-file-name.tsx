@@ -81,7 +81,7 @@ const HighlightedText = ({ text, search, caseSensitive = false }: HighlightedTex
 export const HighlightedFileName = ({
   fileName,
   search,
-  maxWidth = 173,
+  maxWidth = 170,
   caseSensitive = false,
 }: HighlightedFileNameProps): JSX.Element => {
   const [displayName, setDisplayName] = useState(fileName);
