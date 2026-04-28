@@ -357,3 +357,37 @@ export const useAudioFilesStore = create<AudioFilesState>((set) => ({
   setAudioFiles: (audioFiles): void => set({ audioFiles }),
   clearAudioFiles: (): void => set({ audioFiles: [] }),
 }));
+
+type AudioPlayerState = {
+  currentPlayingId: string | null;
+  currentPlayingRef: React.MutableRefObject<(() => void) | null> | null;
+  setCurrentPlaying: (id: string | null, stopCallback?: () => void) => void;
+  stopCurrentPlaying: () => void;
+};
+
+export const useAudioManagerStore = create<AudioPlayerState>((set, get) => ({
+  currentPlayingId: null,
+  currentPlayingRef: null,
+  setCurrentPlaying: (id, stopCallback?): void => {
+    const { currentPlayingRef, currentPlayingId } = get();
+
+    // Если уже есть воспроизведение и это не тот же трек
+    if (currentPlayingId && currentPlayingId !== id) {
+      // Останавливаем предыдущее воспроизведение
+      if (currentPlayingRef?.current) {
+        currentPlayingRef.current();
+      }
+    }
+    set({
+      currentPlayingId: id,
+      currentPlayingRef: stopCallback ? { current: stopCallback } : null,
+    });
+  },
+  stopCurrentPlaying: (): void => {
+    const { currentPlayingRef } = get();
+    if (currentPlayingRef?.current) {
+      currentPlayingRef.current();
+    }
+    set({ currentPlayingId: null, currentPlayingRef: null });
+  },
+}));

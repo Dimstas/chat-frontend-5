@@ -2,6 +2,7 @@
 import { RefObject, useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import type { RestMessageApi } from '../model/messages-list';
+import { useAudioManagerStore } from '../zustand-store/zustand-store';
 
 type UseAudioPlayerReturn = {
   handlePlayPause: () => void;
@@ -23,10 +24,34 @@ export const useAudioPlayer = (
   const [isLoading, setIsLoading] = useState(true);
   const savedTimeRef = useRef<number>(0);
   const isPlayingRef = useRef<boolean>(false); // Добавляем ref для отслеживания состояния воспроизведения
+  const { currentPlayingId, setCurrentPlaying, stopCurrentPlaying } = useAudioManagerStore();
+
   // Получаем URL аудиофайла
   const audioUrl = message.files_list.length
     ? message.files_list[0].file_url
     : message.forwarded_messages[0]?.files_list[0]?.file_url;
+
+  // Функция остановки воспроизведения
+  const stopPlayback = (): void => {
+    if (wavesurferRef.current && isPlaying) {
+      wavesurferRef.current.pause();
+      setIsPlaying(false);
+    }
+  };
+
+  // Регистрируем функцию остановки в глобальном менеджере
+  useEffect(() => {
+    if (isPlaying && message.uid) {
+      setCurrentPlaying(message.uid, stopPlayback);
+    }
+
+    return (): void => {
+      if (currentPlayingId === message.uid) {
+        setCurrentPlaying(null);
+      }
+    };
+  }, [isPlaying, message.uid]);
+
   useEffect(() => {
     if (!waveformRef.current || !audioUrl) return;
     let ws: WaveSurfer | null = null;
@@ -124,9 +149,15 @@ export const useAudioPlayer = (
     };
   }, [audioUrl]);
   const handlePlayPause = (): void => {
-    if (wavesurferRef.current && !isLoading) {
-      console.log(wavesurferRef.current);
-      wavesurferRef.current.playPause();
+    if (isPlaying) {
+      // Если сейчас играет - останавливаем
+      stopPlayback();
+      stopCurrentPlaying();
+    } else {
+      // Если не играет - запускаем
+      // Менеджер сам остановит другие плееры
+      setCurrentPlaying(message.uid, stopPlayback);
+      wavesurferRef.current?.play();
     }
   };
   return { handlePlayPause, currentTime, totalDuration, waveformRef, isPlaying, isLoading };
