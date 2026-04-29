@@ -115,16 +115,19 @@ export const useAudioPlayer = (
           }
         });
         ws.on('error', (err) => {
+          // Уберите console.error для AbortError, или хотя бы не трогайте его
+          if (err?.name === 'AbortError') return;
           console.error('WaveSurfer ошибка:', err);
           setIsLoading(false);
         });
         // Загружаем аудио по URL
         await ws.load(audioUrl);
       } catch (err) {
-        // Игнорируем ошибку, если компонент уже размонтирован
-        if (err instanceof Error && err.name !== 'AbortError') {
-          console.error('WaveSurfer error:', err);
+        if (err instanceof Error && err.name === 'AbortError') {
+          // это нормально при отмене/размонтировании/смене URL
+          return;
         }
+        console.error('WaveSurfer error:', err);
       } finally {
         if (waveformRef.current) {
           isLoadingRef = false;
