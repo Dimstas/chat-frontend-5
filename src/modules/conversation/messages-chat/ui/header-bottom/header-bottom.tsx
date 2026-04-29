@@ -48,6 +48,13 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const textForAttachmentFilesRef = useRef<string>(textForAttachmentFilesStore);
   const attachmentFilesRef = useRef<Attachment[]>(attachmentFilesStore);
   const audioFilesStore = useAudioFilesStore((s) => s.audioFiles);
+  const submitButtonRef = useRef<HTMLButtonElement>(null);
+  const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
+  const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
+  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
+  const clipIconButtonRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     textForAttachmentFilesRef.current = textForAttachmentFilesStore;
     attachmentFilesRef.current = attachmentFilesStore;
@@ -57,7 +64,14 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
       inputRef.current?.focus();
     }
-  }, [repliedMessageStore, forwardMessageStore, selectedMessagesStore, userIdStore, audioFilesStore]);
+  }, [
+    repliedMessageStore,
+    forwardMessageStore,
+    selectedMessagesStore,
+    userIdStore,
+    audioFilesStore,
+    checkBoxsVisibleStore,
+  ]);
 
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
@@ -71,20 +85,15 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       });
     }
     clearSelectedUidUserForForwardMessageStore();
-    if (document.activeElement === inputRef.current) {
+    if (document.activeElement === inputRef.current || document.activeElement === submitButtonRef.current) {
       clearRepliedMessageStore();
       clearForwardMessageStore();
       clearSelectedMessagesStore();
-      setTextInput('');
     }
+    setTextInput('');
     clearAttachmentFilesStore();
     clearTextForAttachmentFilesStore();
   };
-  const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
-  const setCheckBoxsVisibleStore = useSelectedMessagesStore((s) => s.setCheckBoxsVisible);
-  const [contextMenuPos, setContextMenuPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [contextMenuVisible, setContextMenuVisible] = useState<boolean>(false);
-  const clipIconButtonRef = useRef<HTMLDivElement | null>(null);
 
   const handleContextMenu = (): void => {
     if (clipIconButtonRef.current) {
@@ -134,6 +143,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       clearSelectedMessagesStore();
       clearAttachmentFilesStore();
       clearTextForAttachmentFilesStore();
+      inputRef.current?.focus();
     } else {
       // отмена — ничего не делаем
     }
@@ -191,7 +201,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
               <MessageInput textInput={textInput} setTextInput={setTextInput} inputRef={inputRef} />
               <span className={styles.micIcon}>
                 {textInput ? (
-                  <button type="submit" style={{ width: '5rem', height: '5rem' }}>
+                  <button ref={submitButtonRef} type="submit" style={{ width: '5rem', height: '5rem' }}>
                     <Submit />
                   </button>
                 ) : (
