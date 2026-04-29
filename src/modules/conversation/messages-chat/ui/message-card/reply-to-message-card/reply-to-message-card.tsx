@@ -74,8 +74,8 @@ export const ReplyToMessageCard = ({
               В ответ
               <span className={styles.text11}>
                 {repliedMessageStore?.forwarded_messages.length
-                  ? `${repliedMessageStore?.forwarded_messages[0].first_name}`
-                  : `${repliedMessageStore?.from_user.first_name} ${repliedMessageStore?.from_user.last_name}`}
+                  ? ` ${repliedMessageStore?.forwarded_messages[0].first_name}`
+                  : ` ${repliedMessageStore?.from_user.first_name} ${repliedMessageStore?.from_user.last_name}`}
               </span>
             </div>
             <div className={styles.text2}>

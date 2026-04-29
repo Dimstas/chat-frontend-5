@@ -148,7 +148,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     socket.onmessage = (event: MessageEvent): void => {
       if (socketInstanceIdRef.current !== myId) return;
       const data = JSON.parse(event.data);
-      console.log(data);
+      //console.log(data);
       //Cобытия:
       // 1.Подтверждает отправленние созданного исходящего сообщения в обычный чат по request_uid
       if (

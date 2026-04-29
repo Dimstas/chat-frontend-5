@@ -91,7 +91,6 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       clearSelectedMessagesStore();
     }
     setTextInput('');
-    clearAttachmentFilesStore();
     clearTextForAttachmentFilesStore();
   };
 
@@ -140,8 +139,8 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       clearSelectedUidUserForForwardMessageStore();
       clearRepliedMessageStore();
       setTextInput('');
-      clearSelectedMessagesStore();
       clearAttachmentFilesStore();
+      clearSelectedMessagesStore();
       clearTextForAttachmentFilesStore();
       inputRef.current?.focus();
     } else {
