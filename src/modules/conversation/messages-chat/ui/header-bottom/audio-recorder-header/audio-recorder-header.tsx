@@ -1,7 +1,12 @@
 'use client';
 import { fileToBase64 } from 'modules/conversation/messages-chat/utils/file-to-base64'; // если нужна конвертация в base64
 import { formatTime } from 'modules/conversation/messages-chat/utils/format-cecond';
-import { useAudioFilesStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import {
+  useAudioFilesStore,
+  useForwardMessageStore,
+  useRepliedMessageStore,
+  useSelectedMessagesStore,
+} from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { JSX, useEffect, useRef, useState } from 'react';
 import type { Attachment } from '../../context-menu/context-menu-attach-file/context-menu-attach-file.props';
 import styles from './audio-recorder-header.module.scss';
@@ -17,6 +22,13 @@ export const AudioRecorderHeader = ({ setIsRecordingMessage, sendMessage }: Audi
   const setAudioFilesStore = useAudioFilesStore((s) => s.setAudioFiles);
   const clearAudioFilesStore = useAudioFilesStore((s) => s.clearAudioFiles);
   const audioFilesStore = useAudioFilesStore((s) => s.audioFiles);
+  const selectedMessagesStore = useSelectedMessagesStore((s) => s.selectedMessages);
+  const clearSelectedMessagesStore = useSelectedMessagesStore((s) => s.clearSelectedMessages);
+  const forwardMessageStore = useForwardMessageStore((s) => s.forwardMessage);
+  const clearForwardMessageStore = useForwardMessageStore((s) => s.clearForwardMessage);
+  const repliedMessageStore = useRepliedMessageStore((s) => s.repliedMessage);
+  const clearRepliedMessageStore = useRepliedMessageStore((s) => s.clearRepliedMessage);
+
   // Таймер для обновления длительности
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
@@ -104,6 +116,9 @@ export const AudioRecorderHeader = ({ setIsRecordingMessage, sendMessage }: Audi
   const handleCloseRecordingHeader = (): void => {
     setIsRecordingMessage(false);
     clearAudioFilesStore();
+    clearRepliedMessageStore();
+    clearForwardMessageStore();
+    clearSelectedMessagesStore();
   };
 
   const handleMicSend = (): void => {
@@ -111,8 +126,20 @@ export const AudioRecorderHeader = ({ setIsRecordingMessage, sendMessage }: Audi
       sendMessage({
         content: audioFilesStore[0].fileData.filename,
         file: audioFilesStore[0],
+        repliedMessage: repliedMessageStore,
       });
     }
+    if (forwardMessageStore) {
+      sendMessage({ content: forwardMessageStore?.content ?? '', forwardMessage: forwardMessageStore });
+    }
+    if (selectedMessagesStore && selectedMessagesStore.length) {
+      selectedMessagesStore.forEach((msg) => {
+        sendMessage({ content: msg.content ?? '', forwardMessage: msg });
+      });
+    }
+    clearRepliedMessageStore();
+    clearForwardMessageStore();
+    clearSelectedMessagesStore();
     setIsRecordingMessage(false);
     clearAudioFilesStore();
   };

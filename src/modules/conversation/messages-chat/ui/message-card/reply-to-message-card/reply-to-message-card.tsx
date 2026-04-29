@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { JSX, useEffect, useRef } from 'react';
 import Close from '../icons/close.svg';
 import FileIcon from '../icons/file.svg';
+import PlayIcon from '../icons/play-icon.svg';
 import styles from './reply-to-message-card.module.scss';
 import type { ReplyToMessageCardProps } from './reply-to-message-card.props';
 
@@ -33,9 +34,11 @@ export const ReplyToMessageCard = ({
         <div className={styles.fileIconAndText}>
           {!!repliedMessageStore?.files_list.length && (
             <div className={styles.fileIcon}>
-              {fileImage.some((word) =>
-                repliedMessageStore?.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
-              ) ? (
+              {repliedMessageStore?.content?.includes('voice_') ? (
+                <PlayIcon />
+              ) : fileImage.some((word) =>
+                  repliedMessageStore?.files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+                ) ? (
                 <Image
                   key={repliedMessageStore?.files_list[0].uid}
                   src={repliedMessageStore?.files_list[0].file_url}
@@ -55,7 +58,9 @@ export const ReplyToMessageCard = ({
                 {` ${repliedMessageStore?.from_user.first_name} ${repliedMessageStore?.from_user.last_name}`}
               </span>
             </div>
-            <div className={styles.text2}> {repliedMessageStore?.content} </div>
+            <div className={styles.text2}>
+              {repliedMessageStore?.content?.includes('voice_') ? `Голосовое сообщение` : repliedMessageStore?.content}
+            </div>
           </div>
         </div>
         <div className={styles.icon}>
