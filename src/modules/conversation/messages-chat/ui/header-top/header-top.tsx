@@ -8,8 +8,10 @@ import { JSX, useEffect, useState } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
 import { ImageUI } from 'shared/ui/image';
 import { NotificationModal } from '../../../../notification/ui/notification-modal';
+import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { IncomingCallPanel } from '../../widgets/incoming-call-panel';
 import { OutgoingCallPanel } from '../../widgets/outgoing-call-panel';
+import { ReceivingCallPanel } from '../../widgets/receiving-call-panel';
 import {
   useHeaderButtonsModalStore,
   useSearchIndicatorStore,
@@ -37,7 +39,15 @@ export const HeaderTop = ({
   currentUid: string;
 }): JSX.Element => {
   const { chats } = useChatsScreen();
-  const { isCallModalOpen, isIncomingModalOpen, toggleCallsOpen } = useCallsStore();
+  const {
+    isCallModalOpen,
+    isIncomingModalOpen,
+    isReceivingModalOpen,
+    messageRtcUid,
+    fromUserUid,
+    toggleCallsOpen,
+    toggleIncomingModalOpen,
+  } = useCallsStore();
   const { toggleInfoOpen } = useInfoStore();
   const { isModalOpen } = useNotificationStore();
   const { isBlockModalOpen, isAddModalOpen, isLeaveGroupModalOpen, closeButtonMenu, openButtonMenu } =
@@ -69,6 +79,7 @@ export const HeaderTop = ({
     }
   }, [closeButtonMenu, openButtonMenu, isBlocked, isInContacts, user_uid]);
   const { contacts } = useContactsScreen();
+  const { sendCallCompletion } = useWebSocketChat(wsUrl, currentUid);
 
   const handleCall = async (): Promise<void> => {
     if (!isCallModalOpen) {
@@ -83,6 +94,21 @@ export const HeaderTop = ({
       }
     }
     toggleCallsOpen();
+  };
+
+  const handleRejectCall = (): void => {
+    const requestUid = crypto.randomUUID();
+    sendCallCompletion({
+      action: 'call_completion',
+      request_uid: requestUid,
+      object: {
+        from_user_uid: fromUserUid,
+        to_user_uid: currentUid,
+        type_complete: 'rejected',
+        message_rtc_uid: messageRtcUid,
+        duration: 0,
+      },
+    });
   };
 
   return (
@@ -137,8 +163,17 @@ export const HeaderTop = ({
           <LeaveGroupModal wsUrl={wsUrl} chatKey={user_uid} currentUid={currentUid} name={nickname} />
         )}
       </div>
-      {isCallModalOpen && <OutgoingCallPanel avatarUrl={avatarUrl} contact={`${firstName} ${lastName}`} />}
-      {isIncomingModalOpen && <IncomingCallPanel contactFio={'test'} onReject={() => {}} onAccept={() => {}} />}
+      {isReceivingModalOpen && <ReceivingCallPanel onReject={handleRejectCall} onAccept={toggleIncomingModalOpen} />}
+      {isCallModalOpen && (
+        <OutgoingCallPanel
+          avatarUrl={avatarUrl}
+          contact={`${firstName} ${lastName}`}
+          user_uid={user_uid}
+          wsUrl={wsUrl}
+          currentUid={currentUid}
+        />
+      )}
+      {isIncomingModalOpen && <IncomingCallPanel wsUrl={wsUrl} currentUid={currentUid} />}
     </>
   );
 };

@@ -14,7 +14,7 @@ import {
   serializerRequestLeaveGroupApiSchema,
 } from 'modules/info/model/info.web-socket.api.schema';
 import { useCallback, useEffect, useRef } from 'react';
-import { AnswerCallRequestAPI } from '../../model/calls';
+import { AnswerCallRequestAPI, useCallsStore } from '../../model/calls';
 import {
   CallCompleteRequestAPI,
   CallStateRequestAPI,
@@ -73,6 +73,7 @@ type UseWebSocketChat = {
 export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSocketChat {
   // прописываем в компоненте актуальный user_uid открытого чата из store
   const userId = useUserIdStore((s) => s.userId);
+  const { toUserUid, messageRtcUid, addCandidate, setCallData, setState, resetCall } = useCallsStore();
   //делаем ссылку на актуальный user_uid открытого чата
   const userIdRef = useRef<string>(userId);
   useEffect(() => {
@@ -303,6 +304,69 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         console.log('Cообщение сервера об удалении входящего либо исходящего сообщения группы:', data);
         deleteMessageByUidForUser(data.object.to_user.username, data.object.uid);
         pendingTimeouts.current.delete(data.request_uid);
+      }
+
+      if (data.action === 'offer_call' && data.status === 'OK') {
+        console.log('Входящий звонок от ' + data.object.from_user);
+        if (currentUserId !== data.object.from_user) {
+          const { first_name, last_name, avatar_url } = data.object.message_rtc.from_user;
+          setCallData({
+            contactFio: `${first_name} ${last_name}`,
+            avatarUrl: avatar_url,
+            messageRtcUid: data.object.message_rtc.uid,
+            offerSdp: data.object.offer_sdp,
+            fromUserUid: data.object.from_user,
+            isReceivingModalOpen: true,
+          });
+        }
+      }
+
+      if (data.action === 'answer_call' && data.status === 'OK') {
+        console.log('Ответ на звонок от ' + data.object.from_user);
+        if (currentUserId === data.object.from_user) {
+          setCallData({ answerSdp: data.object.answer_sdp });
+          const requestUid = crypto.randomUUID();
+          sendCallStateUpdate({
+            action: 'call_state_update',
+            request_uid: requestUid,
+            object: {
+              from_user_uid: currentUserId,
+              to_user_uid: data.object.to_user_uid,
+              message_rtc_uid: messageRtcUid,
+              state: 'connected',
+              reason_code: null,
+            },
+          });
+        }
+      }
+
+      if (data.action === 'ice_candidate' && data.status === 'OK') {
+        if (data.object.ice_candidate) {
+          addCandidate(data.object.ice_candidate);
+        }
+      }
+
+      if (data.action === 'call_completion' && data.status === 'OK') {
+        console.log('Звонок завершен со статусом ' + data.object?.type_complete);
+        if (data.object?.type_complete === 'rejected') {
+          console.log('Звонок отклонен');
+          setState('rejected');
+          resetCall();
+        }
+        if (data.object?.type_complete === 'unreceived') {
+          console.log('Не отвечает');
+          setState('unreceived');
+          resetCall();
+        }
+        if (data.object?.type_complete === 'completed') {
+          console.log('Звонок завершен');
+          setState('end');
+          resetCall();
+        }
+        if (data.object?.type_complete === 'failed') {
+          setState('error');
+          resetCall();
+        }
       }
     };
   }, [wsUrl, addMessageForUser, updateMessageByUidForUser, upsertMessageForUser, deleteMessageByUidForUser]);

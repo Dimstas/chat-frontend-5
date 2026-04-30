@@ -1,8 +1,10 @@
 import clsx from 'clsx';
 import { useCallsStore } from 'modules/conversation/messages-chat/model/calls/calls.store';
 import { CallAnimation } from 'modules/conversation/shared/ui/call-animation';
-import { JSX } from 'react';
+import { JSX, useEffect, useRef } from 'react';
 import { ImageUI } from 'shared/ui';
+import { useIceServersQuery } from '../../api';
+import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { getDurationTime } from '../../lib/get-duration-time';
 import CallActiveIcon from '../../shared/icons/call-active.svg';
 import CallEndIcon from '../../shared/icons/close.svg';
@@ -15,10 +17,349 @@ import styles from './outgoing-call-panel.module.scss';
 type OutgoingCallPanelProps = {
   avatarUrl?: string;
   contact: string;
+  user_uid: string;
+  wsUrl: string;
+  currentUid: string;
 };
 
-export const OutgoingCallPanel = ({ avatarUrl, contact }: OutgoingCallPanelProps): JSX.Element | null => {
-  const { isFullScreen, state, duration, toggleFullScreen, toggleCallsOpen } = useCallsStore();
+export const OutgoingCallPanel = ({
+  avatarUrl,
+  contact,
+  user_uid,
+  wsUrl,
+  currentUid,
+}: OutgoingCallPanelProps): JSX.Element | null => {
+  const {
+    isFullScreen,
+    state,
+    duration,
+    messageRtcUid,
+    answerSdp,
+    iceCandidates,
+    isSound,
+    toggleFullScreen,
+    toggleCallsOpen,
+    toggleSound,
+    setState,
+    setDuration,
+    setCallData,
+    resetCall,
+  } = useCallsStore();
+  const { data: iceConfig, isLoading } = useIceServersQuery();
+  const { sendOfferCall, sendIceCandidate, sendCallCompletion } = useWebSocketChat(wsUrl, currentUid);
+
+  const localStreamRef = useRef<MediaStream | undefined>(undefined);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
+
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+
+  const localIceCandidateBuffer = useRef<RTCIceCandidate[]>([]);
+  const iceCandidateBuffer = useRef<RTCIceCandidate[]>([]);
+
+  const callStartTimeRef = useRef<number | null>(null);
+  const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const initCall = async (): Promise<void> => {
+      const pc = new RTCPeerConnection({ iceServers: iceConfig?.iceServers });
+      peerConnectionRef.current = pc;
+      console.log('Соединение pc открыто');
+
+      // Создаем поток только с аудио
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      localStreamRef.current = stream;
+
+      // Добавляем аудиодорожку в RTCPeerConnection
+      stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+
+      pc.ontrack = (event): void => {
+        // Проверяем, что есть хотя бы один поток
+        if (!event.streams || event.streams.length === 0) {
+          console.warn('ontrack: нет потоков в событии');
+          return;
+        }
+
+        // Ищем существующий объединённый поток или создаём новый
+        let combinedStream = remoteStreamRef.current;
+
+        if (!combinedStream) {
+          combinedStream = new MediaStream();
+          remoteStreamRef.current = combinedStream;
+        }
+
+        // Обрабатываем все потоки из события
+        event.streams.forEach((incomingStream) => {
+          incomingStream.getTracks().forEach((track) => {
+            const existingTrack = combinedStream.getTracks().find((t) => t.id === track.id);
+            if (!existingTrack) {
+              combinedStream.addTrack(track);
+            }
+          });
+        });
+
+        remoteStreamRef.current = combinedStream;
+
+        console.log('траки: ' + combinedStream.getTracks());
+
+        combinedStream.getAudioTracks().forEach((track) => {
+          track.enabled = isSound;
+        });
+      };
+
+      // пересогласование параметров соединения
+      pc.onnegotiationneeded = async (): Promise<void> => {
+        if (pc.signalingState !== 'stable') {
+          console.warn('Нельзя отправить offer: текущее состояние —', pc.signalingState);
+          return;
+        }
+
+        try {
+          //создаём и отправляем offer тому, кому хотим позвонить
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+
+          if (!offer.sdp) {
+            console.error('SDP offer не содержит данных');
+            setState('error');
+            return;
+          }
+
+          const requestUid = crypto.randomUUID();
+          sendOfferCall({
+            action: 'offer_call',
+            request_uid: requestUid,
+            object: {
+              to_user_uid: user_uid,
+              offer_sdp: offer.sdp,
+            },
+          });
+        } catch (error) {
+          console.error('Ошибка при создании/отправке offer:', error);
+        }
+      };
+
+      // При нахождении кандидата срабатывает обработчик pc.onicecandidate кандидат (сетевой маршрут) отправляется другому участнику через сигнальный сервер:
+      pc.onicecandidate = (event): void => {
+        if (event.candidate) {
+          if (messageRtcUid) {
+            const requestUid = crypto.randomUUID();
+            sendIceCandidate({
+              action: 'ice_candidate',
+              request_uid: requestUid,
+              object: {
+                from_user_uid: currentUid,
+                to_user_uid: user_uid,
+                message_rtc_uid: messageRtcUid,
+                ice_candidate: event.candidate.candidate, // строковое представление кандидата
+              },
+            });
+          } else {
+            localIceCandidateBuffer.current.push(event.candidate);
+          }
+        }
+      };
+
+      // Обработка состояния соединения
+      pc.onconnectionstatechange = (): void => {
+        const state = pc.connectionState;
+        console.log('Состояние соединения изменилось:', state);
+
+        switch (state) {
+          case 'connected':
+            setState(state);
+            callStartTimeRef.current = Date.now();
+            durationIntervalRef.current = setInterval(() => {
+              if (callStartTimeRef.current) {
+                const currentDuration = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+                setDuration(currentDuration);
+              }
+            }, 1000);
+            break;
+          case 'failed':
+            setState('error');
+            break;
+          case 'disconnected':
+            if (durationIntervalRef.current) {
+              clearInterval(durationIntervalRef.current);
+              durationIntervalRef.current = null;
+            }
+            setState('end');
+            setCallData({ isCallModalOpen: false });
+            break;
+          case 'closed':
+            setState('end');
+            break;
+          case 'connecting':
+            setState(state);
+            break;
+        }
+      };
+    };
+    setState('call');
+    initCall();
+  }, [iceConfig]);
+
+  useEffect(() => {
+    // берем все кандидаты из буфера и добавляем их
+    const processIceCandidateBuffer = async (pc: RTCPeerConnection): Promise<void> => {
+      for (const candidate of iceCandidateBuffer.current) {
+        await pc.addIceCandidate(candidate);
+      }
+      iceCandidateBuffer.current = [];
+    };
+
+    const answerCall = async (): Promise<void> => {
+      if (!answerSdp) return;
+
+      if (!peerConnectionRef.current) {
+        console.warn('RTCPeerConnection не инициализирован');
+        return;
+      }
+
+      const pc = peerConnectionRef.current;
+
+      try {
+        await pc.setRemoteDescription({
+          type: 'answer',
+          sdp: answerSdp,
+        });
+        await processIceCandidateBuffer(pc);
+        setState('connected');
+      } catch (error) {
+        console.error('Ошибка установки remoteDescription для answer:', error);
+        setState('error');
+      }
+    };
+
+    answerCall();
+  }, [answerSdp]);
+
+  useEffect(() => {
+    const addCandidate = async (candidateStr: string): Promise<void> => {
+      if (!peerConnectionRef.current) {
+        console.warn('RTCPeerConnection не инициализирован');
+        return;
+      }
+
+      const pc = peerConnectionRef.current;
+
+      if (pc.signalingState === 'closed') {
+        console.warn('Попытка добавить ICE‑кандидат в закрытое соединение');
+        return;
+      }
+
+      const iceCandidate = new RTCIceCandidate({
+        candidate: candidateStr,
+        sdpMid: '0',
+        sdpMLineIndex: 0,
+      });
+
+      if (pc.remoteDescription) {
+        await pc.addIceCandidate(iceCandidate);
+      } else {
+        iceCandidateBuffer.current.push(iceCandidate);
+      }
+    };
+
+    const buffer = iceCandidateBuffer.current;
+    const existing = buffer.map((i) => i.candidate);
+
+    iceCandidates.filter((c) => !existing.includes(c)).map((c) => addCandidate(c));
+  }, [iceCandidates]);
+
+  const handleSound = (): void => {
+    toggleSound();
+    const streamRemote = remoteStreamRef.current;
+    if (streamRemote) {
+      streamRemote.getAudioTracks().forEach((track) => {
+        track.enabled = !isSound;
+      });
+      console.log(`Звук удалённого потока ${isSound ? 'выключен' : 'включён'}`);
+    }
+
+    const streamLocal = localStreamRef.current;
+    if (streamLocal) {
+      streamLocal.getAudioTracks().forEach((track) => {
+        track.enabled = !isSound;
+      });
+      console.log(`Локальный звук ${isSound ? 'выключен' : 'включён'}`);
+    }
+  };
+
+  const handleEndCall = (): void => {
+    try {
+      const requestUid = crypto.randomUUID();
+      sendCallCompletion({
+        action: 'call_completion',
+        request_uid: requestUid,
+        object: {
+          from_user_uid: currentUid,
+          to_user_uid: user_uid,
+          type_complete: 'completed',
+          message_rtc_uid: messageRtcUid,
+          duration: duration,
+        },
+      });
+
+      clearCall();
+      resetCall();
+    } catch (error) {
+      console.error('Ошибка при завершении звонка:', error);
+    }
+  };
+
+  const clearCall = (): void => {
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
+      localStreamRef.current = undefined;
+    }
+
+    if (peerConnectionRef.current) {
+      peerConnectionRef.current.onicecandidate = null;
+      peerConnectionRef.current.close();
+      peerConnectionRef.current = null;
+    }
+
+    iceCandidateBuffer.current = [];
+    localIceCandidateBuffer.current = [];
+    remoteStreamRef.current = null;
+
+    // Очистка таймера
+    if (durationIntervalRef.current) {
+      clearInterval(durationIntervalRef.current);
+      durationIntervalRef.current = null;
+    }
+
+    callStartTimeRef.current = null;
+  };
+
+  useEffect(() => {
+    if (state === 'end' || state === 'error' || state === 'rejected' || state === 'unreceived') {
+      clearCall();
+    }
+  }, [state]);
+
+  const sendBufferedLocalIceCandidates = (): void => {
+    if (!messageRtcUid || !localIceCandidateBuffer.current.length) return;
+
+    localIceCandidateBuffer.current.forEach((candidate) => {
+      const requestUid = crypto.randomUUID();
+      sendIceCandidate({
+        action: 'ice_candidate',
+        request_uid: requestUid,
+        object: {
+          from_user_uid: currentUid,
+          to_user_uid: user_uid,
+          message_rtc_uid: messageRtcUid,
+          ice_candidate: candidate.candidate,
+        },
+      });
+    });
+  };
 
   const URL_DEFAULT_AVATAR = '/images/profile/default.png';
 
@@ -72,11 +413,11 @@ export const OutgoingCallPanel = ({ avatarUrl, contact }: OutgoingCallPanelProps
           <VideoIcon />
           <p className={styles.buttonText}>Видео</p>
         </button>
-        <button className={styles.actionButton}>
+        <button className={styles.actionButton} onClick={handleSound}>
           <MicroIcon />
           <p className={styles.buttonText}>Убрать звук</p>
         </button>
-        <button className={styles.actionButton}>
+        <button className={styles.actionButton} onClick={handleEndCall}>
           <CallEndIcon />
           <p className={styles.buttonText}>Завершить</p>
         </button>
