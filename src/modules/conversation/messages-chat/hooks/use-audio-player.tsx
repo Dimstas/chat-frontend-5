@@ -29,6 +29,8 @@ export const useAudioPlayer = (
   const audioUrl = message.files_list.length
     ? message.files_list[0].file_url
     : message.forwarded_messages[0]?.files_list[0]?.file_url;
+
+  const isDestroyedRef = useRef(false);
   //Остановка текущего экземпляра
   const stopPlayback = useCallback(() => {
     const ws = wavesurferRef.current;
@@ -40,9 +42,8 @@ export const useAudioPlayer = (
 
   //Инициализация WaveSurfer
   useEffect(() => {
-    if (!waveformRef.current || !audioUrl) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setIsLoading(true);
+    if (!waveformRef.current) return;
+    if (wavesurferRef.current) return; // защита от StrictMode
 
     const ws = WaveSurfer.create({
       container: waveformRef.current,
@@ -59,41 +60,84 @@ export const useAudioPlayer = (
       autoScroll: false,
       mediaControls: false,
     });
+
     wavesurferRef.current = ws;
-    ws.load(audioUrl);
+
     ws.on('ready', () => {
       setTotalDuration(ws.getDuration());
       setIsLoading(false);
     });
-    ws.on('play', () => {
-      setIsPlaying(true);
-    });
-    ws.on('pause', () => {
-      setIsPlaying(false);
-    });
+
+    ws.on('play', () => setIsPlaying(true));
+    ws.on('pause', () => setIsPlaying(false));
+
     ws.on('finish', () => {
       setIsPlaying(false);
       setCurrentTime(0);
     });
+
     ws.on('timeupdate', (time: number) => {
       setCurrentTime(time);
     });
     ws.on('error', (err) => {
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        return; // игнорируем
+      }
       console.error('WaveSurfer error:', err);
       setIsLoading(false);
     });
-    ws.once('interaction', () => {
-      ws.play();
-    });
+
     return (): void => {
-      ws.destroy();
+      const ws = wavesurferRef.current;
+
+      if (!ws || isDestroyedRef.current) return;
+
+      isDestroyedRef.current = true;
+
+      try {
+        ws.pause();
+        ws.unAll?.();
+        ws.destroy();
+      } catch (err) {
+        // полностью игнорируем AbortError
+      }
+
       wavesurferRef.current = null;
-      setIsPlaying(false);
     };
+  }, []);
+
+  const isLoadingRef = useRef(false);
+  // Отдельный эффект для загрузки аудио
+  useEffect(() => {
+    const ws = wavesurferRef.current;
+    if (!ws || !audioUrl) return;
+    isLoadingRef.current = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsLoading(true);
+    setCurrentTime(0);
+    ws.load(audioUrl);
+    ws.once('ready', () => {
+      isLoadingRef.current = false;
+    });
   }, [audioUrl]);
 
-  const isCurrentPlaying = useAudioManagerStore((state) => state.currentPlayingId === message.uid);
+  //чтобы в сонсоле не был оошибки нужно перехватывать unhandled promise rejection локально.
+  useEffect(() => {
+    const handler = (event: PromiseRejectionEvent): void => {
+      if (event.reason instanceof DOMException && event.reason.name === 'AbortError') {
+        event.preventDefault();
+      }
+    };
+
+    window.addEventListener('unhandledrejection', handler);
+
+    return (): void => {
+      window.removeEventListener('unhandledrejection', handler);
+    };
+  }, []);
+
   //авто‑стоп если другой начал играть
+  const isCurrentPlaying = useAudioManagerStore((state) => state.currentPlayingId === message.uid);
   useEffect(() => {
     const ws = wavesurferRef.current;
     if (!ws) return;
