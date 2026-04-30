@@ -91,6 +91,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       clearSelectedMessagesStore();
     }
     setTextInput('');
+    clearAttachmentFilesStore();
     clearTextForAttachmentFilesStore();
   };
 

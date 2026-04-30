@@ -234,7 +234,7 @@ export const MessagesList = ({
 
                 return (
                   <div
-                    key={globalIndex}
+                    key={message.uid}
                     tabIndex={-1}
                     ref={(el) => {
                       // Применяем оба рефа

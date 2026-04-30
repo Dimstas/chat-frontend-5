@@ -23,23 +23,26 @@ export const useAudioPlayer = (
   const [totalDuration, setTotalDuration] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const savedTimeRef = useRef<number>(0);
-  const isPlayingRef = useRef<boolean>(false); // Добавляем ref для отслеживания состояния воспроизведения
+  const isPlayingRef = useRef<boolean>(false);
+  const isDestroyedRef = useRef<boolean>(false);
   const { currentPlayingId, setCurrentPlaying, stopCurrentPlaying } = useAudioManagerStore();
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Получаем URL аудиофайла
   const audioUrl = message.files_list.length
     ? message.files_list[0].file_url
     : message.forwarded_messages[0]?.files_list[0]?.file_url;
 
-  // Функция остановки воспроизведения
   const stopPlayback = (): void => {
-    if (wavesurferRef.current && isPlaying) {
-      wavesurferRef.current.pause();
-      setIsPlaying(false);
+    if (wavesurferRef.current && !isDestroyedRef.current && isPlaying) {
+      try {
+        wavesurferRef.current.pause();
+        setIsPlaying(false);
+      } catch (err) {
+        console.warn('Error during stopPlayback:', err);
+      }
     }
   };
 
-  // Регистрируем функцию остановки в глобальном менеджере
   useEffect(() => {
     if (isPlaying && message.uid) {
       setCurrentPlaying(message.uid, stopPlayback);
@@ -50,17 +53,26 @@ export const useAudioPlayer = (
         setCurrentPlaying(null);
       }
     };
-  }, [isPlaying, message.uid]);
+  }, [isPlaying, message.uid, currentPlayingId, setCurrentPlaying]);
 
   useEffect(() => {
     if (!waveformRef.current || !audioUrl) return;
+
     let ws: WaveSurfer | null = null;
-    let isLoadingRef = false; // Флаг процесса загрузки
+    let isLoadingRef = false;
+
+    // Сбрасываем флаг уничтожения
+    isDestroyedRef.current = false;
+
+    // Создаем новый AbortController для отмены загрузки
+    abortControllerRef.current = new AbortController();
+    const signal = abortControllerRef.current.signal;
+
     const initWaveSurfer = async (): Promise<void> => {
-      // Предотвращаем повторную инициализацию
-      if (isLoadingRef || !waveformRef.current) return;
+      if (isLoadingRef || !waveformRef.current || signal.aborted) return;
       isLoadingRef = true;
       setIsLoading(true);
+
       try {
         ws = WaveSurfer.create({
           container: waveformRef.current!,
@@ -74,94 +86,146 @@ export const useAudioPlayer = (
           backend: 'WebAudio',
           barAlign: 'bottom',
           barMinHeight: 2,
+          autoScroll: false,
+          mediaControls: false,
         });
+
         wavesurferRef.current = ws;
-        // Обработчики событий
+
         ws.on('ready', () => {
-          if (ws) {
+          if (ws && !signal.aborted && !isDestroyedRef.current) {
             setTotalDuration(ws.getDuration());
             setIsLoading(false);
-            // Если есть сохранённая позиция, восстанавливаем её
             if (savedTimeRef.current > 0) {
               ws.seekTo(savedTimeRef.current / ws.getDuration());
               setCurrentTime(savedTimeRef.current);
             }
           }
         });
+
         ws.on('play', () => {
-          setIsPlaying(true);
-          isPlayingRef.current = true;
+          if (!signal.aborted && !isDestroyedRef.current) {
+            setIsPlaying(true);
+            isPlayingRef.current = true;
+          }
         });
+
         ws.on('pause', () => {
-          setIsPlaying(false);
-          isPlayingRef.current = false;
-          // Сохраняем текущую позицию при паузе
-          if (ws) {
-            savedTimeRef.current = ws.getCurrentTime();
-            setCurrentTime(savedTimeRef.current);
+          if (!signal.aborted && !isDestroyedRef.current) {
+            setIsPlaying(false);
+            isPlayingRef.current = false;
+            if (ws && !isDestroyedRef.current) {
+              savedTimeRef.current = ws.getCurrentTime();
+              setCurrentTime(savedTimeRef.current);
+            }
           }
         });
+
         ws.on('finish', () => {
-          setIsPlaying(false);
-          isPlayingRef.current = false;
-          setCurrentTime(0);
-          savedTimeRef.current = 0;
-        });
-        ws.on('timeupdate', (time) => {
-          setCurrentTime(time);
-          // Обновляем сохранённую позицию во время воспроизведения
-          if (isPlayingRef.current) {
-            savedTimeRef.current = time;
+          if (!signal.aborted && !isDestroyedRef.current) {
+            setIsPlaying(false);
+            isPlayingRef.current = false;
+            setCurrentTime(0);
+            savedTimeRef.current = 0;
           }
         });
+
+        ws.on('timeupdate', (time) => {
+          if (!signal.aborted && !isDestroyedRef.current) {
+            setCurrentTime(time);
+            if (isPlayingRef.current) {
+              savedTimeRef.current = time;
+            }
+          }
+        });
+
         ws.on('error', (err) => {
-          // Уберите console.error для AbortError, или хотя бы не трогайте его
-          if (err?.name === 'AbortError') return;
+          if (signal.aborted || err?.name === 'AbortError' || isDestroyedRef.current) return;
           console.error('WaveSurfer ошибка:', err);
           setIsLoading(false);
         });
-        // Загружаем аудио по URL
+
+        // Загружаем аудио с возможностью отмены
         await ws.load(audioUrl);
       } catch (err) {
-        if (err instanceof Error && err.name === 'AbortError') {
-          // это нормально при отмене/размонтировании/смене URL
+        if (signal.aborted || (err instanceof Error && err.name === 'AbortError') || isDestroyedRef.current) {
           return;
         }
         console.error('WaveSurfer error:', err);
+        setIsLoading(false);
       } finally {
-        if (waveformRef.current) {
+        if (!signal.aborted && waveformRef.current && !isDestroyedRef.current) {
           isLoadingRef = false;
-          setIsLoading(false);
         }
       }
     };
+
     initWaveSurfer();
+
     return (): void => {
+      // Устанавливаем флаг уничтожения
+      isDestroyedRef.current = true;
+
+      // Отменяем загрузку
+      if (abortControllerRef.current) {
+        try {
+          abortControllerRef.current.abort();
+        } catch (err) {
+          // Игнорируем ошибки при отмене
+        }
+        abortControllerRef.current = null;
+      }
+
       isLoadingRef = false;
+
       if (ws) {
         try {
+          // Останавливаем воспроизведение перед уничтожением
           if (isPlayingRef.current) {
+            ws.pause();
             savedTimeRef.current = ws.getCurrentTime();
           }
+
+          // Отключаем все обработчики
+          ws.unAll();
+
+          // Уничтожаем экземпляр - просто вызываем destroy, не проверяя isDestroyed
           ws.destroy();
         } catch (err) {
-          // Игнорируем ошибки
+          // Игнорируем ошибки при уничтожении
+          if (err instanceof Error && err.name !== 'InvalidStateError') {
+            console.warn('Error destroying WaveSurfer:', err);
+          }
         }
       }
+
       wavesurferRef.current = null;
+
+      // Сбрасываем состояния
+      setIsPlaying(false);
+      isPlayingRef.current = false;
+      setIsLoading(true);
     };
   }, [audioUrl]);
+
   const handlePlayPause = (): void => {
+    if (isDestroyedRef.current) return;
+
     if (isPlaying) {
-      // Если сейчас играет - останавливаем
       stopPlayback();
       stopCurrentPlaying();
     } else {
-      // Если не играет - запускаем
-      // Менеджер сам остановит другие плееры
       setCurrentPlaying(message.uid, stopPlayback);
-      wavesurferRef.current?.play();
+      try {
+        // Проверяем существование экземпляра перед вызовом play
+        if (wavesurferRef.current && !isDestroyedRef.current) {
+          wavesurferRef.current.play();
+        }
+      } catch (err) {
+        console.error('Error playing audio:', err);
+      }
     }
   };
+
   return { handlePlayPause, currentTime, totalDuration, waveformRef, isPlaying, isLoading };
 };
