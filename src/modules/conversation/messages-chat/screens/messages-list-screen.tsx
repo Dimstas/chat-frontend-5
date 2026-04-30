@@ -3,7 +3,6 @@ import { JSX, useEffect } from 'react';
 import { useWebSocketChat } from '../api/web-socket/use-web-socket-chat';
 import { DefaultMessagesPage } from '../ui/default-messages-page';
 import { MessagesList } from '../ui/messages-list/messages-list';
-import { audioContextManager } from '../utils/audio-context-manager';
 import { useMessagesChatStore, useUserIdStore } from '../zustand-store/zustand-store';
 import { MessagesListScreenProps } from './messades-list-screen.props';
 import { useMessagesListScreen } from './use-messages-list-screen';
@@ -13,19 +12,6 @@ export const MessagesListScreen = ({ user_uid, wsUrl, currentUserId }: MessagesL
 
   useEffect(() => {
     setUserIdStore(user_uid);
-    // Закрываем все аудио контексты при смене чата
-    const cleanupAudio = async (): Promise<void> => {
-      try {
-        await audioContextManager.closeAll();
-      } catch (error) {
-        console.error('Error closing audio contexts:', error);
-      }
-    };
-    cleanupAudio();
-    // Очистка при размонтировании
-    return (): void => {
-      audioContextManager.closeAll().catch(console.error);
-    };
   }, [user_uid, setUserIdStore]);
 
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]) ?? [];
