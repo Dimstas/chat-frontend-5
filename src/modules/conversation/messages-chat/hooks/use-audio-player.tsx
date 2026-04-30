@@ -26,11 +26,17 @@ export const useAudioPlayer = (
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const { currentPlayingId, setCurrentPlaying, stopCurrentPlaying } = useAudioManagerStore();
+  const isDestroyedRef = useRef(false);
   const audioUrl = message.files_list.length
     ? message.files_list[0].file_url
     : message.forwarded_messages[0]?.files_list[0]?.file_url;
+  // Очищаем URL от лишнего слеша
 
-  const isDestroyedRef = useRef(false);
+  const cleanUrl = audioUrl.replace(/\.(jpe?g|png|gif|webp)\/$/i, '.$1');
+  const urlObj = new URL(cleanUrl);
+  const pathAfterFirstSlash = urlObj.pathname.slice(1);
+  const proxyUrl = `/api/proxy/${pathAfterFirstSlash}/`;
+
   //Остановка текущего экземпляра
   const stopPlayback = useCallback(() => {
     const ws = wavesurferRef.current;
@@ -110,16 +116,17 @@ export const useAudioPlayer = (
   // Отдельный эффект для загрузки аудио
   useEffect(() => {
     const ws = wavesurferRef.current;
-    if (!ws || !audioUrl) return;
+    if (!ws || !proxyUrl) return;
     isLoadingRef.current = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoading(true);
     setCurrentTime(0);
-    ws.load(audioUrl);
+    //загрузка аудио через прокси сервер
+    ws.load(proxyUrl);
     ws.once('ready', () => {
       isLoadingRef.current = false;
     });
-  }, [audioUrl]);
+  }, [proxyUrl]);
 
   //чтобы в сонсоле не был оошибки нужно перехватывать unhandled promise rejection локально.
   useEffect(() => {
