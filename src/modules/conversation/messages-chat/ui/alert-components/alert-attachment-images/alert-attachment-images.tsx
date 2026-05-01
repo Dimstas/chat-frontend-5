@@ -1,4 +1,5 @@
 'use client';
+import clsx from 'clsx';
 import {
   useAttachmentImagesStore,
   useTextForAttachmentImagesStore,
@@ -43,9 +44,9 @@ export const AlertAttachmentImages = ({ onOk, onCancel }: AlertAttachmentImagePr
           </div>
         </button>
       </div>
-      <div className={styles.previewImages}>
+      <div className={clsx(styles.previewImages, styles[`previewImages--${last4Images.length}`])}>
         {last4Images.map((image) => (
-          <PreviewImageCard key={image.id} image={image} numberImages={1} />
+          <PreviewImageCard key={image.id} image={image} />
         ))}
       </div>
       <form className={styles.headerBottomWrapper} onSubmit={handleSubmitForm}>
@@ -62,13 +63,13 @@ export const AlertAttachmentImages = ({ onOk, onCancel }: AlertAttachmentImagePr
   );
 };
 
-const PreviewImageCard = ({ image, numberImages }: PreviewImageCardProps): JSX.Element => {
+const PreviewImageCard = ({ image }: PreviewImageCardProps): JSX.Element => {
   const deleteAttachmentImagesStore = useAttachmentImagesStore((s) => s.deleteAttachmentImages);
   //выясняем картинка это или нет по расширению в названии файла (если true - картинка)
   const fileExtension = ['.jpeg', '.png', '.gif', '.webp', '.jpg'];
   const isFileImage = fileExtension.some((word) => image.fileData.filename.toLowerCase().includes(word.toLowerCase()));
   return (
-    <div className={styles.imageOne}>
+    <div className={styles.image}>
       {isFileImage && (
         <>
           <Image key={image.id} src={image.preview} alt={image.fileData.filename} width={384} height={384} />

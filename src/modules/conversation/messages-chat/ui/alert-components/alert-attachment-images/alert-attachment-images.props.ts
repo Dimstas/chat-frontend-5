@@ -7,5 +7,4 @@ export type AlertAttachmentImageProps = {
 
 export type PreviewImageCardProps = {
   image: Attachment;
-  numberImages: number;
 };
