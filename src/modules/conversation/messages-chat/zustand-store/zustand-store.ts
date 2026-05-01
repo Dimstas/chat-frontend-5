@@ -391,3 +391,42 @@ export const useAudioManagerStore = create<AudioPlayerState>((set, get) => ({
     set({ currentPlayingId: null, currentPlayingRef: null });
   },
 }));
+
+type AttachmentImagesState = {
+  attachmentImages: Attachment[];
+  setAttachmentImages: (value: Attachment[] | ((prev: Attachment[]) => Attachment[])) => void;
+  clearAttachmentImages: () => void;
+  deleteAttachmentImages: (id: string) => void;
+};
+
+export const useAttachmentImagesStore = create<AttachmentImagesState>((set) => ({
+  attachmentImages: [],
+  setAttachmentImages: (value): void =>
+    set((s) => ({
+      attachmentImages: typeof value === 'function' ? value(s.attachmentImages) : value,
+    })),
+  clearAttachmentImages: (): void => set({ attachmentImages: [] }),
+  deleteAttachmentImages: (id: string): void =>
+    set((s) => {
+      const prev = s.attachmentImages;
+      const exists = prev.find((f) => f.id === id);
+      if (exists) {
+        return {
+          attachmentImages: prev.filter((f) => f.id !== id),
+        };
+      }
+      return { attachmentImages: [...prev] };
+    }),
+}));
+
+type TextForAttachmentImagesState = {
+  textForAttachmentImages: string;
+  setTextForAttachmentImages: (textForAttachmentImages: string) => void;
+  clearTextForAttachmentImages: () => void;
+};
+
+export const useTextForAttachmentImagesStore = create<TextForAttachmentImagesState>((set) => ({
+  textForAttachmentImages: '',
+  setTextForAttachmentImages: (textForAttachmentImages: string): void => set({ textForAttachmentImages }),
+  clearTextForAttachmentImages: (): void => set({ textForAttachmentImages: '' }),
+}));

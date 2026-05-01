@@ -15,4 +15,5 @@ export type ContextMenuAttachFileProps = {
   };
   handleCloseMenu: () => void;
   handleAttachmentFilesClick: () => Promise<void>;
+  handleAttachmentImagesClick: () => Promise<void>;
 };

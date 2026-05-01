@@ -5,12 +5,14 @@ import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { useAlert } from '../../hooks/use-alert';
 import {
   useAttachmentFilesStore,
+  useAttachmentImagesStore,
   useAudioFilesStore,
   useForwardMessageStore,
   useRepliedMessageStore,
   useSelectedMessagesStore,
   useSelectedUidUserForForwardMessageStore,
   useTextForAttachmentFilesStore,
+  useTextForAttachmentImagesStore,
   useUserIdStore,
 } from '../../zustand-store/zustand-store';
 import { ContextMenuAttachFile } from '../context-menu/context-menu-attach-file/context-menu-attach-file';
@@ -42,11 +44,17 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const { sendMessage, sendDeleteMessage } = useWebSocketChat(wsUrl, currentUserId);
   const userIdStore = useUserIdStore((s) => s.userId);
   const attachmentFilesStore = useAttachmentFilesStore((s) => s.attachmentFiles);
+  const attachmentImagesStore = useAttachmentImagesStore((s) => s.attachmentImages);
   const textForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.textForAttachmentFiles);
+  const textForAttachmentImagesStore = useTextForAttachmentImagesStore((s) => s.textForAttachmentImages);
   const clearAttachmentFilesStore = useAttachmentFilesStore((s) => s.clearAttachmentFiles);
+  const clearAttachmentImagesStore = useAttachmentImagesStore((s) => s.clearAttachmentImages);
   const clearTextForAttachmentFilesStore = useTextForAttachmentFilesStore((s) => s.clearTextForAttachmentFiles);
+  const clearTextForAttachmentImagesStore = useTextForAttachmentImagesStore((s) => s.clearTextForAttachmentImages);
   const textForAttachmentFilesRef = useRef<string>(textForAttachmentFilesStore);
+  const textForAttachmentImagesRef = useRef<string>(textForAttachmentImagesStore);
   const attachmentFilesRef = useRef<Attachment[]>(attachmentFilesStore);
+  const attachmentImagesRef = useRef<Attachment[]>(attachmentImagesStore);
   const audioFilesStore = useAudioFilesStore((s) => s.audioFiles);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
   const checkBoxsVisibleStore = useSelectedMessagesStore((s) => s.checkBoxsVisible);
@@ -57,8 +65,10 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
 
   useEffect(() => {
     textForAttachmentFilesRef.current = textForAttachmentFilesStore;
+    textForAttachmentImagesRef.current = textForAttachmentImagesStore;
     attachmentFilesRef.current = attachmentFilesStore;
-  }, [textForAttachmentFilesStore, attachmentFilesStore]);
+    attachmentImagesRef.current = attachmentImagesStore;
+  }, [textForAttachmentFilesStore, attachmentFilesStore, textForAttachmentImagesStore, attachmentImagesStore]);
 
   useEffect(() => {
     if (repliedMessageStore || forwardMessageStore || selectedMessagesStore?.length || userIdStore) {
@@ -92,7 +102,9 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
     }
     setTextInput('');
     clearAttachmentFilesStore();
+    clearAttachmentImagesStore();
     clearTextForAttachmentFilesStore();
+    clearTextForAttachmentImagesStore();
   };
 
   const handleContextMenu = (): void => {
@@ -109,8 +121,9 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
-  // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
+  // xyk для открытия модального окна с алертом
   const { confirm } = useAlert();
+  // блок вызова модального окна с обработчиком для отправки сообщения и вложенных файлов
   const handleAttachmentFilesClick = async (): Promise<void> => {
     const ok = await confirm({
       isAttachmentFiles: true,
@@ -141,13 +154,57 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
       clearRepliedMessageStore();
       setTextInput('');
       clearAttachmentFilesStore();
+      clearAttachmentImagesStore();
       clearSelectedMessagesStore();
       clearTextForAttachmentFilesStore();
+      clearTextForAttachmentImagesStore();
       inputRef.current?.focus();
     } else {
       // отмена — ничего не делаем
     }
   };
+
+  // блок вызова модального окна с обработчиком для отправки сообщения и вложенных картинок/изображений
+  const handleAttachmentImagesClick = async (): Promise<void> => {
+    const ok = await confirm({
+      isAttachmentImages: true,
+    });
+    if (ok) {
+      sendMessage({
+        content: textForAttachmentImagesRef.current,
+      });
+      if (attachmentImagesRef.current && attachmentImagesRef.current.length) {
+        attachmentImagesRef.current.forEach((attachmentImage) => {
+          sendMessage({
+            content: attachmentImage.fileData.filename,
+            repliedMessage: repliedMessageStore,
+            file: attachmentImage,
+          });
+        });
+      }
+      if (forwardMessageStore) {
+        sendMessage({ content: forwardMessageStore?.content ?? '', forwardMessage: forwardMessageStore });
+      }
+      if (selectedMessagesStore) {
+        selectedMessagesStore.forEach((msg) => {
+          sendMessage({ content: msg.content ?? '', forwardMessage: msg });
+        });
+      }
+      clearForwardMessageStore();
+      clearSelectedUidUserForForwardMessageStore();
+      clearRepliedMessageStore();
+      setTextInput('');
+      clearAttachmentFilesStore();
+      clearAttachmentImagesStore();
+      clearSelectedMessagesStore();
+      clearTextForAttachmentFilesStore();
+      clearTextForAttachmentImagesStore();
+      inputRef.current?.focus();
+    } else {
+      // отмена — ничего не делаем
+    }
+  };
+
   //состояние для записи аудиосообщения
   const [isRecordingMessage, setIsRecordingMessage] = useState<boolean>(false);
   return (
@@ -194,6 +251,7 @@ export const HeaderBottom = ({ wsUrl, currentUserId }: HeaderBottomProps): JSX.E
                     contextMenuPos={contextMenuPos}
                     handleCloseMenu={handleCloseMenu}
                     handleAttachmentFilesClick={handleAttachmentFilesClick}
+                    handleAttachmentImagesClick={handleAttachmentImagesClick}
                   />
                 )}
                 <ClipIcon />
