@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-socket/use-web-socket-chat';
 import { useGenerateInviteLinkQuery, useGroupOrChanelQuery } from 'modules/info/api/info.query';
+import { ChatType } from 'modules/info/entity/info.entity';
 import { useInfoEditGroupStore } from 'modules/info/model/info.edit-group.store';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { EditChatRequestAPI } from 'modules/info/model/info.web-socket.api.schema';
@@ -9,6 +10,7 @@ import { InfoAvatarUploader } from 'modules/info/ui/info-avatar-uploader';
 import { InfoGroupInviteLink } from 'modules/info/ui/info-group-invite-link';
 import { InfoGroupSettingsSaveButton } from 'modules/info/ui/info-group-settings-save-button';
 import { InfoGroupSummaryEdit } from 'modules/info/ui/info-group-summary-edit';
+import { InfoGroupTypeSelect } from 'modules/info/ui/info-group-type-select';
 import { InfoNotification } from 'modules/info/ui/info-notification';
 import { JSX, useEffect } from 'react';
 
@@ -90,7 +92,7 @@ export const SettingsPanel = ({
           <InfoAvatarUploader avatarHref={profile?.avatar} />
           <InfoNotification chatId={profile?.id} />
           <InfoGroupSummaryEdit />
-          {/* <InfoGroupTypeSelect onChange={}chatType={profile?.chatType as GroupType} /> */}
+          <InfoGroupTypeSelect chatType={profile?.chatType as ChatType} />
           <InfoGroupInviteLink inviteLink={link?.invite_link ?? ''} chatKey={uid} />
           <InfoGroupSettingsSaveButton label={'Сохранить'} onClick={handleSave} disabled={!hasChanges} />
           <EditChatModal wsUrl={wsUrl} currentUid={currentUid} chatKey={uid} />
