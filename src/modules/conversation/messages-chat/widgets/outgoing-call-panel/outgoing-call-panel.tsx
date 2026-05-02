@@ -415,7 +415,7 @@ export const OutgoingCallPanel = ({
         </button>
         <button className={styles.actionButton} onClick={handleSound}>
           <MicroIcon />
-          <p className={styles.buttonText}>Убрать звук</p>
+          <p className={styles.buttonText}>{isSound ? 'Убрать звук' : 'Вкл. звук'}</p>
         </button>
         <button className={styles.actionButton} onClick={handleEndCall}>
           <CallEndIcon />
