@@ -5,35 +5,46 @@
   position: absolute;
   z-index: 50;
   border-radius: 0.8rem;
-  background-color: var(--brand-violet-light);
+  background-color: var(--brand-dark);
+  width: 38.8rem;
+  height: 77rem;
+  padding: 2rem;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-
-  width: 38.8rem;
-  max-height: 77rem;
   margin-left: auto;
   margin-right: auto;
   margin-top: 11rem;
-  padding: 2rem;
+
   box-shadow: 0px 2px 12px 0px #00000033;
+
+  &.fullScreen {
+    min-width: 120rem;
+    min-height: 93.8rem;
+    margin-top: 2.4rem;
+  }
+}
+
+.headerButtons {
+  @include mixins.flex-box($justify: space-between, $align: center);
+  width: 100%;
 }
 
 .info {
   @include mixins.flex-box(column, center, center, 4.4rem);
-  margin-top: 25.5rem;
 }
 
 .avatar {
   width: 16rem;
   height: 16rem;
   border-radius: 100px;
+  border: 12px solid #cec8ff4d;
 }
 
 .description {
   @include mixins.flex-box(column, center, center, 0.8rem);
-  color: var(--text-primary);
+  color: var(--text-inverse);
 }
 
 .contact {
@@ -46,6 +57,7 @@
 }
 
 .state {
+  @include mixins.flex-box(row, center, center, 0.2rem);
   font-family: Roboto;
   font-weight: 400;
   font-style: Regular;
@@ -55,28 +67,21 @@
 }
 
 .footerButtons {
-  @include mixins.flex-box(row, center, center, 2rem);
+  @include mixins.flex-box(row, center, center, 1.6rem);
 }
 
-.button {
-  min-width: 16.4rem;
-  min-height: 4.4rem;
-  padding: 0.6rem 1.6rem;
-  border-radius: 16px;
+.actionButton {
+  @include mixins.flex-box(column, center, center, 0.4rem);
+  min-width: 6.8rem;
+}
 
+.buttonText {
   font-family: Roboto;
   font-weight: 400;
   font-style: Regular;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 12px;
+  line-height: 120%;
+  letter-spacing: 0%;
   text-align: center;
   color: var(--text-inverse);
-}
-
-.cancelButton {
-  background-color: var(--text-state-warn);
-}
-
-.answerButton {
-  background-color: var(--text-state-success);
 }

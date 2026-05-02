@@ -17,7 +17,7 @@ export const ForwardMessageCard = ({
         <div className={styles.textBlock}>
           <div className={styles.text1}>Переслать сообщение</div>
           <div className={styles.text2}>
-            {` ${forwardMessageStore?.from_user.first_name} ${forwardMessageStore?.from_user.last_name}: ${forwardMessageStore?.content}`}
+            {`${forwardMessageStore?.from_user.first_name} ${forwardMessageStore?.from_user.last_name}: ${forwardMessageStore?.content?.includes('voice_') ? 'Голосовое сообщение' : forwardMessageStore?.content}`}
           </div>
         </div>
         <div className={styles.icon}>

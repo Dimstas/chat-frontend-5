@@ -6,7 +6,6 @@ import { MessagesList } from '../ui/messages-list/messages-list';
 import { useMessagesChatStore, useUserIdStore } from '../zustand-store/zustand-store';
 import { MessagesListScreenProps } from './messades-list-screen.props';
 import { useMessagesListScreen } from './use-messages-list-screen';
-
 export const MessagesListScreen = ({ user_uid, wsUrl, currentUserId }: MessagesListScreenProps): JSX.Element => {
   const userIdStore = useUserIdStore((s) => s.userId);
   const setUserIdStore = useUserIdStore((s) => s.setUserId);
@@ -14,6 +13,7 @@ export const MessagesListScreen = ({ user_uid, wsUrl, currentUserId }: MessagesL
   useEffect(() => {
     setUserIdStore(user_uid);
   }, [user_uid, setUserIdStore]);
+
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[userIdStore]) ?? [];
   const { messagesList, status, fetchNextPage, hasNextPage, isFetchingNextPage } = useMessagesListScreen(
     userIdStore.replace('group_', ''),

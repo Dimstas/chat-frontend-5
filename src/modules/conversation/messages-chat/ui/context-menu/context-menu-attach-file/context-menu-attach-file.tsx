@@ -1,7 +1,10 @@
 'use client';
 import clsx from 'clsx';
 import { fileToBase64 } from 'modules/conversation/messages-chat/utils/file-to-base64';
-import { useAttachmentFilesStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
+import {
+  useAttachmentFilesStore,
+  useAttachmentImagesStore,
+} from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { JSX, useRef } from 'react';
 import File from '../icons/file.svg';
 import Img from '../icons/image.svg';
@@ -13,10 +16,12 @@ export const ContextMenuAttachFile = ({
   contextMenuPos,
   handleCloseMenu,
   handleAttachmentFilesClick,
+  handleAttachmentImagesClick,
 }: ContextMenuAttachFileProps): JSX.Element | null => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const setAttachmentFilesStore = useAttachmentFilesStore((s) => s.setAttachmentFiles);
+  const setAttachmentImagesStore = useAttachmentImagesStore((s) => s.setAttachmentImages);
 
   const validateFile = (file: File): string | null => {
     if (file.size > maxSize) {
@@ -55,11 +60,20 @@ export const ContextMenuAttachFile = ({
       });
     }
     setAttachmentFilesStore((prev) => [...prev, ...newAttachments]);
+    setAttachmentImagesStore((prev) => [...prev, ...newAttachments]);
   };
   // обработчик который срабатывает при выборе файла(файлов)
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>): void => {
     processFiles(e.target.files);
     handleAttachmentFilesClick(); //открываем модальное окно <AlertAttachmentFiles /> и ждем ок;
+    e.target.value = ''; // Сброс input
+    handleCloseMenu(); // закрываем контекстное меню
+  };
+
+  // обработчик который срабатывает при выборе файла(файлов)
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    processFiles(e.target.files);
+    handleAttachmentImagesClick(); //открываем модальное окно <AlertAttachmentFiles /> и ждем ок;
     e.target.value = ''; // Сброс input
     handleCloseMenu(); // закрываем контекстное меню
   };
@@ -97,7 +111,7 @@ export const ContextMenuAttachFile = ({
           type="file"
           accept="image/jpeg,image/png,image/gif,image/webp"
           multiple
-          onChange={handleFileSelect}
+          onChange={handleImageSelect}
           style={{ display: 'none' }}
         />
         <input ref={fileInputRef} type="file" multiple onChange={handleFileSelect} style={{ display: 'none' }} />
