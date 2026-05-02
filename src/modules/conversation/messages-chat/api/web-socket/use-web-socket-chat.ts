@@ -165,7 +165,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           pendingTimeouts.current.delete(data.request_uid);
         }
       }
-
       // Подтверждает отправленние созданного исходящего сообщения в группу по request_uid
       if (
         data.action === 'create_text_message' &&
@@ -416,7 +415,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
             file_protected_url: '',
             file_webp_url: '',
             file_small_url: '',
-            file_type: '',
+            file_type: file.type === 'audio' ? 'video/webm' : '',
             created_at: '',
             updated_at: '',
           },

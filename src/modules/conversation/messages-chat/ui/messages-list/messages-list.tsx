@@ -7,6 +7,8 @@ import type { RestMessageApi } from '../../model/messages-list';
 import { smoothScrollElementIntoView } from '../../utils/smooth-scroll';
 import { useMessagesChatStore, useToastVisibleStore } from '../../zustand-store/zustand-store';
 import { DateCard } from '../date-card/date-card';
+import { IncomingAudioCard } from '../message-card/audio-card/incoming-audio-card/incoming-audio-card';
+import { OutgoingAudioCard } from '../message-card/audio-card/outgoing-audio-card/outgoing-audio-card';
 import { IncomingFileCard } from '../message-card/file-card/incoming-file-card/incoming-file-card';
 import { OutgoingFileCard } from '../message-card/file-card/outgoing-file-card/outgoing-file-card';
 import { IncomingMessagesCard } from '../message-card/incoming-message-card/incoming-message-card';
@@ -232,7 +234,7 @@ export const MessagesList = ({
 
                 return (
                   <div
-                    key={globalIndex}
+                    key={message.uid}
                     tabIndex={-1}
                     ref={(el) => {
                       // Применяем оба рефа
@@ -247,13 +249,24 @@ export const MessagesList = ({
                     )}
                     {message.from_user.uid === currentUserId || message.from_user.uid === '' ? (
                       message.files_list.length || message.forwarded_messages[0]?.files_list.length ? (
-                        <OutgoingFileCard
-                          message={message}
-                          sendDeleteMessage={sendDeleteMessage}
-                          search={searchMessagesStore}
-                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
-                          currentUserId={currentUserId}
-                        />
+                        message.files_list[0]?.file_type === 'video/webm' ||
+                        message.forwarded_messages[0]?.files_list[0].file_type === 'video/webm' ? (
+                          <OutgoingAudioCard
+                            message={message}
+                            sendDeleteMessage={sendDeleteMessage}
+                            search={searchMessagesStore}
+                            isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                            currentUserId={currentUserId}
+                          />
+                        ) : (
+                          <OutgoingFileCard
+                            message={message}
+                            sendDeleteMessage={sendDeleteMessage}
+                            search={searchMessagesStore}
+                            isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                            currentUserId={currentUserId}
+                          />
+                        )
                       ) : (
                         <OutgoingMessagesCard
                           message={message}
@@ -264,14 +277,26 @@ export const MessagesList = ({
                         />
                       )
                     ) : message.files_list.length || message.forwarded_messages[0]?.files_list.length ? (
-                      <IncomingFileCard
-                        message={message}
-                        register={register}
-                        sendDeleteMessage={sendDeleteMessage}
-                        search={searchMessagesStore}
-                        isHighlighted={isSearchMatch && message.uid === targetSearchUid}
-                        currentUserId={currentUserId}
-                      />
+                      message.files_list[0]?.file_type === 'video/webm' ||
+                      message.forwarded_messages[0]?.files_list[0].file_type === 'video/webm' ? (
+                        <IncomingAudioCard
+                          message={message}
+                          register={register}
+                          sendDeleteMessage={sendDeleteMessage}
+                          search={searchMessagesStore}
+                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                          currentUserId={currentUserId}
+                        />
+                      ) : (
+                        <IncomingFileCard
+                          message={message}
+                          register={register}
+                          sendDeleteMessage={sendDeleteMessage}
+                          search={searchMessagesStore}
+                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                          currentUserId={currentUserId}
+                        />
+                      )
                     ) : (
                       <IncomingMessagesCard
                         message={message}

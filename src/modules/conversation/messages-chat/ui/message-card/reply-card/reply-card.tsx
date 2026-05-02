@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import Image from 'next/image';
 import { JSX } from 'react';
 import FileIcon from '../icons/file.svg';
+import PlayIcon from '../icons/play-icon.svg';
 import styles from './reply-card.module.scss';
 import type { ReplyCardProps } from './reply-card.props';
 
@@ -14,9 +15,11 @@ export const ReplyCard = ({ message, isIncomingMessage }: ReplyCardProps): JSX.E
     <div className={clsx(styles.wrapper, isIncomingMessage ? styles.incomingWrapper : styles.outgoingWrapper)}>
       {!!message?.replied_messages[0].files_list.length && (
         <div className={styles.fileIcon}>
-          {fileImage.some((word) =>
-            message?.replied_messages[0].files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
-          ) ? (
+          {message.replied_messages[0].content?.includes('voice_') ? (
+            <PlayIcon />
+          ) : fileImage.some((word) =>
+              message?.replied_messages[0].files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
+            ) ? (
             <Image
               key={message?.replied_messages[0].files_list[0].uid}
               src={message?.replied_messages[0].files_list[0].file_url}
@@ -33,7 +36,11 @@ export const ReplyCard = ({ message, isIncomingMessage }: ReplyCardProps): JSX.E
         <div className={styles.text1}>
           {` ${message?.replied_messages[0].first_name} ${message?.replied_messages[0].last_name}`}
         </div>
-        <div className={styles.text2}> {message?.replied_messages[0].content} </div>
+        <div className={styles.text2}>
+          {message?.replied_messages[0].content?.includes('voice_')
+            ? `Голосовое сообщение`
+            : message?.replied_messages[0].content}
+        </div>
       </div>
     </div>
   );
