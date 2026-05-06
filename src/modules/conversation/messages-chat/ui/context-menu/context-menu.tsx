@@ -44,7 +44,7 @@ export const ContextMenu = ({
   const setToastVisibleStore = useToastVisibleStore((s) => s.setToastVisible);
   //обработчика для контекстного меню 'Cкопировать'
   const handleCopyClick = (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }): void => {
-    if (message.files_list.length || message.forwarded_messages[0].files_list.length) {
+    if (message?.files_list?.length || message?.forwarded_messages[0]?.files_list?.length) {
       handleDownloadMessageFileClick();
       onClose();
     } else {
