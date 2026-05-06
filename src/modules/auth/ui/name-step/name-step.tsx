@@ -18,11 +18,17 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
     loginError,
     isFormValid,
     isSubmitting,
+    isNameTouched,
+    isLoginTouched,
+    handleIsNameTouched,
+handleIsLoginTouched,
     handleFirstNameChange,
     handleLoginChange,
     handleSubmit,
   } = useNameStep({ next });
 
+  {console.log('BUTTON STATE:', { isFormValid, isSubmitting })}
+  
   return (
     <div className={styles.container}>
       <div className={styles.content}>
@@ -49,6 +55,8 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
             onChange={handleFirstNameChange}
             error={firstNameError}
             maxLength={30}
+              onBlur={handleIsNameTouched}
+
           />
           <TextInput
             label="Введите никнейм"
@@ -57,6 +65,8 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
             onChange={handleLoginChange}
             error={loginError}
             maxLength={30}
+                          onBlur={handleIsLoginTouched}
+
           />
         </div>
         <div className={styles.buttonContainer}>
@@ -69,10 +79,10 @@ export const NameStep: React.FC<NameStepProps> = ({ next, prev }: NameStepProps)
           </p>
           <ButtonUI
             variant="general"
-            appearance="primary"
+            appearance={!isFormValid || isSubmitting ? 'disabled' : 'primary'}
             label={isSubmitting ? 'Проверка...' : 'Зарегистрироваться'}
             type="submit"
-            disabled={!isFormValid || isSubmitting}
+            disabled= {!isFormValid || isSubmitting}
           />
         </div>
       </form>
