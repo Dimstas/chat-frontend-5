@@ -14,6 +14,18 @@ import {
   serializerRequestLeaveGroupApiSchema,
 } from 'modules/info/model/info.web-socket.api.schema';
 import { useCallback, useEffect, useRef } from 'react';
+import { AnswerCallRequestAPI, useCallsStore } from '../../model/calls';
+import {
+  CallCompleteRequestAPI,
+  CallStateRequestAPI,
+  IceCandidateRequestAPI,
+  OfferCallRequestAPI,
+  serializerAnswerRequestApiSchema,
+  serializerCallCompleteRequestApiSchema,
+  serializerCallOfferRequestApiSchema,
+  serializerCallStateRequestApiSchema,
+  serializerIceCandidateRequestApiSchema,
+} from '../../model/calls/calls.web-socket.api.schema';
 import type {
   ChangeStatusReadMessageAPI,
   CreateTextMessageAPI,
@@ -34,11 +46,13 @@ type UseWebSocketChat = {
     repliedMessage,
     forwardMessage,
     file,
+    images,
   }: {
     content: string;
     repliedMessage?: RestMessageApi | null | undefined;
     forwardMessage?: RestMessageApi | null | undefined;
     file?: Attachment | null | undefined;
+    images?: Attachment[] | null | undefined;
   }) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendMembers: (payload: AddOrRemoveMembersRequestAPI) => void;
@@ -46,6 +60,11 @@ type UseWebSocketChat = {
   sendDeleteGroup: (payload: DeleteGroupRequestAPI) => void;
   sendEditGroup: (payload: EditChatRequestAPI) => void;
   sendClearGroup: (payload: ClearGroupRequestAPI) => void;
+  sendAnswerCall: (payload: AnswerCallRequestAPI) => void;
+  sendCallCompletion: (payload: CallCompleteRequestAPI) => void;
+  sendCallStateUpdate: (payload: CallStateRequestAPI) => void;
+  sendIceCandidate: (payload: IceCandidateRequestAPI) => void;
+  sendOfferCall: (payload: OfferCallRequestAPI) => void;
   sendChangeStatusReadMessage: (message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' }) => void;
   sendDeleteMessage: (
     message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
@@ -56,6 +75,7 @@ type UseWebSocketChat = {
 export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSocketChat {
   // прописываем в компоненте актуальный user_uid открытого чата из store
   const userId = useUserIdStore((s) => s.userId);
+  const { toUserUid, messageRtcUid, addCandidate, setCallData, setState, resetCall } = useCallsStore();
   //делаем ссылку на актуальный user_uid открытого чата
   const userIdRef = useRef<string>(userId);
   useEffect(() => {
@@ -88,6 +108,25 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   // нужно отследить через какое время на отправленное клиентом сообщение, ws пришлет ответ-подтверждение,
   // либо его вообще не пришлет
   const pendingTimeouts = useRef<Map<string, number | NodeJS.Timeout>>(new Map()); //
+  // массив не отправленных на сервер разных сообщений из-за закрытия (сбоя) ws-соединения
+  const messageQueueRef = useRef<
+    (
+      | ChangeStatusReadMessageAPI
+      | CreateTextMessageAPI
+      | AddOrRemoveMembersRequestAPI
+      | LeaveGroupRequestAPI
+      | DeleteGroupRequestAPI
+      | EditChatRequestAPI
+      | ClearGroupRequestAPI
+      | AnswerCallRequestAPI
+      | CallCompleteRequestAPI
+      | CallStateRequestAPI
+      | IceCandidateRequestAPI
+      | OfferCallRequestAPI
+      | DeleteMessageApi
+    )[]
+  >([]);
+
   // Функция для подключаемся к ws-соединению и регистрации ws-обработчиков
 
   const clearReconnectTimer = (): void => {
@@ -130,6 +169,11 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       if (socketInstanceIdRef.current !== myId) return; // устаревший
       console.log('WebSocket open');
       reconnectAttemptRef.current = 0; // сброс backoff
+      // при новом открытии ws-cоединения поворно отправляем все ранее не отправленные сообщения (при наличии),
+      messageQueueRef.current.forEach((msg) => {
+        socket.send(JSON.stringify(msg));
+      });
+      messageQueueRef.current = [];
     };
 
     socket.onclose = (e): void => {
@@ -165,7 +209,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           pendingTimeouts.current.delete(data.request_uid);
         }
       }
-
       // Подтверждает отправленние созданного исходящего сообщения в группу по request_uid
       if (
         data.action === 'create_text_message' &&
@@ -287,6 +330,69 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         deleteMessageByUidForUser(data.object.to_user.username, data.object.uid);
         pendingTimeouts.current.delete(data.request_uid);
       }
+
+      if (data.action === 'offer_call' && data.status === 'OK') {
+        console.log('Входящий звонок от ' + data.object.from_user);
+        if (currentUserId !== data.object.from_user) {
+          const { first_name, last_name, avatar_url } = data.object.message_rtc.from_user;
+          setCallData({
+            contactFio: `${first_name} ${last_name}`,
+            avatarUrl: avatar_url,
+            messageRtcUid: data.object.message_rtc.uid,
+            offerSdp: data.object.offer_sdp,
+            fromUserUid: data.object.from_user,
+            isReceivingModalOpen: true,
+          });
+        }
+      }
+
+      if (data.action === 'answer_call' && data.status === 'OK') {
+        console.log('Ответ на звонок от ' + data.object.from_user);
+        if (currentUserId === data.object.from_user) {
+          setCallData({ answerSdp: data.object.answer_sdp });
+          const requestUid = crypto.randomUUID();
+          sendCallStateUpdate({
+            action: 'call_state_update',
+            request_uid: requestUid,
+            object: {
+              from_user_uid: currentUserId,
+              to_user_uid: data.object.to_user_uid,
+              message_rtc_uid: messageRtcUid,
+              state: 'connected',
+              reason_code: null,
+            },
+          });
+        }
+      }
+
+      if (data.action === 'ice_candidate' && data.status === 'OK') {
+        if (data.object.ice_candidate) {
+          addCandidate(data.object.ice_candidate);
+        }
+      }
+
+      if (data.action === 'call_completion' && data.status === 'OK') {
+        console.log('Звонок завершен со статусом ' + data.object?.type_complete);
+        if (data.object?.type_complete === 'rejected') {
+          console.log('Звонок отклонен');
+          setState('rejected');
+          resetCall();
+        }
+        if (data.object?.type_complete === 'unreceived') {
+          console.log('Не отвечает');
+          setState('unreceived');
+          resetCall();
+        }
+        if (data.object?.type_complete === 'completed') {
+          console.log('Звонок завершен');
+          setState('end');
+          resetCall();
+        }
+        if (data.object?.type_complete === 'failed') {
+          setState('error');
+          resetCall();
+        }
+      }
     };
   }, [wsUrl, addMessageForUser, updateMessageByUidForUser, upsertMessageForUser, deleteMessageByUidForUser]);
 
@@ -328,13 +434,24 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       repliedMessage,
       forwardMessage,
       file,
+      images,
     }: {
       content: string;
       repliedMessage?: RestMessageApi | null | undefined;
       forwardMessage?: RestMessageApi | null | undefined;
       file?: Attachment | null | undefined;
+      images?: Attachment[] | null | undefined;
     }): void => {
-      if (!content.trim()) return;
+      if (
+        !content?.trim() &&
+        !(
+          images?.length ||
+          forwardMessage?.files_list.length ||
+          forwardMessage?.forwarded_messages[0].files_list.length ||
+          file
+        )
+      )
+        return;
       const requestUid = crypto.randomUUID();
       // выясняем это простой чат либо группа (если true то группа)
       const has = userIdRef.current.includes('group_');
@@ -416,11 +533,27 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
             file_protected_url: '',
             file_webp_url: '',
             file_small_url: '',
-            file_type: '',
+            file_type: file.type,
             created_at: '',
             updated_at: '',
           },
         ];
+      }
+
+      if (images?.length) {
+        tempMessage.files_list = images.map((image) => ({
+          id: 0,
+          uid: image.id,
+          download_name: image.fileData.filename,
+          media_kind: '',
+          file_url: image.preview,
+          file_protected_url: '',
+          file_webp_url: '',
+          file_small_url: '',
+          file_type: image.type,
+          created_at: '',
+          updated_at: '',
+        }));
       }
 
       // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
@@ -453,6 +586,9 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       if (file) {
         payloadMessage.object.files = [file.fileData];
       }
+      if (images?.length) {
+        payloadMessage.object.files = images.map((image) => image.fileData).reverse();
+      }
       //валидация c помощью zod
       const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);
 
@@ -472,6 +608,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         // Если socket не готов отправить на сервер созданное клиентом сообщение, тогда в данном сообщении сразу меняем
         //  статус с 'pending' на 'failed' - {status:failed}.
         updateMessageByUidForUser(userIdRef.current, requestUid, { status: 'failed' });
+        messageQueueRef.current.push(payloadMessage);
       }
     },
     [addMessageForUser, updateMessageByUidForUser, userIdRef],
@@ -480,66 +617,134 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   // Пересылка профиля из страницы инфо
   const sendProfile = (payload: CreateTextMessageAPI): void => {
     const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payload);
-
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
       console.log('Send to server profile: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
     }
   };
 
   // Добавление / удаление участников в группу / канал
   const sendMembers = (payload: AddOrRemoveMembersRequestAPI): void => {
     const resultZod = serializerRequestApiSchema.safeParse(payload);
-
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
       console.log('Send to server members: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
     }
   };
 
   // Покинуть группу / канал
   const sendLeaveGroup = (payload: LeaveGroupRequestAPI): void => {
     const resultZod = serializerRequestLeaveGroupApiSchema.safeParse(payload);
-
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
       console.log('Send to server leave from group: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
     }
   };
 
   // Удалить группу / канал
   const sendDeleteGroup = (payload: DeleteGroupRequestAPI): void => {
     const resultZod = serializerRequestLeaveGroupApiSchema.safeParse(payload);
-
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
       console.log('Send to server delete group: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
     }
   };
 
-  // Рудактирование группы / канала
+  // Редактирование группы / канала
   const sendEditGroup = (payload: EditChatRequestAPI): void => {
     const resultZod = serializerRequestEditChat.safeParse(payload);
-
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
       console.log('Send to server edited group: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
     }
   };
 
   // Очистка сообщений группы / канала
   const sendClearGroup = (payload: ClearGroupRequestAPI): void => {
     const resultZod = serializerRequestClearGroupMessages.safeParse(payload);
-
     const socket = wsRef.current;
     if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
       socket.send(JSON.stringify(payload));
       console.log('Send to server crear group: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
+    }
+  };
+
+  // Отправляет ответ на входящий WebRTC вызов с SDP answer.
+  const sendAnswerCall = (payload: AnswerCallRequestAPI): void => {
+    const resultZod = serializerAnswerRequestApiSchema.safeParse(payload);
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send answer to call: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
+    }
+  };
+
+  // Для изменения сообщения о статусе звонка.
+  const sendCallCompletion = (payload: CallCompleteRequestAPI): void => {
+    const resultZod = serializerCallCompleteRequestApiSchema.safeParse(payload);
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send complete call: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
+    }
+  };
+
+  // Для передачи состояния WebRTC соединения.
+  const sendCallStateUpdate = (payload: CallStateRequestAPI): void => {
+    const resultZod = serializerCallStateRequestApiSchema.safeParse(payload);
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send call state: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
+    }
+  };
+
+  // Пересылает ICE кандидаты для установления WebRTC соединения.
+  const sendIceCandidate = (payload: IceCandidateRequestAPI): void => {
+    const resultZod = serializerIceCandidateRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send ice candidate: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
+    }
+  };
+
+  // Инициирует голосовой или видеовызов между пользователями
+  const sendOfferCall = (payload: OfferCallRequestAPI): void => {
+    const resultZod = serializerCallOfferRequestApiSchema.safeParse(payload);
+
+    const socket = wsRef.current;
+    if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
+      socket.send(JSON.stringify(payload));
+      console.log('Send offer call: ', payload);
+    } else {
+      messageQueueRef.current.push(payload);
     }
   };
 
@@ -565,10 +770,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       }
       //валидация c помощью zod
       const resultZod = serializerRequestChangeStatusReadMessageApiSchema.safeParse(payloadMessage);
-      updateMessageByUidForUser(has ? message.chat_key : message.from_user.uid, message.uid, {
-        status: 'read',
-        new: false,
-      });
       const socket = wsRef.current;
       if (socket && socket.readyState === WebSocket.OPEN && resultZod.success) {
         //отправляем запрос
@@ -581,6 +782,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           pendingTimeouts.current.delete(requestUid);
         }, 5000);
         pendingTimeouts.current.set(requestUid, to);
+      } else {
+        messageQueueRef.current.push(payloadMessage);
       }
     },
     [wsRef, updateMessageByUidForUser],
@@ -628,6 +831,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           pendingTimeouts.current.delete(requestUid);
         }, 5000);
         pendingTimeouts.current.set(requestUid, to);
+      } else {
+        messageQueueRef.current.push(payloadMessage);
       }
     },
     [wsRef, userIdRef, deleteMessageByUidForUser],
@@ -641,6 +846,11 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     sendDeleteGroup,
     sendEditGroup,
     sendClearGroup,
+    sendAnswerCall,
+    sendCallCompletion,
+    sendCallStateUpdate,
+    sendIceCandidate,
+    sendOfferCall,
     sendChangeStatusReadMessage,
     sendDeleteMessage,
   };

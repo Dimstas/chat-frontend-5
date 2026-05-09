@@ -3,7 +3,7 @@ import { CallConfig } from '../entity/calls.entity';
 import { getIceServers } from './calls.api';
 import { mapCallConfigFromApi } from './calls.ice-servers.mapper';
 
-export const useIceServersQuery = (ordering: string): UseQueryResult<CallConfig> => {
+export const useIceServersQuery = (ordering?: string): UseQueryResult<CallConfig> => {
   return useQuery({
     queryKey: ['calls', 'ice-servers'],
 

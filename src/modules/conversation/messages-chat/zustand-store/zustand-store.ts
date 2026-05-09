@@ -345,3 +345,88 @@ export const useTextForAttachmentFilesStore = create<TextForAttachmentFilesState
   setTextForAttachmentFiles: (textForAttachmentFiles: string): void => set({ textForAttachmentFiles }),
   clearTextForAttachmentFiles: (): void => set({ textForAttachmentFiles: '' }),
 }));
+
+type AudioFilesState = {
+  audioFiles: Attachment[];
+  setAudioFiles: (value: Attachment[]) => void;
+  clearAudioFiles: () => void;
+};
+
+export const useAudioFilesStore = create<AudioFilesState>((set) => ({
+  audioFiles: [],
+  setAudioFiles: (audioFiles): void => set({ audioFiles }),
+  clearAudioFiles: (): void => set({ audioFiles: [] }),
+}));
+
+type AudioPlayerState = {
+  currentPlayingId: string | null;
+  currentPlayingRef: React.MutableRefObject<(() => void) | null> | null;
+  setCurrentPlaying: (id: string | null, stopCallback?: () => void) => void;
+  stopCurrentPlaying: () => void;
+};
+
+export const useAudioManagerStore = create<AudioPlayerState>((set, get) => ({
+  currentPlayingId: null,
+  currentPlayingRef: null,
+  setCurrentPlaying: (id, stopCallback?): void => {
+    const { currentPlayingRef, currentPlayingId } = get();
+
+    // Если уже есть воспроизведение и это не тот же трек
+    if (currentPlayingId && currentPlayingId !== id) {
+      // Останавливаем предыдущее воспроизведение
+      if (currentPlayingRef?.current) {
+        currentPlayingRef.current();
+      }
+    }
+    set({
+      currentPlayingId: id,
+      currentPlayingRef: stopCallback ? { current: stopCallback } : null,
+    });
+  },
+  stopCurrentPlaying: (): void => {
+    const { currentPlayingRef } = get();
+    if (currentPlayingRef?.current) {
+      currentPlayingRef.current();
+    }
+    set({ currentPlayingId: null, currentPlayingRef: null });
+  },
+}));
+
+type AttachmentImagesState = {
+  attachmentImages: Attachment[];
+  setAttachmentImages: (value: Attachment[] | ((prev: Attachment[]) => Attachment[])) => void;
+  clearAttachmentImages: () => void;
+  deleteAttachmentImages: (id: string) => void;
+};
+
+export const useAttachmentImagesStore = create<AttachmentImagesState>((set) => ({
+  attachmentImages: [],
+  setAttachmentImages: (value): void =>
+    set((s) => ({
+      attachmentImages: typeof value === 'function' ? value(s.attachmentImages) : value,
+    })),
+  clearAttachmentImages: (): void => set({ attachmentImages: [] }),
+  deleteAttachmentImages: (id: string): void =>
+    set((s) => {
+      const prev = s.attachmentImages;
+      const exists = prev.find((f) => f.id === id);
+      if (exists) {
+        return {
+          attachmentImages: prev.filter((f) => f.id !== id),
+        };
+      }
+      return { attachmentImages: [...prev] };
+    }),
+}));
+
+type TextForAttachmentImagesState = {
+  textForAttachmentImages: string;
+  setTextForAttachmentImages: (textForAttachmentImages: string) => void;
+  clearTextForAttachmentImages: () => void;
+};
+
+export const useTextForAttachmentImagesStore = create<TextForAttachmentImagesState>((set) => ({
+  textForAttachmentImages: '',
+  setTextForAttachmentImages: (textForAttachmentImages: string): void => set({ textForAttachmentImages }),
+  clearTextForAttachmentImages: (): void => set({ textForAttachmentImages: '' }),
+}));

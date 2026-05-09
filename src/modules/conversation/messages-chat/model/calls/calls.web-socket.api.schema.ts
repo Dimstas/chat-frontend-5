@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
-const serializerRequestObjectAnswer = {
+const serializerRequestObjectAnswer = z.object({
   from_user_uid: z.string(),
   to_user_uid: z.string(),
   message_rtc_uid: z.string(),
   answer_sdp: z.string(),
-};
+});
 
 export const serializerAnswerRequestApiSchema = z.object({
   action: z.enum(['answer_call']),
@@ -15,13 +15,13 @@ export const serializerAnswerRequestApiSchema = z.object({
 
 export type AnswerCallRequestAPI = z.infer<typeof serializerAnswerRequestApiSchema>;
 
-const serializerRequestObjectCallComplete = {
+const serializerRequestObjectCallComplete = z.object({
   from_user_uid: z.string(),
   to_user_uid: z.string(),
   type_complete: z.enum(['unreceived', 'rejected', 'completed']),
   message_rtc_uid: z.string(),
   duration: z.number().nullable(),
-};
+});
 
 export const serializerCallCompleteRequestApiSchema = z.object({
   action: z.enum(['call_completion']),
@@ -31,7 +31,7 @@ export const serializerCallCompleteRequestApiSchema = z.object({
 
 export type CallCompleteRequestAPI = z.infer<typeof serializerCallCompleteRequestApiSchema>;
 
-const serializerRequestObjectCallState = {
+const serializerRequestObjectCallState = z.object({
   from_user_uid: z.string(),
   to_user_uid: z.string(),
   message_rtc_uid: z.string(),
@@ -46,7 +46,7 @@ const serializerRequestObjectCallState = {
       'unknown_error',
     ])
     .nullable(),
-};
+});
 
 export const serializerCallStateRequestApiSchema = z.object({
   action: z.enum(['call_state_update']),
@@ -56,12 +56,12 @@ export const serializerCallStateRequestApiSchema = z.object({
 
 export type CallStateRequestAPI = z.infer<typeof serializerCallStateRequestApiSchema>;
 
-const SerializerRequestObjectICECandidate = {
+const SerializerRequestObjectICECandidate = z.object({
   from_user_uid: z.string(),
   to_user_uid: z.string(),
   message_rtc_uid: z.string(),
   ice_candidate: z.string(),
-};
+});
 
 export const serializerIceCandidateRequestApiSchema = z.object({
   action: z.enum(['ice_candidate']),
@@ -71,10 +71,10 @@ export const serializerIceCandidateRequestApiSchema = z.object({
 
 export type IceCandidateRequestAPI = z.infer<typeof serializerIceCandidateRequestApiSchema>;
 
-const SerializerRequestObjectCallOffer = {
+const SerializerRequestObjectCallOffer = z.object({
   to_user_uid: z.string(),
   offer_sdp: z.string(),
-};
+});
 
 export const serializerCallOfferRequestApiSchema = z.object({
   action: z.enum(['offer_call']),

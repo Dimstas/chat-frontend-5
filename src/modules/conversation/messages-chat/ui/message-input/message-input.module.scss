@@ -22,6 +22,7 @@
   width: 2.4rem;
   height: 2.2rem;
   color: inherit; /* Убедитесь, что цвет может наследоваться */
+  cursor: pointer;
 }
 .emodji {
   @include mixins.flex-box();

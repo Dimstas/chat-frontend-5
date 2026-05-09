@@ -1,41 +1,371 @@
 import clsx from 'clsx';
-import { JSX } from 'react';
+import { CallAnimation } from 'modules/conversation/shared/ui/call-animation';
+import { JSX, useEffect, useRef } from 'react';
 import { ImageUI } from 'shared/ui';
+import { useIceServersQuery } from '../../api';
+import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
+import { getDurationTime } from '../../lib/get-duration-time';
+import { useCallsStore } from '../../model/calls';
+import CallActiveIcon from '../../shared/icons/call-active.svg';
+import CallEndIcon from '../../shared/icons/close.svg';
+import CloseScreenIcon from '../../shared/icons/closescreen.svg';
+import FullScreenIcon from '../../shared/icons/fullscreen.svg';
+import MicroIcon from '../../shared/icons/micro.svg';
+import VideoIcon from '../../shared/icons/video.svg';
 import styles from './incoming-call-panel.module.scss';
 
 type IncomingCallPanelProps = {
-  avatarUrl?: string;
-  contactFio: string;
-  onReject: () => void;
-  onAccept: () => void;
+  wsUrl: string;
+  currentUid: string;
 };
 
-export const IncomingCallPanel = ({
-  avatarUrl,
-  contactFio,
-  onAccept,
-  onReject,
-}: IncomingCallPanelProps): JSX.Element | null => {
+export const IncomingCallPanel = ({ wsUrl, currentUid }: IncomingCallPanelProps): JSX.Element | null => {
+  const {
+    isFullScreen,
+    isSound,
+    contactFio,
+    avatarUrl,
+    fromUserUid,
+    messageRtcUid,
+    offerSdp,
+    state,
+    duration,
+    toggleFullScreen,
+    toggleIncomingModalOpen,
+    toggleSound,
+    setDuration,
+    setState,
+    resetCall,
+  } = useCallsStore();
+
+  const { sendOfferCall, sendIceCandidate, sendCallCompletion, sendAnswerCall } = useWebSocketChat(wsUrl, currentUid);
+  const { data: iceConfig, isLoading } = useIceServersQuery();
+
   const URL_DEFAULT_AVATAR = '/images/profile/default.png';
 
+  const localStreamRef = useRef<MediaStream | undefined>(undefined);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
+
+  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
+
+  const localIceCandidateBuffer = useRef<RTCIceCandidate[]>([]);
+  const iceCandidateBuffer = useRef<RTCIceCandidate[]>([]);
+
+  const callStartTimeRef = useRef<number | null>(null);
+  const durationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (state === 'connected') {
+      callStartTimeRef.current = Date.now();
+      durationIntervalRef.current = setInterval(() => {
+        if (callStartTimeRef.current) {
+          const currentDuration = Math.floor((Date.now() - callStartTimeRef.current) / 1000);
+          setDuration(currentDuration);
+        }
+      }, 1000);
+    }
+
+    if (state === 'end' && durationIntervalRef.current !== null) {
+      clearInterval(durationIntervalRef.current);
+    }
+  }, [setDuration, state]);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const initPeerConnection = async (): Promise<RTCPeerConnection | null> => {
+        console.log('Инициализация PeerConnection');
+
+        try {
+          const pc = new RTCPeerConnection({
+            iceServers: iceConfig?.iceServers,
+          });
+
+          pc.ontrack = (event): void => {
+            // Проверяем, что есть хотя бы один поток
+            if (!event.streams || event.streams.length === 0) {
+              console.warn('ontrack: нет потоков в событии');
+              return;
+            }
+
+            // Ищем существующий объединённый поток или создаём новый
+            let combinedStream = remoteStreamRef.current;
+
+            if (!combinedStream) {
+              combinedStream = new MediaStream();
+              remoteStreamRef.current = combinedStream;
+            }
+
+            event.streams.forEach((incomingStream) => {
+              incomingStream.getTracks().forEach((track) => {
+                const existingTrack = combinedStream.getTracks().find((t) => t.id === track.id);
+                if (!existingTrack) {
+                  combinedStream.addTrack(track);
+                }
+              });
+            });
+
+            remoteStreamRef.current = combinedStream;
+
+            console.log('траки: ' + combinedStream.getTracks());
+
+            combinedStream.getAudioTracks().forEach((track) => {
+              track.enabled = isSound;
+            });
+          };
+
+          pc.onicecandidate = (event): void => {
+            if (event.candidate) {
+              const requestUid = crypto.randomUUID();
+              sendIceCandidate({
+                action: 'ice_candidate',
+                request_uid: requestUid,
+                object: {
+                  from_user_uid: fromUserUid,
+                  to_user_uid: currentUid,
+                  ice_candidate: event.candidate.candidate,
+                  message_rtc_uid: messageRtcUid,
+                },
+              });
+            }
+          };
+
+          pc.onnegotiationneeded = async (): Promise<void> => {
+            console.log('Пересогласование');
+            // Проверяем состояние соединения
+            if (pc.signalingState !== 'stable') {
+              console.warn('Нельзя отправить offer: текущее состояние —', pc.signalingState);
+              return;
+            }
+
+            try {
+              const offer = await pc.createOffer();
+              await pc.setLocalDescription(offer);
+
+              if (!offer.sdp) {
+                console.error('SDP offer не содержит данных');
+                setState('error');
+                return;
+              }
+
+              const requestUid = crypto.randomUUID();
+              sendOfferCall({
+                action: 'offer_call',
+                request_uid: requestUid,
+                object: {
+                  to_user_uid: fromUserUid,
+                  offer_sdp: offer.sdp,
+                },
+              });
+            } catch (error) {
+              console.error('Ошибка при создании/отправке offer:', error);
+            }
+          };
+
+          pc.onconnectionstatechange = (): void => {
+            const state = pc.connectionState;
+            console.log('Состояние соединения изменилось:', state);
+
+            switch (state) {
+              case 'connected':
+                setState('connected');
+                break;
+              case 'failed':
+                setState('error');
+                break;
+              case 'disconnected':
+                console.warn('Временное отключение. Пытаемся восстановить соединение...');
+                break;
+              case 'closed':
+                setState('end');
+                console.log('Соединение закрыто.');
+                break;
+            }
+          };
+
+          return pc;
+        } catch (error) {
+          console.error('Ошибка создания RTCPeerConnection:', error);
+          return null;
+        }
+      };
+
+      const acceptIncomingCall = async (): Promise<void> => {
+        if (!peerConnectionRef.current || peerConnectionRef.current.signalingState === 'closed') {
+          const newPc = await initPeerConnection();
+          if (!newPc) return;
+          peerConnectionRef.current = newPc;
+        }
+
+        const pc = peerConnectionRef.current;
+
+        if (pc.signalingState === 'closed') {
+          console.warn('Пропускаем setRemoteDescription — соединение закрыто');
+          return;
+        }
+
+        try {
+          // Устанавливаем удалённое описание из offer
+          await pc.setRemoteDescription({
+            type: 'offer',
+            sdp: offerSdp,
+          });
+
+          // Создаем поток только с аудио
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+          });
+          localStreamRef.current = stream;
+
+          if (localStreamRef.current) {
+            const stream = localStreamRef.current;
+            stream.getTracks().forEach((track) => peerConnectionRef.current!.addTrack(track, stream));
+          }
+
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+
+          const requestUid = crypto.randomUUID();
+          sendAnswerCall({
+            action: 'answer_call',
+            request_uid: requestUid,
+            object: {
+              from_user_uid: fromUserUid,
+              to_user_uid: currentUid,
+              answer_sdp: answer.sdp as string,
+              message_rtc_uid: messageRtcUid,
+            },
+          });
+        } catch (error) {
+          console.error('Ошибка при обработке входящего звонка:', error);
+          setState('error');
+        }
+      };
+
+      acceptIncomingCall();
+    }
+  }, [isLoading]);
+
+  const handleSound = (): void => {
+    toggleSound();
+    const streamRemote = remoteStreamRef.current;
+    if (streamRemote) {
+      streamRemote.getAudioTracks().forEach((track) => {
+        track.enabled = !isSound;
+      });
+      console.log(`Звук удалённого потока ${isSound ? 'выключен' : 'включён'}`);
+    }
+
+    const streamLocal = localStreamRef.current;
+    if (streamLocal) {
+      streamLocal.getAudioTracks().forEach((track) => {
+        track.enabled = !isSound;
+      });
+      console.log(`Локальный звук ${isSound ? 'выключен' : 'включён'}`);
+    }
+  };
+
+  const handleEndCall = (): void => {
+    try {
+      const requestUid = crypto.randomUUID();
+      sendCallCompletion({
+        action: 'call_completion',
+        request_uid: requestUid,
+        object: {
+          from_user_uid: fromUserUid,
+          to_user_uid: currentUid,
+          type_complete: 'completed',
+          message_rtc_uid: messageRtcUid,
+          duration: duration,
+        },
+      });
+
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = undefined;
+      }
+
+      if (peerConnectionRef.current) {
+        peerConnectionRef.current.onicecandidate = null;
+        peerConnectionRef.current.close();
+        peerConnectionRef.current = null;
+      }
+
+      iceCandidateBuffer.current = [];
+      localIceCandidateBuffer.current = [];
+      remoteStreamRef.current = null;
+
+      // Очистка таймера
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current);
+        durationIntervalRef.current = null;
+      }
+
+      callStartTimeRef.current = null;
+
+      resetCall();
+    } catch (error) {
+      console.error('Ошибка при завершении звонка:', error);
+    }
+  };
+
   return (
-    <div className={styles.wrapper}>
+    <div className={clsx(styles.wrapper, { [styles.fullScreen]: isFullScreen })}>
+      <div className={styles.headerButtons}>
+        <button onClick={toggleFullScreen}>
+          <FullScreenIcon />
+        </button>
+        <button onClick={toggleIncomingModalOpen}>
+          <CloseScreenIcon />
+        </button>
+      </div>
       <div className={styles.info}>
         <ImageUI
           src={avatarUrl ?? URL_DEFAULT_AVATAR}
-          alt={contactFio}
           width={160}
           height={160}
+          alt={contactFio}
           className={styles.avatar}
         />
         <div className={styles.description}>
-          <div className={styles.contact}>{`${contactFio}`}</div>
-          <div className={styles.state}>Входящий звонок</div>
+          <div className={styles.contact}>{contactFio}</div>
+          <div className={styles.state}>
+            {state === 'call' && (
+              <>
+                <p>Звонок</p>
+                <CallAnimation />
+              </>
+            )}
+            {(state === 'connected' || state === 'end') && (
+              <>
+                <CallActiveIcon />
+                <p>{getDurationTime(duration)}</p>
+              </>
+            )}
+            {state === 'connecting' && (
+              <>
+                <p>Соединение</p>
+                <CallAnimation />
+              </>
+            )}
+            {state === 'error' && <p>Ошибка соединения</p>}
+            {state === 'rejected' && <p>Звонок отклонен</p>}
+            {state === 'unreceived' && <p>Не отвечает</p>}
+          </div>
         </div>
       </div>
       <div className={styles.footerButtons}>
-        <button className={clsx(styles.button, styles.cancelButton)}>Отмена</button>
-        <button className={clsx(styles.button, styles.answerButton)}>Ответить</button>
+        <button className={styles.actionButton}>
+          <VideoIcon />
+          <p className={styles.buttonText}>Видео</p>
+        </button>
+        <button className={styles.actionButton} onClick={handleSound}>
+          <MicroIcon />
+          <p className={styles.buttonText}>{isSound ? 'Убрать звук' : 'Вкл. звук'}</p>
+        </button>
+        <button className={styles.actionButton} onClick={handleEndCall}>
+          <CallEndIcon />
+          <p className={styles.buttonText}>Завершить</p>
+        </button>
       </div>
     </div>
   );

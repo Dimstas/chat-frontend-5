@@ -1,9 +1,12 @@
 'use client';
 import React, { JSX, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import type { RestMessageApi } from '../model/messages-list';
 import { AlertAttachmentFiles } from '../ui/alert-components/alert-attachment-files/alert-attachment-files';
+import { AlertAttachmentImages } from '../ui/alert-components/alert-attachment-images/alert-attachment-images';
 import { AlertDelete } from '../ui/alert-components/alert-delete/alert-delete';
 import { AlertForward } from '../ui/alert-components/alert-forward/alert-forward';
+import { AlertOpenImages } from '../ui/alert-components/alert-open-images/alert-open-images';
 
 export type AlertOptions = {
   id?: string | number;
@@ -20,6 +23,16 @@ export type AlertOptions = {
   onCancel?: () => void;
   isMessageForwarding?: boolean;
   isAttachmentFiles?: boolean;
+  isAttachmentImages?: boolean;
+  openImages?: {
+    isOpenImages: boolean;
+    isIncomingCard: boolean;
+    message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' };
+    sendDeleteMessage: (
+      message: RestMessageApi & { status?: 'pending' | 'sent' | 'failed' | 'read' },
+      selected?: boolean,
+    ) => void;
+  };
 };
 
 type AlertContextValue = {
@@ -179,6 +192,16 @@ export const AlertProvider = ({
                   <AlertForward onOk={() => handleOk(a.id)} onCancel={() => handleCancel(a.id)} />
                 ) : a.isAttachmentFiles ? (
                   <AlertAttachmentFiles onOk={() => handleOk(a.id)} onCancel={() => handleCancel(a.id)} />
+                ) : a.isAttachmentImages ? (
+                  <AlertAttachmentImages onOk={() => handleOk(a.id)} onCancel={() => handleCancel(a.id)} />
+                ) : a.openImages?.isOpenImages ? (
+                  <AlertOpenImages
+                    onOk={() => handleOk(a.id)}
+                    onCancel={() => handleCancel(a.id)}
+                    message={a.openImages?.message}
+                    sendDeleteMessage={a.openImages?.sendDeleteMessage}
+                    isIncomingCard={a.openImages?.isIncomingCard}
+                  />
                 ) : (
                   <AlertDelete
                     id={a.id}
