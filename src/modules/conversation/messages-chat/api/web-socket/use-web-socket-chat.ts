@@ -565,8 +565,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
             file_webp_url: '',
             file_small_url: '',
             file_type: file.type,
-            created_at: '',
-            updated_at: '',
+            created_at: 0,
+            updated_at: 0,
           },
         ];
       }
@@ -582,8 +582,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           file_webp_url: '',
           file_small_url: '',
           file_type: image.type,
-          created_at: '',
-          updated_at: '',
+          created_at: 0,
+          updated_at: 0,
         }));
       }
 

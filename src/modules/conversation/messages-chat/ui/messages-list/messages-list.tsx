@@ -283,7 +283,15 @@ export const MessagesList = ({
                             currentUserId={currentUserId}
                           />
                         )
-                      ) : message.message_rtc !== null ? (
+                      ) : message.message_rtc?.uid === '' || message.message_rtc === null ? (
+                        <OutgoingMessagesCard
+                          message={message}
+                          sendDeleteMessage={sendDeleteMessage}
+                          search={searchMessagesStore}
+                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                          currentUserId={currentUserId}
+                        />
+                      ) : (
                         <OutgoingPhoneCallCard
                           message={message}
                           sendDeleteMessage={sendDeleteMessage}
@@ -291,14 +299,6 @@ export const MessagesList = ({
                           isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                           currentUserId={currentUserId}
                           status="Исходящий звонок"
-                        />
-                      ) : (
-                        <OutgoingMessagesCard
-                          message={message}
-                          sendDeleteMessage={sendDeleteMessage}
-                          search={searchMessagesStore}
-                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
-                          currentUserId={currentUserId}
                         />
                       )
                     ) : message.files_list.length || message.forwarded_messages[0]?.files_list.length ? (
@@ -332,7 +332,16 @@ export const MessagesList = ({
                           currentUserId={currentUserId}
                         />
                       )
-                    ) : message.message_rtc !== null ? (
+                    ) : message.message_rtc?.uid === '' || message.message_rtc === null ? (
+                      <IncomingMessagesCard
+                        message={message}
+                        register={register}
+                        sendDeleteMessage={sendDeleteMessage}
+                        search={searchMessagesStore}
+                        isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                        currentUserId={currentUserId}
+                      />
+                    ) : (
                       <IncomingPhoneCallCard
                         message={message}
                         register={register}
@@ -341,15 +350,6 @@ export const MessagesList = ({
                         isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                         currentUserId={currentUserId}
                         status="Входящий звонок"
-                      />
-                    ) : (
-                      <IncomingMessagesCard
-                        message={message}
-                        register={register}
-                        sendDeleteMessage={sendDeleteMessage}
-                        search={searchMessagesStore}
-                        isHighlighted={isSearchMatch && message.uid === targetSearchUid}
-                        currentUserId={currentUserId}
                       />
                     )}
                   </div>

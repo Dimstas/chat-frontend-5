@@ -71,9 +71,11 @@ export const OutgoingFileCard = ({
       sendDeleteMessage(message, true);
     }
   }, [message]);
+  // Получаем объект файла
+  const files = message.files_list.length ? message.files_list : message.forwarded_messages[0]?.files_list;
   //хук для загрузки файла находящегося в сообщении
   const { handleDownloadMessageFileClick, handleStopDownloadMessageFileClick, isDownloading } =
-    useDownloadMessageFile(message);
+    useDownloadMessageFile(files);
 
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>

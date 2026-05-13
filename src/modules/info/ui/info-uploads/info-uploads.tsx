@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { FILES, LINKS, PHOTOS, VOICES } from 'modules/info/shared/utils/mock';
+import type { RestMessageFileApi } from 'modules/conversation/messages-chat/model/messages-list/user-messages.api.schema';
+import { LINKS } from 'modules/info/shared/utils/mock';
 import { JSX, ReactElement, useState } from 'react';
 import { FilesTab } from './files-tab';
 import styles from './info-uploads.module.scss';
@@ -9,22 +10,40 @@ import { MediaTab } from './media-tab';
 import { ParticipantsTab } from './participants-tab';
 import { VoicesTab } from './voices-tab';
 
-export const InfoUploads = ({ uid, tabs, chatKey, currentUid }: InfoUploadsProps): JSX.Element => {
-  void uid;
-
+export const InfoUploads = ({ messagesByUser, chatKey, currentUid }: InfoUploadsProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState(0);
 
+  const PHOTOS: RestMessageFileApi[] = [];
+  const FILES: RestMessageFileApi[] = [];
+  const VOICES: RestMessageFileApi[] = [];
+  const tabs = ['Медиа', 'Файлы', 'Голосовые', 'Ссылки'];
+  messagesByUser.forEach((message) => {
+    if (message?.files_list?.length || message?.forwarded_messages[0]?.files_list?.length) {
+      const filesList = message?.files_list?.length ? message.files_list : message.forwarded_messages[0].files_list;
+      filesList.forEach((file) => {
+        if (file.media_kind === 'image' && file.file_type === 'image/jpeg') {
+          PHOTOS.push(file);
+        }
+        if (file.media_kind === 'file' && file.file_type?.includes('application/')) {
+          FILES.push(file);
+        }
+        if (file.media_kind === 'file' && file.file_type === 'video/webm') {
+          VOICES.push(file);
+        }
+      });
+    }
+  });
   const renderTab = (): ReactElement | null => {
     const tab = tabs[activeTab];
 
-    switch (tab.id) {
-      case 'media':
+    switch (tab) {
+      case 'Медиа':
         return <MediaTab items={PHOTOS} />;
-      case 'files':
+      case 'Файлы':
         return <FilesTab items={FILES} />;
-      case 'voices':
+      case 'Голосовые':
         return <VoicesTab items={VOICES} />;
-      case 'links':
+      case 'Ссылки':
         return <LinksTab items={LINKS} />;
       case 'members':
         return <ParticipantsTab currentUid={currentUid} chatKey={chatKey || ''} />;
@@ -40,12 +59,12 @@ export const InfoUploads = ({ uid, tabs, chatKey, currentUid }: InfoUploadsProps
       <div className={styles.tabs}>
         {tabs.map((tab, index) => (
           <button
-            key={tab.id}
+            key={index}
             className={clsx(styles.tab, activeTab === index && styles.active)}
             onClick={() => setActiveTab(index)}
           >
             <div className={styles.tabButtons}>
-              <span className={styles.label}>{tab.title}</span>
+              <span className={styles.label}>{tab}</span>
               <div className={clsx(styles.border, activeTab === index && styles.active)}></div>
             </div>
           </button>

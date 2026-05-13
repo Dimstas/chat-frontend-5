@@ -6,8 +6,15 @@ import { MediaTabProps } from './media-tab.props';
 export const MediaTab = ({ items }: MediaTabProps): JSX.Element => {
   return (
     <div className={styles.container}>
-      {items.map((item) => (
-        <ImageUI key={item.id} src={item.url} alt={item.file} width={117} height={117} className={styles.image} />
+      {items.map((item, index) => (
+        <ImageUI
+          key={index}
+          src={item.file_url}
+          alt={item.download_name}
+          width={117}
+          height={117}
+          className={styles.image}
+        />
       ))}
     </div>
   );

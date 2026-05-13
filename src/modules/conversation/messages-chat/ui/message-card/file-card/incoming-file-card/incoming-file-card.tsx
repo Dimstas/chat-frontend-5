@@ -57,9 +57,11 @@ export const IncomingFileCard = ({
       message.forwarded_messages[0].files_list[0].download_name.toLowerCase().includes(word.toLowerCase()),
     );
   }
+  // Получаем объект файла
+  const files = message.files_list.length ? message.files_list : message.forwarded_messages[0]?.files_list;
   //хук для загрузки файла находящегося в сообщении
   const { handleDownloadMessageFileClick, handleStopDownloadMessageFileClick, isDownloading } =
-    useDownloadMessageFile(message);
+    useDownloadMessageFile(files);
   // прописываем в компоненте актуальный user_uid открытого чата из store
   const userId = useUserIdStore((s) => s.userId);
   // выясняем это простой чат либо группа (если true то группа)
