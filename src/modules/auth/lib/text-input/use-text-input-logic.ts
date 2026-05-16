@@ -46,7 +46,6 @@
 //   };
 // };
 
-
 import { ChangeEvent, FocusEvent, useState } from 'react';
 
 type UseTextInputLogicReturn = {

@@ -17,8 +17,8 @@ type UseNameStepReturn = {
   isSubmitting: boolean;
   isNameTouched: boolean;
   isLoginTouched: boolean;
-  handleIsNameTouched: ()=>void;
-handleIsLoginTouched: ()=>void;
+  handleIsNameTouched: () => void;
+  handleIsLoginTouched: () => void;
   handleFirstNameChange: (value: string) => void;
   handleLoginChange: (value: string) => void;
   handleSubmit: (e: React.FormEvent) => void;
@@ -37,19 +37,19 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
 
   const { mutate: updateProfileMutation } = useUpdateProfile();
 
-  const handleIsNameTouched = ():void => {
-    setIsNameTouched(true)
-  }
+  const handleIsNameTouched = (): void => {
+    setIsNameTouched(true);
+  };
 
-  const handleIsLoginTouched = ():void => {
-    setIsLoginTouched(true)
-  }
+  const handleIsLoginTouched = (): void => {
+    setIsLoginTouched(true);
+  };
 
   useEffect(() => {
-  if (isNameTouched && firstName.trim() === '') {
-    setFirstNameError('Заполните поле');
-  }
-}, [firstName, isNameTouched]);
+    if (isNameTouched && firstName.trim() === '') {
+      setFirstNameError('Заполните поле');
+    }
+  }, [firstName, isNameTouched]);
   // const handleFirstNameChange = useCallback((value: string) => {
   //   setFirstName(value);
   //   if (value !== '') {
@@ -66,31 +66,31 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
   // }, []);
 
   const handleFirstNameChange = useCallback((value: string) => {
-  setFirstName(value);
+    setFirstName(value);
 
-  const validation = validateName(value);
+    const validation = validateName(value);
 
-  if (!validation.isValid) {
-    setFirstNameError(validation.error);
-  } else {
-    setFirstNameError(undefined);
-  }
-}, []);
+    if (!validation.isValid) {
+      setFirstNameError(validation.error);
+    } else {
+      setFirstNameError(undefined);
+    }
+  }, []);
 
   const handleLoginChange = useCallback((value: string) => {
     setLogin(value);
     if (value !== '') {
-    const validation = validateLogin(value);
-        console.log('LOGIN VALIDATION:', value, validation);
+      const validation = validateLogin(value);
+      console.log('LOGIN VALIDATION:', value, validation);
 
-    if (!validation.isValid) {
-      setLoginError(validation.error);
+      if (!validation.isValid) {
+        setLoginError(validation.error);
+      } else {
+        setLoginError(undefined);
+      }
     } else {
       setLoginError(undefined);
     }
-  } else {
-    setLoginError(undefined);
-  }
   }, []);
 
   const handleSubmit = useCallback(
@@ -105,9 +105,9 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
         let hasErrors = false;
 
         if (!firstName.trim()) {
-  setFirstNameError('Заполните поле');
-  hasErrors = true;
-} else {
+          setFirstNameError('Заполните поле');
+          hasErrors = true;
+        } else {
           const nameValidation = validateName(firstName);
           if (!nameValidation.isValid) {
             setFirstNameError(nameValidation.error);
@@ -115,10 +115,10 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
           }
         }
 
-       if (!login.trim()) {
-  setLoginError('Заполните поле');
-  hasErrors = true;
-} else {
+        if (!login.trim()) {
+          setLoginError('Заполните поле');
+          hasErrors = true;
+        } else {
           const loginValidation = validateLogin(login);
           if (!loginValidation.isValid) {
             setLoginError(loginValidation.error);
@@ -192,26 +192,22 @@ export const useNameStep = ({ next }: UseNameStepProps): UseNameStepReturn => {
     [firstName, login, next, queryClient, updateProfileMutation],
   );
 
-// const isFormValid =
-//   firstName.trim() !== '' &&
-//   login.trim() !== '' &&
-//   firstNameError === undefined &&
-//   loginError === undefined;
+  // const isFormValid =
+  //   firstName.trim() !== '' &&
+  //   login.trim() !== '' &&
+  //   firstNameError === undefined &&
+  //   loginError === undefined;
 
-const isFormValid =
-  firstName.trim() !== '' &&
-  login.trim() !== '' &&
-  !firstNameError &&
-  !loginError;
+  const isFormValid = firstName.trim() !== '' && login.trim() !== '' && !firstNameError && !loginError;
 
   console.log('STATE:', {
-  firstName,
-  login,
-  firstNameError,
-  loginError,
-  isFormValid,
-  isSubmitting,
-});
+    firstName,
+    login,
+    firstNameError,
+    loginError,
+    isFormValid,
+    isSubmitting,
+  });
   return {
     firstName,
     login,
@@ -220,9 +216,9 @@ const isFormValid =
     isFormValid,
     isSubmitting,
     isNameTouched,
-isLoginTouched,
-handleIsNameTouched,
-handleIsLoginTouched,
+    isLoginTouched,
+    handleIsNameTouched,
+    handleIsLoginTouched,
     handleFirstNameChange,
     handleLoginChange,
     handleSubmit,

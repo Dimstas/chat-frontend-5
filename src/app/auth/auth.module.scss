@@ -1,13 +1,12 @@
-
 @use 'shared/styles/03_mixins' as mixins;
 
 .registerPage {
- @include mixins.flex-box(row, center, center);
+  @include mixins.flex-box(row, center, center);
   min-height: 100vh;
   padding: 1.6rem;
 
-  background-image:none;
-    background-color: linear-gradient(145.07deg, #E2EAFE 18.45%, #DCF0EE 81.96%);
+  background-image: none;
+  background-color: linear-gradient(145.07deg, #e2eafe 18.45%, #dcf0ee 81.96%);
 
   background-size: cover;
   background-position: center;
@@ -34,8 +33,8 @@
 @media (min-width: 401px) {
   .registerPage {
     padding: 2rem;
-      height: 100vh;
-        background-image: url('/images/auth/Background.svg');
+    height: 100vh;
+    background-image: url('/images/auth/Background.svg');
   }
 
   .formContainer {
@@ -48,5 +47,4 @@
     border-radius: 1.5rem;
     box-shadow: 0 40px 120px rgba(0, 0, 0, 0.4);
   }
-
 }

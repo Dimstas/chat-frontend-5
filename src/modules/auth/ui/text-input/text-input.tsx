@@ -55,7 +55,6 @@
 //   );
 // };
 
-
 import { JSX } from 'react';
 import { useTextInputLogic } from '../../lib/text-input/use-text-input-logic';
 import styles from './text-input.module.scss';
@@ -96,11 +95,9 @@ export const TextInput = ({
   return (
     <div className={styles.container}>
       {/* {label && <label className={styles.label}>{label}</label>} */}
-      <label
-          className={`${styles.label} ${errorMessage ? styles.errorLabel : ''}`}
-        >
-          {errorMessage ? errorMessage : label}
-        </label>
+      <label className={`${styles.label} ${errorMessage ? styles.errorLabel : ''}`}>
+        {errorMessage ? errorMessage : label}
+      </label>
       <input
         type="text"
         placeholder={placeholder}

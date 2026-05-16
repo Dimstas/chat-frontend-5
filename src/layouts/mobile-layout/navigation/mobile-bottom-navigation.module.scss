@@ -1,4 +1,4 @@
-/* mobile-bottom-navigation.module.scss */
+@use 'shared/styles/03_mixins' as mixins;
 
 .root {
   position: fixed;
@@ -14,7 +14,7 @@
 
   padding: 0 1.6rem calc(env(safe-area-inset-bottom) + 1rem);
 
-  background: rgba(15, 15, 20, 0.96);
+  background: rgba(255, 255, 255, 0.96);
 
   backdrop-filter: blur(20px);
 
@@ -51,14 +51,14 @@
   }
 
   &:active {
-    transform: scale(0.96);
+    background-color: var(--surface-secondary);
   }
 }
 
 .active {
-  color: #7c5cff;
+  background-color: var(--surface-secondary);
 
-  svg {
-    transform: scale(1.05);
+  .icon {
+    fill: var(--brand-primary);
   }
 }

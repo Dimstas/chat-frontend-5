@@ -1,20 +1,17 @@
 'use client';
 
-import { ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { JSX, ReactNode } from 'react';
 import { MobileBottomNavigation } from './navigation';
- 
+
 type Props = {
   children: ReactNode;
 };
 
-export const MobileLayout = ({ children }: Props) => {
+export const MobileLayout = ({ children }: Props): JSX.Element => {
   const pathname = usePathname();
 
-  const isRootPage =
-    pathname === '/chats' ||
-    pathname === '/contacts' ||
-    pathname === '/settings';
+  const isRootPage = pathname === '/chats' || pathname === '/contacts' || pathname === '/settings';
 
   return (
     <div>
