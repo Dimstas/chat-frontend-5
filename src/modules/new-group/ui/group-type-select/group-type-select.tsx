@@ -59,7 +59,9 @@ const GroupTypeSelect: React.FC<GroupTypeSelectProps> = ({ mode = 'group', initi
     };
   }, []);
 
-  onChange(selected);
+  useEffect(() => {
+    onChange(selected);
+  }, [selected, onChange]);
 
   const toggleOpen = (): void => setIsOpen((prev) => !prev);
   const handleChange = (type: ChatType): void => {
