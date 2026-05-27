@@ -13,24 +13,16 @@ import styles from './create-new-group-block.module.scss';
 
 export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
   const setNameStore = useNewGroupStore((s) => s.setName);
-  const nameStore = useNewGroupStore((s) => s.name);
   const setModeStore = useNewGroupStore((s) => s.setMode);
-  const modeStore = useNewGroupStore((s) => s.mode);
   const setDescriptionStore = useNewGroupStore((s) => s.setDescription);
-  const descriptionStore = useNewGroupStore((s) => s.description);
   const setChatTypeStore = useNewGroupStore((s) => s.setChatType);
-  const chatTypeStore = useNewGroupStore((s) => s.chatType);
   const setAvatarUidStore = useNewGroupStore((s) => s.setAvatarUid);
-  const avatarUidStore = useNewGroupStore((s) => s.avatarUid);
   const setAvatarPreviewStore = useNewGroupStore((s) => s.setAvatarPreview);
-  const avatarPreviewStore = useNewGroupStore((s) => s.avatarPreview);
   const setAvatarFileStore = useNewGroupStore((s) => s.setAvatarFile);
   const router = useRouter();
   const pathname = usePathname();
-
   // Определяем режим по пути
   const mode = pathname.includes('/new-channel') ? 'channel' : 'group';
-
   const {
     selectedFile,
     previewUrl,
