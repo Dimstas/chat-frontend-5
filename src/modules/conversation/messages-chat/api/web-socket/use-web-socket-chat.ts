@@ -78,12 +78,17 @@ type UseWebSocketChatReturn = {
     uidUsersList,
     description,
     avatarUid,
+    avatarFileName,
+    avatarFileData,
   }: {
     name: string;
     chatType: 'public-group' | 'private-group' | 'public-channel' | 'private-channel';
     uidUsersList: string[];
     description?: string;
     avatarUid?: string;
+    avatarPreview?: string;
+    avatarFileName?: string;
+    avatarFileData?: string;
   }) => void;
 };
 
@@ -121,6 +126,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
   const deleteMessageByUidForUser = useMessagesChatStore.getState().deleteMessageByUidForUser;
   const addChatInChatsListStore = useChatsListStore.getState().addChatInChatsList;
   const updateChatByUidStore = useChatsListStore.getInitialState().updateChatByUid;
+  const deleteChatByUidStore = useChatsListStore.getInitialState().deleteChatByUid;
 
   // maccив интервалов [{requestUid:timeout_id},...] на каждое отправленное сообщение с помошью ws
   // нужно отследить через какое время на отправленное клиентом сообщение, ws пришлет ответ-подтверждение,
@@ -487,8 +493,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
               nickname: data.object.name,
               firstName: '',
               lastName: '',
-              avatarUrl: '',
-              avatarWebpUrl: data.object.avatar_webp_url,
+              avatarUrl: data.object.avatar.url,
+              avatarWebpUrl: data.object.avatar.url,
               isBlocked: false,
               isOnline: false,
               isInContacts: false,
@@ -513,6 +519,14 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           pendingTimeouts.current.delete(data.request_uid);
         }
       }
+      //входящее ws-сообщение сервера не подтверждающее создание группы/канала из-за возникшей ошибки
+      if (data.action === 'create_chat' && data.status === 'error') {
+        console.log('Cообщение сервера что при создании группы/канала возникла ошибка :', data);
+        // Если сервер прислал ошибку, удалим по request_uid из store заглушку стоящую в DOM на созданную группу/канал
+        deleteChatByUidStore(data.request_uid);
+        // Очистим таймаут подтверждения
+        pendingTimeouts.current.delete(data.request_uid);
+      }
     };
   }, [
     wsUrl,
@@ -521,6 +535,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     upsertMessageForUser,
     deleteMessageByUidForUser,
     updateChatByUidStore,
+    deleteChatByUidStore,
   ]);
 
   // чтобы scheduleReconnect мог вызывать connectWS
@@ -545,7 +560,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
     connectWS();
     return (): void => {
       isUnmountedRef.current = true;
-      clearReconnectTimer();
+      //clearReconnectTimer();
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
       pendingTimeouts.current.forEach((id) => clearTimeout(id));
@@ -760,12 +775,18 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       uidUsersList,
       description,
       avatarUid,
+      avatarPreview,
+      avatarFileName,
+      avatarFileData,
     }: {
       name: string;
       chatType: 'public-group' | 'private-group' | 'public-channel' | 'private-channel';
       uidUsersList: string[];
       description?: string;
       avatarUid?: string;
+      avatarPreview?: string;
+      avatarFileName?: string;
+      avatarFileData?: string;
     }): void => {
       const requestUid = crypto.randomUUID();
       //создаем временную чат-заглушку для помещения в список чатов DOM
@@ -776,8 +797,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           nickname: name,
           firstName: '',
           lastName: '',
-          avatarUrl: '',
-          avatarWebpUrl: '',
+          avatarUrl: avatarPreview ?? '',
+          avatarWebpUrl: avatarPreview ?? '',
           isBlocked: false,
           isOnline: false,
           isInContacts: false,
@@ -798,7 +819,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
       // записываем в store и показываем локально сразу в DOM созданный клиентом чат (tempChat)
       addChatInChatsListStore(tempChat);
-
       const payload: CreateChatRequestApi = {
         action: 'create_chat',
         request_uid: requestUid,
@@ -810,6 +830,13 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           ...(avatarUid && { avatar_uid: avatarUid }),
         },
       };
+      if (avatarFileName && avatarFileData) {
+        payload.object.avatar = {
+          filename: avatarFileName,
+          data: avatarFileData,
+        };
+      }
+
       // Валидация через Zod
       const resultZod = CreateChatRequestSchema.safeParse(payload);
       const socket = wsRef.current;

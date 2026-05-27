@@ -3,6 +3,7 @@
 import { useContactsSelectionStore } from 'modules/conversation/contacts/features/contacts-selection';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-socket/use-web-socket-chat';
+import { fileToBase64 } from 'modules/conversation/messages-chat/utils/file-to-base64';
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import { useNewGroupStore } from 'modules/new-group/model/new-group-store';
 import Image from 'next/image';
@@ -11,7 +12,6 @@ import { JSX, useEffect } from 'react';
 import { ButtonUI } from 'shared/ui';
 import { InviteMembersPanel } from '../invite-members-panel';
 import styles from './invite-members-block.module.scss';
-
 type InviteMembersBlockProps = {
   wsUrl: string;
   currentUserId: string;
@@ -34,6 +34,7 @@ export const InviteMembersBlock = ({ wsUrl, currentUserId }: InviteMembersBlockP
   const chatTypeStore = useNewGroupStore((s) => s.chatType);
   const avatarUidStore = useNewGroupStore((s) => s.avatarUid);
   const avatarPreviewStore = useNewGroupStore((s) => s.avatarPreview);
+  const avatarFileStore = useNewGroupStore((s) => s.avatarFile);
   const { createGroupOrChannel } = useWebSocketChat(wsUrl, currentUserId);
   const exitSelectionMode = useContactsSelectionStore((s) => s.exitSelectionMode);
 
@@ -51,7 +52,7 @@ export const InviteMembersBlock = ({ wsUrl, currentUserId }: InviteMembersBlockP
   const successPath = mode === 'group' ? '/new-group' : '/new-channel';
   const buttonLabel = 'Создать';
 
-  const handleCreate = (): void => {
+  const handleCreate = async (): Promise<void> => {
     if (!nameStore.trim()) {
       alert(`Введите название ${modeStore === 'group' ? 'группы' : 'канала'}`);
       router.push(backPath);
@@ -66,12 +67,25 @@ export const InviteMembersBlock = ({ wsUrl, currentUserId }: InviteMembersBlockP
     }
 
     try {
+      let avatarFileName = undefined;
+      let avatarFileData = undefined;
+
+      if (avatarFileStore) {
+        // Конвертируем файл в нужный формат (Base64)
+        const { filename, data } = await fileToBase64(avatarFileStore);
+        avatarFileName = filename;
+        avatarFileData = data;
+      }
+
       createGroupOrChannel({
         name: nameStore,
         chatType: chatTypeStore,
         uidUsersList: usersArray,
         description: descriptionStore || undefined,
         avatarUid: avatarUidStore || undefined,
+        avatarPreview: avatarPreviewStore || undefined,
+        avatarFileName: avatarFileName || undefined,
+        avatarFileData: avatarFileData || undefined,
       });
       exitSelectionMode();
       router.push(successPath);

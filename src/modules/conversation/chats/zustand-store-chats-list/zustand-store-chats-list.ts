@@ -8,6 +8,7 @@ type ChatsListState = {
   addChatInChatsList: (chat: Chat) => void;
   deleteChatInChatsList: (id: number | undefined) => void;
   updateChatByUid: (request_uid: string, patch: Partial<Chat>) => void;
+  deleteChatByUid: (request_uid: string) => void;
 };
 
 export const useChatsListStore = create<ChatsListState>((set) => ({
@@ -70,5 +71,16 @@ export const useChatsListStore = create<ChatsListState>((set) => ({
       return {
         chatsList: prev.map((chat) => (chat.peer.uid === request_uid ? { ...chat, ...patch } : chat)),
       };
+    }),
+  deleteChatByUid: (request_uid: string): void =>
+    set((s) => {
+      const prev = s.chatsList ?? [];
+      const exists = prev.find((c) => c.peer.uid === request_uid);
+      if (exists) {
+        return {
+          chatsList: [...prev.filter((c) => c.peer.uid !== request_uid)],
+        };
+      }
+      return { chatsList: [...prev] };
     }),
 }));

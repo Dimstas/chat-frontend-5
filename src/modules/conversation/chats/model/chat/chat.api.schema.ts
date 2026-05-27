@@ -75,10 +75,16 @@ export type ChatQuery = z.infer<typeof chatQuerySchema>;
 
 // ---------- Zod схемы для ws-запроса по созданию группы/канала ----------
 const ChatTypeEnum = z.enum(['public-group', 'private-group', 'public-channel', 'private-channel']);
-
 const CreateChatObjectSchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(250).optional(),
+  avatar: z
+    .object({
+      filename: z.string(),
+      data: z.string(),
+      uid: z.string().optional(),
+    })
+    .optional(),
   avatar_uid: z.string().optional(),
   chat_type: ChatTypeEnum,
   uid_users_list: z.array(z.string().uuid()),

@@ -24,6 +24,7 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
   const avatarUidStore = useNewGroupStore((s) => s.avatarUid);
   const setAvatarPreviewStore = useNewGroupStore((s) => s.setAvatarPreview);
   const avatarPreviewStore = useNewGroupStore((s) => s.avatarPreview);
+  const setAvatarFileStore = useNewGroupStore((s) => s.setAvatarFile);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -55,10 +56,11 @@ export const CreateNewGroupBlock: React.FC = (): JSX.Element => {
   }, [mode, setModeStore]);
 
   useEffect(() => {
-    if (previewUrl) {
+    if (previewUrl && selectedFile) {
       setAvatarPreviewStore(previewUrl);
+      setAvatarFileStore(selectedFile);
     }
-  }, [previewUrl, setAvatarPreviewStore]);
+  }, [previewUrl, selectedFile, setAvatarPreviewStore, setAvatarFileStore]);
 
   const handleNameChange = (val: string): void => {
     setGroupName(val);
