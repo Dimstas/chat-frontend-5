@@ -28,8 +28,8 @@ export const useAudioPlayer = (
   const { currentPlayingId, setCurrentPlaying, stopCurrentPlaying } = useAudioManagerStore();
   const isDestroyedRef = useRef(false);
   const audioUrl = message.files_list.length
-    ? message.files_list[0].file_url
-    : message.forwarded_messages[0]?.files_list[0]?.file_url;
+    ? message.files_list[0].file_webp_url
+    : message.forwarded_messages[0]?.files_list[0]?.file_webp_url;
   // Очищаем URL от лишнего слеша
 
   const cleanUrl = audioUrl.replace(/\.(jpe?g|png|gif|webp)\/$/i, '.$1');

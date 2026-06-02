@@ -27,9 +27,9 @@ export const useDownloadMessageFile = (files: RestMessageFileApi[]): UseDownload
     try {
       if (!files.length) throw new Error('Файл не найден');
       for (const file of files) {
-        const cleanUrl = file.file_url.replace(/\.(jpe?g|png|gif|webp)\/$/i, '.$1');
+        const cleanUrl = file.file_protected_url;
         const urlObj = new URL(cleanUrl);
-        const pathAfterFirstSlash = urlObj.pathname.slice(1);
+        const pathAfterFirstSlash = urlObj.pathname;
         const proxyUrl = `/api/proxy/${pathAfterFirstSlash}/`;
 
         const response = await fetch(proxyUrl, {

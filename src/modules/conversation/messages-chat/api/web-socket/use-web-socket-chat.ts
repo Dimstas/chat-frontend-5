@@ -42,6 +42,8 @@ import {
 } from '../../model/messages-list';
 import type { Attachment } from '../../ui/context-menu/context-menu-attach-file/context-menu-attach-file.props';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
+import { filesUploadApi } from '../files-upload.api';
+
 type UseWebSocketChatReturn = {
   sendMessage: ({
     content,
@@ -589,7 +591,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция отправки сообщения
   const sendMessage = useCallback(
-    ({
+    async ({
       content,
       repliedMessage,
       forwardMessage,
@@ -603,7 +605,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       file?: Attachment | null | undefined;
       images?: Attachment[] | null | undefined;
       chatKey?: string;
-    }): void => {
+    }): Promise<void> => {
       if (
         !content?.trim() &&
         !(
@@ -692,9 +694,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
             uid: file.id,
             download_name: file.fileData.filename,
             media_kind: '',
-            file_url: file.preview,
             file_protected_url: '',
-            file_webp_url: '',
+            file_webp_url: file.preview,
             file_small_url: '',
             file_type: file.type,
             created_at: 0,
@@ -709,9 +710,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           uid: image.id,
           download_name: image.fileData.filename,
           media_kind: '',
-          file_url: image.preview,
           file_protected_url: '',
-          file_webp_url: '',
+          file_webp_url: image.preview,
           file_small_url: '',
           file_type: image.type,
           created_at: 0,
@@ -729,7 +729,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         object: {
           content,
           status: 'publish',
-          files: [],
+          message_attachment_uids: [],
           replied_messages: [],
           forwarded_messages: [],
         },
@@ -750,10 +750,25 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
         payloadMessage.object.forwarded_messages = [forwardMessage.uid];
       }
       if (file) {
-        payloadMessage.object.files = [file.fileData];
+        try {
+          const response = await filesUploadApi(file.file);
+          payloadMessage.object.message_attachment_uids = [response.results[0].uid];
+        } catch (error) {
+          console.error('Ошибка при загрузке файла: ', error);
+        }
       }
       if (images?.length) {
-        payloadMessage.object.files = images.map((image) => image.fileData).reverse();
+        try {
+          const arrayUid = await Promise.all(
+            images.map(async (image) => {
+              const response = await filesUploadApi(image.file);
+              return response.results[0].uid;
+            }),
+          );
+          payloadMessage.object.message_attachment_uids = arrayUid;
+        } catch (error) {
+          console.error('Ошибка при загрузке файла: ', error);
+        }
       }
       //валидация c помощью zod
       const resultZod = serializerRequestCreatingMessageApiSchema.safeParse(payloadMessage);

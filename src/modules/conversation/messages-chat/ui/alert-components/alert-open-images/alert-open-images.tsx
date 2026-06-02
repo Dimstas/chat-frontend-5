@@ -163,7 +163,12 @@ export const AlertOpenImages = ({
         </div>
       </div>
       <div className={styles.image}>
-        <Image src={fileList[indexImage].file_url} alt={fileList[indexImage].download_name} width={626} height={417} />
+        <Image
+          src={fileList[indexImage].file_webp_url}
+          alt={fileList[indexImage].download_name}
+          width={626}
+          height={417}
+        />
       </div>
       <div className={styles.headerBottom}>
         <div className={styles.headerBottomText}>

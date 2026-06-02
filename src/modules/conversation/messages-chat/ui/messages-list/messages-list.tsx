@@ -266,8 +266,11 @@ export const MessagesList = ({
                             isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                             currentUserId={currentUserId}
                           />
-                        ) : message.files_list[0]?.file_type?.includes('image') ||
-                          message.forwarded_messages[0]?.files_list[0].file_type?.includes('image') ? (
+                        ) : (message.files_list[0]?.file_type?.includes('image') ||
+                            message.forwarded_messages[0]?.files_list[0].file_type?.includes('image')) &&
+                          (message.content !== message.files_list[0].download_name ||
+                            message.forwarded_messages[0]?.content !==
+                              message.forwarded_messages[0]?.files_list[0].download_name) ? (
                           <OutgoingImagesCard
                             message={message}
                             sendDeleteMessage={sendDeleteMessage}
@@ -315,8 +318,11 @@ export const MessagesList = ({
                           isHighlighted={isSearchMatch && message.uid === targetSearchUid}
                           currentUserId={currentUserId}
                         />
-                      ) : message.files_list[0]?.file_type?.includes('image') ||
-                        message.forwarded_messages[0]?.files_list[0].file_type?.includes('image') ? (
+                      ) : (message.files_list[0]?.file_type?.includes('image') ||
+                          message.forwarded_messages[0]?.files_list[0].file_type?.includes('image')) &&
+                        (message.content !== message.files_list[0].download_name ||
+                          message.forwarded_messages[0]?.content !==
+                            message.forwarded_messages[0]?.files_list[0].download_name) ? (
                         <IncomingImagesCard
                           message={message}
                           register={register}

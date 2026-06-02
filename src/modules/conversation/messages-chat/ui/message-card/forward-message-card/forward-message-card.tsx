@@ -41,8 +41,8 @@ export const ForwardMessageCard = ({
                   forwardMessageStore?.forwarded_messages[0]?.files_list[0]?.uid
                 }
                 src={
-                  forwardMessageStore?.files_list[0]?.file_url ||
-                  forwardMessageStore?.forwarded_messages[0]?.files_list[0]?.file_url
+                  forwardMessageStore?.files_list[0]?.file_webp_url ||
+                  forwardMessageStore?.forwarded_messages[0]?.files_list[0]?.file_webp_url
                 }
                 alt={
                   forwardMessageStore?.files_list[0]?.download_name ||
