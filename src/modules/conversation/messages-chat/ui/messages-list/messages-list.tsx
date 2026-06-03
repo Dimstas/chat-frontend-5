@@ -268,7 +268,7 @@ export const MessagesList = ({
                           />
                         ) : (message.files_list[0]?.file_type?.includes('image') ||
                             message.forwarded_messages[0]?.files_list[0].file_type?.includes('image')) &&
-                          (message.content !== message.files_list[0].download_name ||
+                          (message.content !== message.files_list[0]?.download_name ||
                             message.forwarded_messages[0]?.content !==
                               message.forwarded_messages[0]?.files_list[0].download_name) ? (
                           <OutgoingImagesCard
@@ -297,7 +297,7 @@ export const MessagesList = ({
                           status="Исходящий звонок"
                         />
                       ) : message.content && message.content.split(' ')[0] === '@@@' ? (
-                        <InformationForGroupCard text={message.content.split(' ').slice(1).join(' ')} />
+                        <InformationForGroupCard message={message} register={register} />
                       ) : (
                         <OutgoingMessagesCard
                           message={message}
@@ -320,7 +320,7 @@ export const MessagesList = ({
                         />
                       ) : (message.files_list[0]?.file_type?.includes('image') ||
                           message.forwarded_messages[0]?.files_list[0].file_type?.includes('image')) &&
-                        (message.content !== message.files_list[0].download_name ||
+                        (message.content !== message.files_list[0]?.download_name ||
                           message.forwarded_messages[0]?.content !==
                             message.forwarded_messages[0]?.files_list[0].download_name) ? (
                         <IncomingImagesCard
@@ -352,7 +352,7 @@ export const MessagesList = ({
                         status="Входящий звонок"
                       />
                     ) : message.content && message.content.split(' ')[0] === '@@@' ? (
-                      <InformationForGroupCard text={message.content.split(' ').slice(1).join(' ')} />
+                      <InformationForGroupCard message={message} register={register} />
                     ) : (
                       <IncomingMessagesCard
                         message={message}
