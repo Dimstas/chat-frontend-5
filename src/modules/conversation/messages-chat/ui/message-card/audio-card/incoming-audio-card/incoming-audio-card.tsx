@@ -99,7 +99,7 @@ export const IncomingAudioCard = ({
           <div className={styles.contentBlock}>
             <div className={styles.fileIcon}>
               {isLoading ? (
-                <DeleteFileIcon />
+                <DeleteFileIcon className={styles.deleteFileIcon} />
               ) : (
                 <button onClick={handlePlayPause} className={styles.fileIcon}>
                   {isPlaying ? <AudioStopIcon /> : <AudioPlayIcon />}
