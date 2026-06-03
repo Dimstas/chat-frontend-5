@@ -3,7 +3,6 @@
 import { useContactsSelectionStore } from 'modules/conversation/contacts/features/contacts-selection';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useWebSocketChat } from 'modules/conversation/messages-chat/api/web-socket/use-web-socket-chat';
-import { fileToBase64 } from 'modules/conversation/messages-chat/utils/file-to-base64';
 import { ConversationLayout, SearchInput } from 'modules/conversation/shared/ui';
 import { useNewGroupStore } from 'modules/new-group/model/new-group-store';
 import Image from 'next/image';
@@ -67,25 +66,13 @@ export const InviteMembersBlock = ({ wsUrl, currentUserId }: InviteMembersBlockP
     }
 
     try {
-      let avatarFileName = undefined;
-      let avatarFileData = undefined;
-
-      if (avatarFileStore) {
-        // Конвертируем файл в нужный формат (Base64)
-        const { filename, data } = await fileToBase64(avatarFileStore);
-        avatarFileName = filename;
-        avatarFileData = data;
-      }
-
       createGroupOrChannel({
         name: nameStore,
         chatType: chatTypeStore,
         uidUsersList: usersArray,
         description: descriptionStore || undefined,
-        avatarUid: avatarUidStore || undefined,
         avatarPreview: avatarPreviewStore || undefined,
-        avatarFileName: avatarFileName || undefined,
-        avatarFileData: avatarFileData || undefined,
+        file: avatarFileStore,
       });
       exitSelectionMode();
       router.push('/chats');

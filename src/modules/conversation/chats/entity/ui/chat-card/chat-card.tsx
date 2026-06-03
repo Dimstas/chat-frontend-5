@@ -38,7 +38,6 @@ export const ChatCard = ({ peer, chat, messages }: Chat): JSX.Element => {
   const handleClick = (): void => {
     setChatId(id);
   };
-
   return (
     <CardShell
       chatId={chat.id}

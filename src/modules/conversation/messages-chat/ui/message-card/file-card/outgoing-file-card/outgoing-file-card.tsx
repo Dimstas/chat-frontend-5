@@ -81,7 +81,8 @@ export const OutgoingFileCard = ({
   //хук для загрузки файла находящегося в сообщении
   const { handleDownloadMessageFileClick, handleStopDownloadMessageFileClick, isDownloading } =
     useDownloadMessageFile(files);
-
+  // получить размер файла
+  //const sizeFile = formatBytes(message);
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
       {checkBoxsVisibleStore && (
@@ -160,7 +161,7 @@ export const OutgoingFileCard = ({
                   />
                 </div>
                 <div className={styles.fileSizeAndMessageTimeBlock}>
-                  <div className={styles.fileSize}>5.2 MБ</div>
+                  <div className={styles.fileSize}>5.2 MB</div>
                   <div className={styles.messageTimeAndChatIcons}>
                     <div className={styles.messageTime}>{getMessageTime(message.created_at)}</div>
                     <div className={styles.messageChatIcons}>

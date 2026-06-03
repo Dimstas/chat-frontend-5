@@ -1,5 +1,6 @@
 'use client';
 
+import { avatarUploadApi } from 'modules/conversation/chats/api/avatar-upload.api';
 import type { Chat } from 'modules/conversation/chats/entity';
 import type { CreateChatRequestApi } from 'modules/conversation/chats/model/chat/chat.api.schema';
 import { CreateChatRequestSchema } from 'modules/conversation/chats/model/chat/chat.api.schema';
@@ -44,6 +45,7 @@ import type { Attachment } from '../../ui/context-menu/context-menu-attach-file/
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { filesUploadApi } from '../files-upload.api';
 import { voiceUploadApi } from '../voice-upload.api';
+
 type UseWebSocketChatReturn = {
   sendMessage: ({
     content,
@@ -79,18 +81,15 @@ type UseWebSocketChatReturn = {
     chatType,
     uidUsersList,
     description,
-    avatarUid,
-    avatarFileName,
-    avatarFileData,
+    avatarPreview,
+    file,
   }: {
     name: string;
     chatType: 'public-group' | 'private-group' | 'public-channel' | 'private-channel';
     uidUsersList: string[];
     description?: string;
-    avatarUid?: string;
     avatarPreview?: string;
-    avatarFileName?: string;
-    avatarFileData?: string;
+    file?: File | null;
   }) => void;
 };
 
@@ -494,12 +493,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
               nickname: data.object.name,
               firstName: '',
               lastName: '',
-              avatarUrl: data.object.avatar
-                ? `https://api.dev.chat.ktsf.ru/${data.object.avatar.url.split('?')[0]}`
-                : '',
-              avatarWebpUrl: data.object.avatar
-                ? `https://api.dev.chat.ktsf.ru/${data.object.avatar.url.split('?')[0]}`
-                : '',
+              avatarUrl: data.object.avatar_master_url ?? '',
+              avatarWebpUrl: data.object.avatar_master_url ?? '',
               isBlocked: false,
               isOnline: false,
               isInContacts: false,
@@ -814,25 +809,21 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
 
   // Функция создания группы/канала
   const createGroupOrChannel = useCallback(
-    ({
+    async ({
       name,
       chatType,
       uidUsersList,
       description,
-      avatarUid,
       avatarPreview,
-      avatarFileName,
-      avatarFileData,
+      file,
     }: {
       name: string;
       chatType: 'public-group' | 'private-group' | 'public-channel' | 'private-channel';
       uidUsersList: string[];
       description?: string;
-      avatarUid?: string;
       avatarPreview?: string;
-      avatarFileName?: string;
-      avatarFileData?: string;
-    }): void => {
+      file?: File | null;
+    }): Promise<void> => {
       stopRef.current = false;
       const requestUid = crypto.randomUUID();
       //создаем временную чат-заглушку для помещения в список чатов DOM
@@ -873,16 +864,16 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
           chat_type: chatType,
           uid_users_list: uidUsersList,
           ...(description && { description }),
-          ...(avatarUid && { avatar_uid: avatarUid }),
         },
       };
-      if (avatarFileName && avatarFileData) {
-        payload.object.avatar = {
-          filename: avatarFileName,
-          data: avatarFileData,
-        };
+      if (file) {
+        try {
+          const response = await avatarUploadApi(file);
+          payload.object.avatar_uid = response.uid;
+        } catch (error) {
+          console.error('Ошибка при загрузке аватара: ', error);
+        }
       }
-
       // Валидация через Zod
       const resultZod = CreateChatRequestSchema.safeParse(payload);
       const socket = wsRef.current;

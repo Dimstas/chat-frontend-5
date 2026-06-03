@@ -13,7 +13,6 @@ export const useDownloadMessageFile = (files: RestMessageFileApi[]): UseDownload
   const [isDownloading, setIsDownloading] = useState(false);
   //управлят состояние показать карточку, что сообщение скопировано, либо нет
   const setToastVisibleStore = useToastVisibleStore((s) => s.setToastVisible);
-
   const handleDownloadMessageFileClick = async (): Promise<void> => {
     // Если уже идёт загрузка — отменяем предыдущую
     if (downloadControllerRef.current) {
@@ -23,7 +22,6 @@ export const useDownloadMessageFile = (files: RestMessageFileApi[]): UseDownload
     const controller = new AbortController();
     downloadControllerRef.current = controller;
     setIsDownloading(true);
-
     try {
       if (!files.length) throw new Error('Файл не найден');
       for (const file of files) {
@@ -31,12 +29,10 @@ export const useDownloadMessageFile = (files: RestMessageFileApi[]): UseDownload
         const urlObj = new URL(cleanUrl);
         const pathAfterFirstSlash = urlObj.pathname;
         const proxyUrl = `/api/proxy/${pathAfterFirstSlash}/`;
-
         const response = await fetch(proxyUrl, {
           method: 'GET',
           signal: controller.signal,
         });
-
         const blob = await response.blob();
         const fileToSave = new File([blob], file.download_name, { type: blob.type });
         const isImage = blob.type.startsWith('image/');

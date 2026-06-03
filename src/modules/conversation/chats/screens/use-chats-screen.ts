@@ -61,7 +61,7 @@ export const useChatsScreen = (): UseChatsScreenReturn => {
   const debouncedSearch = useDebouncedValue<string>(search, 300);
 
   const { data: myChats, status, isFetchingNextPage, fetchNextPage, hasNextPage } = useChatsQuery();
-
+  console.log('myChats: ', myChats);
   const chats = useMemo(() => myChats?.pages.flatMap((page) => page.results.map(mapChatFromApi)) ?? [], [myChats]);
 
   const normalizedSearch = search.trim().toLowerCase();
