@@ -28,11 +28,10 @@ export const useAudioPlayer = (
   const { currentPlayingId, setCurrentPlaying, stopCurrentPlaying } = useAudioManagerStore();
   const isDestroyedRef = useRef(false);
   const audioUrl = message.files_list.length
-    ? message.files_list[0].file_webp_url
-    : message.forwarded_messages[0]?.files_list[0]?.file_webp_url;
+    ? message.files_list[0].file_protected_url
+    : message.forwarded_messages[0]?.files_list[0]?.file_protected_url;
   // Очищаем URL от лишнего слеша
-
-  const cleanUrl = audioUrl.replace(/\.(jpe?g|png|gif|webp)\/$/i, '.$1');
+  const cleanUrl = audioUrl?.replace(/\.(jpe?g|png|gif|webp)\/$/i, '.$1');
   const urlObj = new URL(cleanUrl);
   const pathAfterFirstSlash = urlObj.pathname.slice(1);
   const proxyUrl = `/api/proxy/${pathAfterFirstSlash}/`;

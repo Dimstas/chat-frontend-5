@@ -43,7 +43,7 @@ import {
 import type { Attachment } from '../../ui/context-menu/context-menu-attach-file/context-menu-attach-file.props';
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { filesUploadApi } from '../files-upload.api';
-
+import { voiceUploadApi } from '../voice-upload.api';
 type UseWebSocketChatReturn = {
   sendMessage: ({
     content,
@@ -751,8 +751,13 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
       }
       if (file) {
         try {
-          const response = await filesUploadApi(file.file);
-          payloadMessage.object.message_attachment_uids = [response.results[0].uid];
+          if (file.type === 'audio/webm') {
+            const response = await voiceUploadApi(file.file);
+            payloadMessage.object.message_attachment_uids = [response.uid];
+          } else {
+            const response = await filesUploadApi(file.file);
+            payloadMessage.object.message_attachment_uids = [response.results[0].uid];
+          }
         } catch (error) {
           console.error('Ошибка при загрузке файла: ', error);
         }

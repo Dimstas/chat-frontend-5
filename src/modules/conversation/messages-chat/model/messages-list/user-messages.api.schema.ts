@@ -106,3 +106,12 @@ export const ChatAttachmentUploadResponseSchema = z.object({
   results: z.array(ChatAttachmentUploadResultSchema),
 });
 export type ChatAttachmentUploadResponseApi = z.infer<typeof ChatAttachmentUploadResponseSchema>;
+
+export const VoiceAttachmentUploadResponseSchema = z.object({
+  uid: z.string(),
+  download_name: z.string().max(255).optional(),
+  media_kind: z.enum(['image', 'file', 'voice']).optional(),
+  upload_status: z.enum(['draft', 'attached', 'expired', 'deleted']).optional(),
+  duration_seconds: z.number().min(0).max(2147483647).optional(),
+});
+export type VoiceAttachmentUploadResponseApi = z.infer<typeof VoiceAttachmentUploadResponseSchema>;
