@@ -54,6 +54,14 @@ export const CardShell = ({
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
+  //функция для приобразования url сервера для запроса картинки через наш прокси-сервер
+  const removeDomain = (fullUrl: string): string => {
+    if (!fullUrl) return '';
+    const url = new URL(fullUrl);
+    return url.pathname + url.search + url.hash;
+  };
+  // url для запроса картинки через наш прокси-сервер
+  const result = `/api/proxy${removeDomain(src)}`;
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
@@ -81,9 +89,10 @@ export const CardShell = ({
           onClick={selectAction}
         >
           <ImageUI
-            src={src ? src : chatType === 'chat' ? URL_DEFAUIT_Avatar : URL_DEFAUIT_Avatar_Croup}
+            src={result ? result : chatType === 'chat' ? URL_DEFAUIT_Avatar : URL_DEFAUIT_Avatar_Croup}
             alt={alt}
             fill
+            unoptimized
             classNames={{
               root: clsx(styles.imageWrapper, classNames?.root),
               image: clsx(styles.image, classNames?.image),

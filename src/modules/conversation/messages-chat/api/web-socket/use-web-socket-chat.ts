@@ -493,7 +493,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string): UseWebSo
               nickname: data.object.name,
               firstName: '',
               lastName: '',
-              avatarUrl: data.object.avatar_master_url ?? '',
+              avatarUrl: data.object.avatar_master_url ?? data.object.avatar_webp_url ?? '',
               avatarWebpUrl: data.object.avatar_master_url ?? '',
               isBlocked: false,
               isOnline: false,

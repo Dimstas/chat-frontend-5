@@ -28,7 +28,7 @@ const MediaCard = ({ item, sendDeleteMessage }: MediaProps): JSX.Element => {
   return (
     <>
       <ImageUI
-        src={item.files_list[0].file_url}
+        src={item.files_list[0].file_webp_url || item.files_list[0].file_protected_url}
         alt={item.files_list[0].download_name}
         width={117}
         height={117}
