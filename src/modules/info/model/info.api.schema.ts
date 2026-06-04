@@ -181,11 +181,10 @@ export type ParticipantQuery = z.infer<typeof SearchQuerySchema>;
 export type UserForAddQuery = z.infer<typeof SearchQuerySchema>;
 
 export const ParticipantApiSchema = z.object({
-  uid: z.uuid(),
+  uid: z.string(),
   is_deleted: z.boolean(),
   first_name: z.string(),
   last_name: z.string(),
-  avatar_url: z.string(),
   avatar_webp_url: z.string(),
   avatar_small_url: z.string(),
   avatar_master_url: z.string(),
