@@ -1,13 +1,13 @@
 'use client';
 import clsx from 'clsx';
 import { ContextMenu } from 'modules/conversation/chats/ui/context-menu/context-menu';
+import { removeDomain } from 'modules/conversation/chats/utils/utils';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { JSX, MouseEvent, useRef, useState } from 'react';
 import { ImageUI } from 'shared/ui/image';
 import styles from './card-shell.module.scss';
 import { CardShellProps } from './card-shell.props';
-
 const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
 const URL_DEFAUIT_Avatar_Croup = '/images/messages-chats/default-avatar-group.svg';
 
@@ -54,14 +54,14 @@ export const CardShell = ({
   const handleCloseMenu = (): void => {
     setContextMenuVisible(false);
   };
-  //функция для приобразования url сервера для запроса картинки через наш прокси-сервер
-  const removeDomain = (fullUrl: string): string => {
-    if (!fullUrl) return '';
-    const url = new URL(fullUrl);
-    return url.pathname + url.search + url.hash;
-  };
-  // url для запроса картинки через наш прокси-сервер
-  const result = `/api/proxy${removeDomain(src)}`;
+
+  // создаем url для запроса картинки через наш прокси-сервер
+  let result: string;
+  if (src?.includes('blob:')) {
+    result = src;
+  } else {
+    result = `/api/proxy${removeDomain(src)}`;
+  }
 
   return (
     <div ref={cardRef} onContextMenu={handleContextMenu} onMouseLeave={handleCloseMenu}>
@@ -89,7 +89,13 @@ export const CardShell = ({
           onClick={selectAction}
         >
           <ImageUI
-            src={result ? result : chatType === 'chat' ? URL_DEFAUIT_Avatar : URL_DEFAUIT_Avatar_Croup}
+            src={
+              result && result !== '/api/proxy'
+                ? result
+                : chatType === 'chat'
+                  ? URL_DEFAUIT_Avatar
+                  : URL_DEFAUIT_Avatar_Croup
+            }
             alt={alt}
             fill
             unoptimized

@@ -24,6 +24,7 @@ export const InviteMembersBlock = ({ wsUrl, currentUserId }: InviteMembersBlockP
   const mode = pathname.includes('/new-channel') ? 'channel' : 'group';
 
   const { query, setQuery, clearQuery, contacts } = useContactsScreen();
+
   const enterSelectionMode = useContactsSelectionStore((s) => s.enterSelectionMode);
   const selectedUids = useContactsSelectionStore((s) => s.selectedIds);
   const nameStore = useNewGroupStore((s) => s.name);
