@@ -117,7 +117,7 @@ export const HeaderTop = ({
       },
     });
   };
-  // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен
+  // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
   const result = `/api/proxy${removeDomain(avatarUrl)}`;
   return (
     <>
@@ -125,13 +125,7 @@ export const HeaderTop = ({
         <div className={styles.contactWrapper}>
           <div className={styles.image}>
             <ImageUI
-              src={
-                result !== '/api/proxy'
-                  ? result
-                  : isGroupOrChannel
-                    ? URL_DEFAUIT_Avatar_Croup
-                    : URL_DEFAUIT_Avatar_Croup
-              }
+              src={result !== '/api/proxy' ? result : isGroupOrChannel ? URL_DEFAUIT_Avatar_Croup : URL_DEFAUIT_Avatar}
               alt={firstName}
               unoptimized
               width={40}

@@ -1,3 +1,4 @@
+import { removeDomain } from 'modules/conversation/chats/utils/utils';
 import { useMessagesChatStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { useGenerateInviteLinkQuery, useGroupOrChanelQuery } from 'modules/info/api/info.query';
 import { formatParticipants } from 'modules/info/shared/utils/format';
@@ -10,6 +11,8 @@ import { InfoSummary } from 'modules/info/ui/info-summary';
 import { InfoUploads } from 'modules/info/ui/info-uploads';
 import { LeaveGroupModal } from 'modules/info/ui/leave-group-modal';
 import { JSX } from 'react';
+
+const URL_DEFAUIT_Avatar_Croup = '/images/profile/group-default.png';
 
 export const GroupPanel = ({
   uid,
@@ -31,6 +34,10 @@ export const GroupPanel = ({
   // все сообщения определенного чата(определеного uid профиля)
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[uid]);
   const tabs = ['Участники', 'Медиа', 'Файлы', 'Голосовые', 'Ссылки'];
+
+  // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
+  const result = `/api/proxy${removeDomain(profile?.avatar ?? '')}`;
+
   return (
     <>
       {isLoading ? (
@@ -38,7 +45,7 @@ export const GroupPanel = ({
       ) : (
         <>
           <InfoAvatar
-            avatarHref={profile?.avatar ?? '/images/profile/group-default.png'}
+            avatarHref={result !== '/api/proxy' ? result : URL_DEFAUIT_Avatar_Croup}
             label={name}
             status={status}
           />

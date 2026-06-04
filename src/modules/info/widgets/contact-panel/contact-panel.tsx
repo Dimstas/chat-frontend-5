@@ -1,5 +1,6 @@
 import { useChatsStore } from 'modules/conversation/chats/model/search';
 import { AddContactModal } from 'modules/conversation/chats/ui/add-contact-modal';
+import { removeDomain } from 'modules/conversation/chats/utils/utils';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useMessagesChatStore } from 'modules/conversation/messages-chat/zustand-store/zustand-store';
 import { useAddContactQuery, useSearchUserByNicknameQuery } from 'modules/info/api/info.query';
@@ -17,6 +18,9 @@ import { InfoUploads } from 'modules/info/ui/info-uploads';
 import { UnblockContactModal } from 'modules/info/ui/unblock-contact-modal';
 import { JSX } from 'react';
 import AddIcon from '../../shared/icons/add.svg';
+
+const URL_DEFAUIT_Avatar = '/images/profile/default.png';
+
 export const ContactPanel = ({
   uid,
   currentUid,
@@ -57,6 +61,10 @@ export const ContactPanel = ({
   // все сообщения определенного чата(определеного uid профиля)
   const messagesByUser = useMessagesChatStore((s) => s.messagesByUser[uid]);
   const tabs = ['Медиа', 'Файлы', 'Голосовые', 'Ссылки'];
+
+  // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
+  const result = `/api/proxy${removeDomain(profile?.avatar ?? '')}`;
+
   return (
     <>
       {isLoading ? (
@@ -64,7 +72,7 @@ export const ContactPanel = ({
       ) : (
         <>
           <InfoAvatar
-            avatarHref={avatarUrl ?? '/images/profile/default.png'}
+            avatarHref={result !== '/api/proxy' ? result : URL_DEFAUIT_Avatar}
             label={`${firstName} ${lastName}`}
             status={isOnline ? 'в сети' : 'не в сети'}
           />
