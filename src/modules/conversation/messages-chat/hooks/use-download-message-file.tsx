@@ -1,7 +1,9 @@
 'use client';
+import { removeDomain } from 'modules/conversation/chats/utils/utils';
 import { useRef, useState } from 'react';
 import type { RestMessageFileApi } from '../model/messages-list/user-messages.api.schema';
 import { useToastVisibleStore } from '../zustand-store/zustand-store';
+
 type UseDownloadMessageFileReturn = {
   handleDownloadMessageFileClick: () => Promise<void>;
   handleStopDownloadMessageFileClick: () => void;
@@ -25,10 +27,8 @@ export const useDownloadMessageFile = (files: RestMessageFileApi[]): UseDownload
     try {
       if (!files.length) throw new Error('Файл не найден');
       for (const file of files) {
-        const cleanUrl = file.file_protected_url;
-        const urlObj = new URL(cleanUrl);
-        const pathAfterFirstSlash = urlObj.pathname;
-        const proxyUrl = `/api/proxy/${pathAfterFirstSlash}/`;
+        // создаем url для запроса файла через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
+        const proxyUrl = `/api/proxy${removeDomain(file.file_protected_url)}`;
         const response = await fetch(proxyUrl, {
           method: 'GET',
           signal: controller.signal,

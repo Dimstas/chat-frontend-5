@@ -5,7 +5,6 @@ import { JSX } from 'react';
 import { ImageUI } from 'shared/ui';
 import styles from './media-tab.module.scss';
 import { MediaProps, MediaTabProps } from './media-tab.props';
-
 export const MediaTab = ({ items, currentUid, wsUrl }: MediaTabProps): JSX.Element => {
   const { sendDeleteMessage } = useWebSocketChat(wsUrl, currentUid);
   return (
@@ -57,9 +56,9 @@ const MediaCard = ({ item, sendDeleteMessage }: MediaProps): JSX.Element => {
               uid: item.uid,
               download_name: item.download_name,
               media_kind: item.media_kind,
-              file_protected_url: result,
-              file_webp_url: result,
-              file_small_url: result,
+              file_protected_url: item.file_protected_url || item.file_webp_url || '',
+              file_webp_url: item.file_protected_url || item.file_webp_url || '',
+              file_small_url: item.file_protected_url || item.file_webp_url || '',
               file_type: item.file_type || '',
               created_at: item.created_at,
               updated_at: item.updated_at,
