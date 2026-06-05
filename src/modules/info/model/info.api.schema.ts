@@ -233,3 +233,47 @@ export const GroupAvatarApiSchema = z.object({
 });
 
 export type GroupAvatarApiResponse = z.infer<typeof GroupAvatarApiSchema>;
+
+const FromUserFileSchema = z
+  .object({
+    uid: z.string(),
+    first_name: z.string(),
+    last_name: z.string(),
+    avatar_webp_url: z.string(),
+    avatar_small_url: z.string(),
+  })
+  .nullable();
+const MessageFileSchema = z
+  .object({
+    uid: z.string(),
+    content: z.string(),
+  })
+  .nullable();
+
+const ForwardedInFileSchema = z.object({
+  uid: z.string(),
+});
+const GroupChannelFileSchema = z.object({
+  id: z.number(),
+  uid: z.string(),
+  download_name: z.string(),
+  media_kind: z.string(),
+  file_protected_url: z.string().nullable(),
+  file_webp_url: z.string().nullable(),
+  file_small_url: z.string().nullable(),
+  file_type: z.string().max(128).nullable(),
+  size: z.number(),
+  updated_at: z.number(),
+  created_at: z.number(),
+  from_user: FromUserFileSchema,
+  is_owner: z.boolean(),
+  message: MessageFileSchema,
+  forwarded_in: z.array(ForwardedInFileSchema),
+});
+export const PaginatedGroupChannelFileListShema = PaginatedResponseSchema.extend({
+  results: z.array(GroupChannelFileSchema),
+});
+
+export type FilesSeachQueryApi = z.infer<typeof SearchQuerySchema>;
+export type PaginatedGroupChannelFileListApi = z.infer<typeof PaginatedGroupChannelFileListShema>;
+export type ChatFilesListApi = z.infer<typeof GroupChannelFileSchema>;

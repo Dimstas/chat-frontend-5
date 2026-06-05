@@ -96,6 +96,7 @@ export const AlertOpenImages = ({
               <Image
                 src={message.from_user.avatar_webp_url ?? '/images/messages-chats/default-avatar.svg'}
                 alt={message.from_user.username}
+                unoptimized
                 width={60}
                 height={60}
               />
@@ -103,6 +104,7 @@ export const AlertOpenImages = ({
               <Image
                 src={message.forwarded_messages[0].avatar_webp_url ?? '/images/messages-chats/default-avatar.svg'}
                 alt={message.forwarded_messages[0].from_user ?? 'Дефолтный Аватар'}
+                unoptimized
                 width={60}
                 height={60}
               />
@@ -166,6 +168,7 @@ export const AlertOpenImages = ({
         <Image
           src={fileList[indexImage].file_webp_url}
           alt={fileList[indexImage].download_name}
+          unoptimized
           width={626}
           height={417}
         />

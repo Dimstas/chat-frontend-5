@@ -63,8 +63,16 @@ export const OutgoingAudioCard = ({
       setIsDeletedFileStore(false);
     }
   }, [isDeletedFileStore, message.status]);
+
+  // находим url voice-сообщения
+  const audioUrl = message.files_list.length
+    ? message.files_list[0].file_protected_url
+    : message.forwarded_messages[0]?.files_list[0]?.file_protected_url;
   // хук для прослушивания аудиосообщения
-  const { handlePlayPause, currentTime, totalDuration, waveformRef, isPlaying, isLoading } = useAudioPlayer(message);
+  const { handlePlayPause, currentTime, totalDuration, waveformRef, isPlaying, isLoading } = useAudioPlayer(
+    message.uid,
+    audioUrl,
+  );
 
   return (
     <div className={(checkBoxsVisibleStore && has) || isHighlighted ? styles.blockSelected : styles.block}>
