@@ -20,6 +20,7 @@ import {
   InviteLinkApiResponse,
   InviteSettingsPost,
   NewContact,
+  PaginatedGroupChannelFileListApi,
   ParticipantApiResponse,
   UserForAddApiResponse,
 } from '../model/info.api.schema';
@@ -27,6 +28,7 @@ import {
   addToContact,
   editChat,
   generateInvite,
+  getChatFileList,
   getGroupOrChannel,
   getParticipantList,
   getUserForAddList,
@@ -282,5 +284,35 @@ export const useUserForAddQuery = (
 export const useUpdateProfileAvatarQuery = (): UseMutationResult<GroupAvatarApiResponse, unknown, File> => {
   return useMutation({
     mutationFn: updateAvatar,
+  });
+};
+
+export const useChatFilesListQuery = (
+  query: string,
+  chatKey: string,
+): UseInfiniteQueryResult<InfiniteData<PaginatedGroupChannelFileListApi>, unknown> => {
+  return useInfiniteQuery<
+    PaginatedGroupChannelFileListApi,
+    unknown,
+    InfiniteData<PaginatedGroupChannelFileListApi>,
+    ['chat', 'files-list', string],
+    number
+  >({
+    queryKey: ['chat', 'files-list', chatKey],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) =>
+      getChatFileList(
+        {
+          page: pageParam,
+          page_size: 50,
+          search: query,
+        },
+        chatKey,
+      ),
+    getNextPageParam: (lastPage) => {
+      if (!lastPage.next) return undefined;
+      const url = new URL(lastPage.next, 'http://localhost');
+      return Number(url.searchParams.get('page'));
+    },
   });
 };

@@ -1,5 +1,6 @@
 'use client';
 import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-screen';
+import { removeDomain } from 'modules/conversation/chats/utils/utils';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useCallsStore } from 'modules/conversation/messages-chat/model/calls/calls.store';
 import { useInfoStore } from 'modules/info/model/info.store';
@@ -28,7 +29,10 @@ import { SearchMessages } from '../search-messages/search/search-messages';
 import styles from './header-top.module.scss';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
-const URL_DEFAULT_Avatar = '/images/messages-chats/default-avatar.svg';
+
+const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
+const URL_DEFAUIT_Avatar_Croup = '/images/messages-chats/default-avatar-group.svg';
+
 export const HeaderTop = ({
   wsUrl,
   user_uid,
@@ -113,14 +117,17 @@ export const HeaderTop = ({
       },
     });
   };
+  // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
+  const result = `/api/proxy${removeDomain(avatarUrl)}`;
   return (
     <>
       <div className={styles.wrapper}>
         <div className={styles.contactWrapper}>
           <div className={styles.image}>
             <ImageUI
-              src={avatarUrl ? avatarUrl : URL_DEFAULT_Avatar}
+              src={result !== '/api/proxy' ? result : isGroupOrChannel ? URL_DEFAUIT_Avatar_Croup : URL_DEFAUIT_Avatar}
               alt={firstName}
+              unoptimized
               width={40}
               height={40}
               className={styles.image}
