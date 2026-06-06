@@ -51,7 +51,12 @@ export const useSearchUsersQuery = (query: string): UseQueryResult<Contact[]> =>
       return await searchUsers(query, { signal });
     },
 
-    select: (data) => data.results.map(mapSearchingContactFromApi),
+    select: (data) => {
+      if (query.length < 2) {
+        return [];
+      }
+      return data.results.map(mapSearchingContactFromApi);
+    },
 
     enabled: query.length >= 2,
     placeholderData: (previousData) => previousData,
