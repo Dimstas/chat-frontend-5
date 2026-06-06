@@ -163,13 +163,13 @@ export const HeaderTop = ({
               width={40}
               height={40}
               className={styles.image}
-              onClick={handleOpenProfile}
+              // onClick={handleOpenProfile}
             />
 
             {searchMessagesVisible ? (
               <SearchMessages setSearchMessagesVisible={setSearchMessagesVisible} />
             ) : (
-              <div className={styles.info} onClick={handleOpenProfile}>
+              <div className={styles.info} onClick={()=>{}}>
                 <span className={styles.name}>{isGroupOrChannel ? chat?.chat.name : `${firstName} ${lastName}`}</span>
 
                 <span className={styles.status}>{status}</span>
