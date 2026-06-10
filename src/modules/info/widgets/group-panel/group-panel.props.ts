@@ -5,4 +5,5 @@ export type GroupPanelProps = {
   currentUid: string;
   wsUrl: string;
   filesList: ChatFilesListApi[] | undefined;
+  refreshUrl: string;
 };

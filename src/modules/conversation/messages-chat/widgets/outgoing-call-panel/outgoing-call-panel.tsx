@@ -20,6 +20,7 @@ type OutgoingCallPanelProps = {
   user_uid: string;
   wsUrl: string;
   currentUid: string;
+  refreshUrl: string;
 };
 
 export const OutgoingCallPanel = ({
@@ -28,6 +29,7 @@ export const OutgoingCallPanel = ({
   user_uid,
   wsUrl,
   currentUid,
+  refreshUrl,
 }: OutgoingCallPanelProps): JSX.Element | null => {
   const {
     isFullScreen,
@@ -48,7 +50,7 @@ export const OutgoingCallPanel = ({
     resetCall,
   } = useCallsStore();
   const { data: iceConfig, isLoading } = useIceServersQuery();
-  const { sendOfferCall, sendIceCandidate, sendCallCompletion } = useWebSocketChat(wsUrl, currentUid);
+  const { sendOfferCall, sendIceCandidate, sendCallCompletion } = useWebSocketChat(wsUrl, currentUid, refreshUrl);
 
   const localStreamRef = useRef<MediaStream | undefined>(undefined);
   const remoteStreamRef = useRef<MediaStream | null>(null);

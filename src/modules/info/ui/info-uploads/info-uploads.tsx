@@ -10,7 +10,14 @@ import { MediaTab } from './media-tab';
 import { ParticipantsTab } from './participants-tab';
 import { VoicesTab } from './voices-tab';
 
-export const InfoUploads = ({ tabs, chatKey, currentUid, wsUrl, filesList }: InfoUploadsProps): JSX.Element => {
+export const InfoUploads = ({
+  tabs,
+  chatKey,
+  currentUid,
+  wsUrl,
+  filesList,
+  refreshUrl,
+}: InfoUploadsProps): JSX.Element => {
   const [activeTab, setActiveTab] = useState(0);
   const imagesArray: ChatFilesListApi[] = [];
   const filesArray: ChatFilesListApi[] = [];
@@ -33,7 +40,7 @@ export const InfoUploads = ({ tabs, chatKey, currentUid, wsUrl, filesList }: Inf
     const tab = tabs[activeTab];
     switch (tab) {
       case 'Медиа':
-        return <MediaTab items={imagesArray} currentUid={currentUid} wsUrl={wsUrl} />;
+        return <MediaTab items={imagesArray} currentUid={currentUid} wsUrl={wsUrl} refreshUrl={refreshUrl} />;
       case 'Файлы':
         return <FilesTab items={filesArray} />;
       case 'Голосовые':

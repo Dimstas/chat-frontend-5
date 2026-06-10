@@ -5,6 +5,7 @@ export type MediaTabProps = {
   items: ChatFilesListApi[];
   currentUid: string;
   wsUrl: string;
+  refreshUrl: string;
 };
 
 export type MediaProps = {

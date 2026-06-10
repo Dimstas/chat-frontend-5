@@ -166,7 +166,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
     heartbeatIntervalRef.current = setInterval(() => {
       if (socket.readyState !== WebSocket.OPEN) return;
       socket.send(JSON.stringify({ action: 'ping' }));
-      console.log('Ping sent');
+      console.log('Ping send');
     }, 20000); // каждые 20 секунд
   };
 
@@ -232,7 +232,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
         // Ошибки 1006 часто при обрыве сети/таймауте
         // Планируем reconnect
         // 1006 чаще всего при 403 handshake
-        if (e.code === 1006) {
+        if (e.code === 1006 || e.code === 4000) {
           try {
             await refreshWsSession(refreshUrl);
             reconnectTimeout.current = setTimeout(scheduleReconnect, 1000);

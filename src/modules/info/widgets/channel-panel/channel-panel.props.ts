@@ -5,4 +5,5 @@ export type ChannelPanelProps = {
   currentUid: string;
   wsUrl: string;
   filesList: ChatFilesListApi[] | undefined;
+  refreshUrl: string;
 };

@@ -17,9 +17,10 @@ import styles from './incoming-call-panel.module.scss';
 type IncomingCallPanelProps = {
   wsUrl: string;
   currentUid: string;
+  refreshUrl: string;
 };
 
-export const IncomingCallPanel = ({ wsUrl, currentUid }: IncomingCallPanelProps): JSX.Element | null => {
+export const IncomingCallPanel = ({ wsUrl, currentUid, refreshUrl }: IncomingCallPanelProps): JSX.Element | null => {
   const {
     isFullScreen,
     isSound,
@@ -41,7 +42,11 @@ export const IncomingCallPanel = ({ wsUrl, currentUid }: IncomingCallPanelProps)
     resetCall,
   } = useCallsStore();
 
-  const { sendOfferCall, sendIceCandidate, sendCallCompletion, sendAnswerCall } = useWebSocketChat(wsUrl, currentUid);
+  const { sendOfferCall, sendIceCandidate, sendCallCompletion, sendAnswerCall } = useWebSocketChat(
+    wsUrl,
+    currentUid,
+    refreshUrl,
+  );
   const { data: iceConfig, isLoading } = useIceServersQuery();
 
   const URL_DEFAULT_AVATAR = '/images/profile/default.png';

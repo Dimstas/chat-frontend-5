@@ -8,4 +8,5 @@ export type ContactPanelProps = {
   profile?: ProfileInfo;
   isLoading: boolean;
   filesList: ChatFilesListApi[] | undefined;
+  refreshUrl: string;
 };

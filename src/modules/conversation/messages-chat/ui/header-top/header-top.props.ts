@@ -3,4 +3,5 @@ export type HeaderTopProps = {
   user_uid: string;
   currentUid: string;
   refreshUrl: string;
+  chatOrContact: 'chat' | 'contact';
 };

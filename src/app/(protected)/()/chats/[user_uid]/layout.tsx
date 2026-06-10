@@ -26,7 +26,13 @@ export default async function MessagesLayout({
     return (
       <main className={styles.wrapper}>
         <Suspense>
-          <HeaderTop wsUrl={wsUrl} user_uid={user_uid} currentUid={payload.user_id} refreshUrl={refreshUrl} />
+          <HeaderTop
+            wsUrl={wsUrl}
+            user_uid={user_uid}
+            currentUid={payload.user_id}
+            refreshUrl={refreshUrl}
+            chatOrContact="chat"
+          />
         </Suspense>
         {children}
         <Suspense>

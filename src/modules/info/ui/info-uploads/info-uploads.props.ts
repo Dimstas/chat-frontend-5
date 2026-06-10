@@ -6,6 +6,7 @@ export type InfoUploadsProps = {
   wsUrl: string;
   tabs: string[];
   filesList: ChatFilesListApi[] | undefined;
+  refreshUrl: string;
 };
 
 type TabContentType = 'media' | 'files' | 'voices' | 'links' | 'members' | 'subscribers';
