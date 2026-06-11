@@ -22,7 +22,6 @@ export default async function MessagesLayout({
     const payload = parseJwtToken(accessToken ?? '');
     const wsUrl = `${BACKEND_WS}/ws/chat`;
     const refreshUrl = `${BACKEND_API}/api/v1/auth/login/refresh/token/`;
-
     return (
       <main className={styles.wrapper}>
         <Suspense>

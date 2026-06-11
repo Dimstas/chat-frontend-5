@@ -83,6 +83,11 @@ export const HeaderBottom = ({ wsUrl, currentUserId, refreshUrl }: HeaderBottomP
     checkBoxsVisibleStore,
   ]);
 
+  //эффект в случае перехода в другой чат закрываем <ChooseMessagesCard /> и убираем checkbox cj dct[ cjj,otybq]
+  useEffect(() => {
+    setCheckBoxsVisibleStore(false);
+  }, [userIdStore]);
+
   const handleSubmitForm = (form: React.FormEvent<HTMLFormElement>): void => {
     form.preventDefault();
     sendMessage({ content: textInput, repliedMessage: repliedMessageStore });
