@@ -17,6 +17,7 @@ import {
   serializerRequestEditChat,
   serializerRequestLeaveGroupApiSchema,
 } from 'modules/info/model/info.web-socket.api.schema';
+import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
 import { refreshWsSession } from 'shared/api/session/wsAuth.api';
 import { AnswerCallRequestAPI, useCallsStore } from '../../model/calls';
@@ -46,6 +47,7 @@ import type { Attachment } from '../../ui/context-menu/context-menu-attach-file/
 import { useMessagesChatStore, useUserIdStore } from '../../zustand-store/zustand-store';
 import { filesUploadApi } from '../files-upload.api';
 import { voiceUploadApi } from '../voice-upload.api';
+
 type UseWebSocketChatReturn = {
   sendMessage: ({
     content,
@@ -94,6 +96,7 @@ type UseWebSocketChatReturn = {
 };
 
 export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUrl: string): UseWebSocketChatReturn {
+  const router = useRouter();
   const heartbeatIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastPongRef = useRef<number>(Date.now());
   // прописываем в компоненте актуальный user_uid открытого чата из store
@@ -256,7 +259,8 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
         if (
           data.action === 'create_text_message' &&
           data.status === 'OK' &&
-          data.object.to_user?.uid === userIdRef.current
+          data.object.chat_type === 'chat' &&
+          data.object.from_user.uid === currentUserIdRef.current
         ) {
           console.log('Подтверждение сервера об отправке исходящего сообщения в обычный чат) :', data);
           // Если сервер пришлёт подтверждение с request_uid,
@@ -271,14 +275,30 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
         if (
           data.action === 'create_text_message' &&
           data.status === 'OK' &&
-          data.object.from_user.uid === currentUserIdRef.current &&
-          data.object.chat_key === userIdRef.current
+          (data.object.chat_type === 'public-group' || data.object.chat_type === 'private-group') &&
+          data.object.from_user.uid === currentUserIdRef.current
         ) {
           console.log('Подтверждение сервера об отправке исходящего сообщения в группу) :', data);
           // Если сервер пришлёт подтверждение с request_uid,
           // заменим заклушку стоящую в DOM на присланное сервером сообщение и его статус отметим как sent
           if (data.request_uid) {
-            updateMessageByUidForUser(userIdRef.current, data.request_uid, { status: 'sent', ...data.object });
+            updateMessageByUidForUser(data.object.chat_key, data.request_uid, { status: 'sent', ...data.object });
+            // Очистим таймаут подтверждения
+            pendingTimeouts.current.delete(data.request_uid);
+          }
+        }
+        // Подтверждает отправленние созданного исходящего сообщения в канал по request_uid
+        if (
+          data.action === 'create_text_message' &&
+          data.status === 'OK' &&
+          (data.object.chat_type === 'public-channel' || data.object.chat_type === 'private-channel') &&
+          data.object.from_user.uid === currentUserIdRef.current
+        ) {
+          console.log('Подтверждение сервера об отправке исходящего сообщения в канал) :', data);
+          // Если сервер пришлёт подтверждение с request_uid,
+          // заменим заклушку стоящую в DOM на присланное сервером сообщение и его статус отметим как sent
+          if (data.request_uid) {
+            updateMessageByUidForUser(data.object.chat_key, data.request_uid, { status: 'sent', ...data.object });
             // Очистим таймаут подтверждения
             pendingTimeouts.current.delete(data.request_uid);
           }
@@ -533,7 +553,9 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
               // если владелец группы/канала, то заменим в store заглушку чата стоящую в DOM на присланный сервером чат
               updateChatByUidStore(data.request_uid, result);
               if (!stopRef.current) {
-                // после создания группы/чата от имени владельца отправляем сообщение всем подписчикам
+                //после создания группы/канала сразу туда переходим
+                router.push(`/chats/${data.object.chat_key}`);
+                // после создания группы/канала от имени владельца отправляем сообщение всем подписчикам
                 sendMessage({ content: text, chatKey: data.object.chat_key });
                 stopRef.current = true;
               }
@@ -757,7 +779,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
       }
 
       // записываем в store и показываем локально сразу в DOM созданное клиентом сообщение (tempMessage)
-      addMessageForUser(userIdRef.current, tempMessage);
+      addMessageForUser(chatKey ? chatKey : userIdRef.current, tempMessage);
 
       // Отправляем через WS созданное клиентом сообщение (payloadMessage) (если соединение есть)
       const payloadMessage: CreateTextMessageAPI = {

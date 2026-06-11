@@ -77,7 +77,7 @@ export const InviteMembersBlock = ({ wsUrl, currentUserId, refreshUrl }: InviteM
         file: avatarFileStore,
       });
       exitSelectionMode();
-      router.push('/chats');
+      //router.push('successPath');
     } catch (error) {
       console.error(`Ошибка создания ${mode === 'group' ? 'группы' : 'канала'}:`, error);
       alert(`Не удалось создать ${mode === 'group' ? 'группу' : 'канал'}. Попробуйте позже.`);

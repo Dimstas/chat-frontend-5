@@ -128,22 +128,27 @@ export const HeaderTop = ({ wsUrl, user_uid, currentUid, refreshUrl, chatOrConta
       },
     });
   };
+  const defaultAvatar = isGroupOrChannel ? URL_DEFAUIT_Avatar_Croup : URL_DEFAUIT_Avatar;
   // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
   const result = `/api/proxy${removeDomain(avatarUrl)}`;
-
+  // создаем состояние которое динамически заменить картинку аватара на дефолтную в случае ошибки при её загрузке
+  const [imgSrc, setImgSrc] = useState(result !== '/api/proxy' ? result : defaultAvatar);
   return (
     <>
       <div className={styles.wrapper}>
         <div className={styles.contactWrapper}>
           <div className={styles.image}>
             <Image
-              src={result !== '/api/proxy' ? result : isGroupOrChannel ? URL_DEFAUIT_Avatar_Croup : URL_DEFAUIT_Avatar}
+              src={imgSrc}
               alt={firstName}
               unoptimized
               width={40}
               height={40}
               className={styles.image}
               onClick={() => toggleInfoOpen()}
+              onError={() => {
+                setImgSrc(defaultAvatar);
+              }}
             />
           </div>
           {searchMessagesVisible ? (
