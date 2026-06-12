@@ -3,12 +3,13 @@ import { useChatsScreen } from 'modules/conversation/chats/screens/use-chats-scr
 import { removeDomain } from 'modules/conversation/chats/utils/utils';
 import { useContactsScreen } from 'modules/conversation/contacts/screens/use-contacts-screen';
 import { useCallsStore } from 'modules/conversation/messages-chat/model/calls/calls.store';
+import { useInfoProfileQuery } from 'modules/info/api';
 import { useInfoStore } from 'modules/info/model/info.store';
 import { useParticipantsScreen } from 'modules/info/screens/use-participant-screen';
 import { useNotificationStore } from 'modules/notification/model/notification.store';
+import Image from 'next/image';
 import { JSX, useEffect, useState } from 'react';
 import { getLastSeenLabel } from 'shared/libs';
-import { ImageUI } from 'shared/ui/image';
 import { NotificationModal } from '../../../../notification/ui/notification-modal';
 import { useWebSocketChat } from '../../api/web-socket/use-web-socket-chat';
 import { formatParticipants } from '../../utils/format-messages';
@@ -27,25 +28,51 @@ import { LeaveGroupModal } from '../header-top-buttons-block/leave-group-modal';
 import { SearchResultCard } from '../search-messages/search-result-card/search-result-card';
 import { SearchMessages } from '../search-messages/search/search-messages';
 import styles from './header-top.module.scss';
+import type { HeaderTopProps } from './header-top.props';
 import CallIcon from './icons/call-icon.svg';
 import SearchIcon from './icons/search-icon.svg';
 
 const URL_DEFAUIT_Avatar = '/images/messages-chats/default-avatar.svg';
 const URL_DEFAUIT_Avatar_Croup = '/images/messages-chats/default-avatar-group.svg';
 
-export const HeaderTop = ({
-  wsUrl,
-  user_uid,
-  currentUid,
-}: {
-  wsUrl: string;
-  user_uid: string;
-  currentUid: string;
-}): JSX.Element => {
+export const HeaderTop = ({ wsUrl, user_uid, currentUid, refreshUrl, chatOrContact }: HeaderTopProps): JSX.Element => {
   //хук для получения списка чатов
   const { chats } = useChatsScreen();
   //хук для получения списка участников опреденной группы/канала (по chat_key)
   const { participants } = useParticipantsScreen(user_uid);
+  const isGroupOrChannel = user_uid.startsWith('group') || user_uid.startsWith('channel');
+  const chat = isGroupOrChannel
+    ? chats.find((c) => c.chat.chatKey === user_uid)
+    : chats.find((c) => c.peer.uid === user_uid);
+  const parts = user_uid.split('_');
+  const userUid = parts.length > 1 ? parts[1] : parts[0];
+  //xук для получения профиля определенного (uid) пользователя
+  const { data: profile, isLoading } = useInfoProfileQuery(userUid);
+  let resultProfile;
+
+  if (chatOrContact === 'chat') {
+    resultProfile = {
+      avatarUrl: chat?.peer.avatarUrl || '',
+      firstName: chat?.peer.firstName || '',
+      lastName: chat?.peer.lastName || '',
+      nickname: chat?.peer.nickname || '',
+      isBlocked: chat?.peer.isBlocked || false,
+      isInContacts: chat?.peer.isInContacts || false,
+      status: getLastSeenLabel(chat?.peer.wasOnlineAt || null),
+    };
+  } else {
+    resultProfile = {
+      avatarUrl: profile?.avatar || profile?.avatarUrl || profile?.avatarWebp || profile?.avatarWebpUrl || '',
+      firstName: profile?.firstName || '',
+      lastName: profile?.lastName || '',
+      nickname: profile?.nickname || '',
+      isBlocked: profile?.isBlocked || false,
+      isInContacts: false,
+      status: getLastSeenLabel(profile?.wasOnlineAt || null),
+    };
+  }
+  const { avatarUrl, firstName, lastName, nickname, isBlocked, isInContacts, status } = resultProfile;
+  const [searchMessagesVisible, setSearchMessagesVisible] = useState<boolean>(false);
 
   const {
     isCallModalOpen,
@@ -60,22 +87,6 @@ export const HeaderTop = ({
   const { isModalOpen } = useNotificationStore();
   const { isBlockModalOpen, isAddModalOpen, isLeaveGroupModalOpen, closeButtonMenu, openButtonMenu } =
     useHeaderButtonsModalStore();
-
-  const isGroupOrChannel = user_uid.startsWith('group') || user_uid.startsWith('channel');
-  const chat = isGroupOrChannel
-    ? chats.find((c) => c.chat.chatKey === user_uid)
-    : chats.find((c) => c.peer.uid === user_uid);
-  const {
-    avatarUrl = '',
-    firstName = '',
-    lastName = '',
-    nickname = '',
-    wasOnlineAt = null,
-    isBlocked = false,
-    isInContacts = false,
-  } = chat?.peer ?? {};
-  const status = getLastSeenLabel(wasOnlineAt);
-  const [searchMessagesVisible, setSearchMessagesVisible] = useState<boolean>(false);
   const searchIndicatorStore = useSearchIndicatorStore((s) => s.searchIndicator);
   const searchMessagesStore = useSearchMessagesStore((s) => s.searchMessages);
   useEffect(() => {
@@ -86,7 +97,7 @@ export const HeaderTop = ({
     }
   }, [closeButtonMenu, openButtonMenu, isBlocked, isInContacts, user_uid]);
   const { contacts } = useContactsScreen();
-  const { sendCallCompletion } = useWebSocketChat(wsUrl, currentUid);
+  const { sendCallCompletion } = useWebSocketChat(wsUrl, currentUid, refreshUrl);
 
   const handleCall = async (): Promise<void> => {
     if (!isCallModalOpen) {
@@ -117,21 +128,27 @@ export const HeaderTop = ({
       },
     });
   };
+  const defaultAvatar = isGroupOrChannel ? URL_DEFAUIT_Avatar_Croup : URL_DEFAUIT_Avatar;
   // создаем url для запроса картинки через наш прокси-сервер который в запрос вставляет токен чтобы пройти автоизацию
   const result = `/api/proxy${removeDomain(avatarUrl)}`;
+  // создаем состояние которое динамически заменить картинку аватара на дефолтную в случае ошибки при её загрузке
+  const [imgSrc, setImgSrc] = useState(result !== '/api/proxy' ? result : defaultAvatar);
   return (
     <>
       <div className={styles.wrapper}>
         <div className={styles.contactWrapper}>
           <div className={styles.image}>
-            <ImageUI
-              src={result !== '/api/proxy' ? result : isGroupOrChannel ? URL_DEFAUIT_Avatar_Croup : URL_DEFAUIT_Avatar}
+            <Image
+              src={imgSrc}
               alt={firstName}
               unoptimized
               width={40}
               height={40}
               className={styles.image}
               onClick={() => toggleInfoOpen()}
+              onError={() => {
+                setImgSrc(defaultAvatar);
+              }}
             />
           </div>
           {searchMessagesVisible ? (
@@ -177,7 +194,13 @@ export const HeaderTop = ({
         {isBlockModalOpen && <BlockModal />}
         {isAddModalOpen && <AddModal fullName={`${firstName} ${lastName}`} />}
         {isLeaveGroupModalOpen && (
-          <LeaveGroupModal wsUrl={wsUrl} chatKey={user_uid} currentUid={currentUid} name={nickname} />
+          <LeaveGroupModal
+            wsUrl={wsUrl}
+            chatKey={user_uid}
+            currentUid={currentUid}
+            name={nickname}
+            refreshUrl={refreshUrl}
+          />
         )}
       </div>
       {isReceivingModalOpen && <ReceivingCallPanel onReject={handleRejectCall} onAccept={toggleIncomingModalOpen} />}
@@ -188,9 +211,10 @@ export const HeaderTop = ({
           user_uid={user_uid}
           wsUrl={wsUrl}
           currentUid={currentUid}
+          refreshUrl={refreshUrl}
         />
       )}
-      {isIncomingModalOpen && <IncomingCallPanel wsUrl={wsUrl} currentUid={currentUid} />}
+      {isIncomingModalOpen && <IncomingCallPanel wsUrl={wsUrl} currentUid={currentUid} refreshUrl={refreshUrl} />}
     </>
   );
 };
