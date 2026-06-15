@@ -55,12 +55,14 @@ type UseWebSocketChatReturn = {
     forwardMessage,
     file,
     images,
+    chatKey,
   }: {
     content: string;
     repliedMessage?: RestMessageApi | null | undefined;
     forwardMessage?: RestMessageApi | null | undefined;
     file?: Attachment | null | undefined;
     images?: Attachment[] | null | undefined;
+    chatKey?: string;
   }) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendMembers: (payload: AddOrRemoveMembersRequestAPI) => void;
@@ -663,17 +665,21 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
         uid: requestUid,
         from_user: {
           uid: currentUserIdRef.current,
+          is_deleted: false,
           username: '',
           nickname: '',
-          avatar_url: '',
           avatar_webp_url: '',
+          avatar_small_url: '',
+          avatar_master_url: '',
         },
         to_user: {
           uid: hasGroup || hasChannel ? '' : userIdRef.current,
+          is_deleted: false,
           username: '',
           nickname: '',
-          avatar_url: '',
           avatar_webp_url: '',
+          avatar_small_url: '',
+          avatar_master_url: '',
         },
         content,
         replied_messages: [],
@@ -714,7 +720,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
           {
             id: forwardMessage.id,
             uid: forwardMessage.uid,
-            is_deleted: false,
             from_user: forwardMessage.from_user.uid,
             first_name: forwardMessage.from_user.first_name ?? '',
             last_name: forwardMessage.from_user.last_name ?? '',
