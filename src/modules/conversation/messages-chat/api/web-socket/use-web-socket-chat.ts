@@ -626,28 +626,6 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
     };
   }, [wsUrl]);
 
-  // useEffect(() => {
-  //   connectWS();
-
-  //   // тихий refresh каждые 15 минут
-  //   const interval = setInterval(
-  //     () => {
-  //       refreshWsSession(refreshUrl).catch(() => {});
-  //     },
-  //     15 * 60 * 1000,
-  //   );
-
-  //   return (): void => {
-  //     clearInterval(interval);
-  //     // if (wsRef.current) {
-  //     //   wsRef.current.close();
-  //     // }
-  //     if (reconnectTimeout.current) {
-  //       clearTimeout(reconnectTimeout.current);
-  //     }
-  //   };
-  // }, [wsUrl]);
-
   // Функция отправки сообщения
   const sendMessage = useCallback(
     async ({
