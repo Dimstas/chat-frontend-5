@@ -56,6 +56,7 @@ type UseWebSocketChatReturn = {
     file,
     images,
     chatKey,
+    toUserUid,
   }: {
     content: string;
     repliedMessage?: RestMessageApi | null | undefined;
@@ -63,6 +64,7 @@ type UseWebSocketChatReturn = {
     file?: Attachment | null | undefined;
     images?: Attachment[] | null | undefined;
     chatKey?: string;
+    toUserUid?: string;
   }) => void;
   sendProfile: (payload: CreateTextMessageAPI) => void;
   sendMembers: (payload: AddOrRemoveMembersRequestAPI) => void;
@@ -637,6 +639,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
       file,
       images,
       chatKey,
+      toUserUid,
     }: {
       content: string;
       repliedMessage?: RestMessageApi | null | undefined;
@@ -644,6 +647,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
       file?: Attachment | null | undefined;
       images?: Attachment[] | null | undefined;
       chatKey?: string;
+      toUserUid?: string;
     }): Promise<void> => {
       if (
         !content?.trim() &&
@@ -673,7 +677,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
           avatar_master_url: '',
         },
         to_user: {
-          uid: hasGroup || hasChannel ? '' : userIdRef.current,
+          uid: hasGroup || hasChannel ? '' : toUserUid ? toUserUid : userIdRef.current,
           is_deleted: false,
           username: '',
           nickname: '',

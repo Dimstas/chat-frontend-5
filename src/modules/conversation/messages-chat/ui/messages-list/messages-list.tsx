@@ -20,6 +20,7 @@ import { NotificationCopyCard } from '../message-card/notification-copy-card/not
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { IncomingPhoneCallCard } from '../message-card/phone-call-cards/incoming-phone-call-card/incoming-phone-call-card';
 import { OutgoingPhoneCallCard } from '../message-card/phone-call-cards/outgoing-phone-call-card/outgoing-phone-call-card';
+import { OutgoingProfileLinkCard } from '../message-card/profile-link-card/outgoing-profile-link-card/outgoing-profile-link-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
 import type { MessageListProps } from './message-list.props';
@@ -210,7 +211,8 @@ export const MessagesList = ({
   // текст которых содержит значение из поисковой строки окна чата
   const { searchMessagesStore, availableSearchUids, setMessageRef, targetSearchUid } =
     useSearchAndNavigateSortedMessages({ flatList, wrapperRef });
-
+  // текущий домен
+  const baseUrl = window.location.origin;
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
       {/* Если список пуст, всё равно рендерим sentinel чтобы observer был стабилен */}
@@ -302,6 +304,14 @@ export const MessagesList = ({
                         />
                       ) : message.content && message.content.split(' ')[0] === '@@@' ? (
                         <OutgoingInformationForGroupCard message={message} />
+                      ) : message.content && message.content.includes(baseUrl) && message.content.startsWith('http') ? (
+                        <OutgoingProfileLinkCard
+                          message={message}
+                          sendDeleteMessage={sendDeleteMessage}
+                          search={searchMessagesStore}
+                          isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                          currentUserId={currentUserId}
+                        />
                       ) : (
                         <OutgoingMessagesCard
                           message={message}
