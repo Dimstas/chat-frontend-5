@@ -20,12 +20,12 @@ import { NotificationCopyCard } from '../message-card/notification-copy-card/not
 import { OutgoingMessagesCard } from '../message-card/outgoing-message-card/outgoing-message-card';
 import { IncomingPhoneCallCard } from '../message-card/phone-call-cards/incoming-phone-call-card/incoming-phone-call-card';
 import { OutgoingPhoneCallCard } from '../message-card/phone-call-cards/outgoing-phone-call-card/outgoing-phone-call-card';
+import { IncomingProfileLinkCard } from '../message-card/profile-link-card/incoming-profile-link-card/incoming-profile-link-card';
 import { OutgoingProfileLinkCard } from '../message-card/profile-link-card/outgoing-profile-link-card/outgoing-profile-link-card';
 import { ScrollButton } from '../scroll-button/scroll-button';
 import styles from './message-list.module.scss';
 import type { MessageListProps } from './message-list.props';
 import { useFixedTargetIndex } from './use-fixed-target-index';
-
 export const MessagesList = ({
   messagesList,
   currentUserId,
@@ -369,6 +369,15 @@ export const MessagesList = ({
                       />
                     ) : message.content && message.content.split(' ')[0] === '@@@' ? (
                       <IncomingInformationForGroupCard message={message} register={register} />
+                    ) : message.content && message.content.includes(baseUrl) && message.content.startsWith('http') ? (
+                      <IncomingProfileLinkCard
+                        message={message}
+                        register={register}
+                        sendDeleteMessage={sendDeleteMessage}
+                        search={searchMessagesStore}
+                        isHighlighted={isSearchMatch && message.uid === targetSearchUid}
+                        currentUserId={currentUserId}
+                      />
                     ) : (
                       <IncomingMessagesCard
                         message={message}
