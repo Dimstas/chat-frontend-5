@@ -86,7 +86,7 @@ export const MessagesList = ({
     const handleScroll = (): void => {
       const { scrollTop, scrollHeight, clientHeight } = container;
       // Проверяем, находится ли пользователь внизу (с допуском в 10px)
-      const atBottom = scrollHeight - scrollTop - clientHeight < 10;
+      const atBottom = scrollHeight - scrollTop - clientHeight < 5;
       setIsAtBottom(atBottom);
     };
 
