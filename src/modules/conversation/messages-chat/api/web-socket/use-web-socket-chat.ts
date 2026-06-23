@@ -618,7 +618,7 @@ export function useWebSocketChat(wsUrl: string, currentUserId: string, refreshUr
         //перед каждым connect освежаем access
         refreshWsSession(refreshUrl).catch(() => {});
       },
-      15 * 60 * 1000,
+      1 * 60 * 1000,
     );
     return (): void => {
       clearInterval(interval);

@@ -27,7 +27,6 @@ export const setAuthCookies = (response: NextResponse, tokens: Tokens): NextResp
     ...COOKIE_CONFIG,
     maxAge: REFRESH_TOKEN_MAX_AGE,
   });
-
   return response;
 };
 
@@ -36,6 +35,6 @@ export const setAuthCookies = (response: NextResponse, tokens: Tokens): NextResp
  */
 export const clearAuthCookies = (response: NextResponse): NextResponse => {
   response.cookies.delete('access');
-  response.cookies.delete('refresh');
+  //response.cookies.delete('refresh');
   return response;
 };
