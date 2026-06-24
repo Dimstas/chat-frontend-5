@@ -27,7 +27,7 @@ export default async function MobileProfilePage({
 
   return (
     <Suspense>
-      <InfoScreen uid={user_uid} wsUrl={wsUrl} currentUid={payload.user_id} refreshUrl={refreshUrl} />
+      <InfoScreen uid={user_uid} currentUid={payload.user_id} />
     </Suspense>
   );
 }
